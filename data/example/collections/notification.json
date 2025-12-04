@@ -1,0 +1,11 @@
+{
+  "_tag": "ProjectNotification",
+  "id": "PRJ-101:413daf29-2b21-42bc-b36b-5606674f1431",
+  "properties": {
+    "notificationId": "413daf29-2b21-42bc-b36b-5606674f1431",
+    "type": "INFO",
+    "recipient": "user1",
+    "timestamp": "2025-11-28T23:41:34.613223Z",
+    "projectId": "PRJ-101"
+  }
+}

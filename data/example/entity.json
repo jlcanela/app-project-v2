@@ -1,0 +1,13 @@
+{
+  "_tag": "Project",
+  "id": "PRJ-101",
+  "version": 3,
+  "properties": {
+    "ownerId": "PTY-1001",
+    "name": "Project 1",
+    "description": "Sample project 1 for demonstration.",
+    "startDate": "2025-09-20",
+    "endDate": "2026-09-16",
+    "status": "Draft"
+  }
+}

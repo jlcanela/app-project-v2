@@ -1,0 +1,67 @@
+services:
+  # postgres:
+  #   container_name: rpc-tutorial-postgres
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: rpc-tutorial
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - jaeger-network
+  #   restart: unless-stopped
+
+  cosmos:
+    container_name: cosmosdb-emulator
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+    restart: unless-stopped
+    environment:
+      # Required for running in a container
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 10
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+    #command: >
+    #  --protocol https
+    ports:
+      # Gateway port for SDKs (default 8081 inside container)
+      - "8081:8081"
+      # Data Explorer / HTTPS UI (match your WithHttpsEndpoint targetPort)
+      - "1234:1234"
+    #volumes:
+      # Optional but recommended: persist data & certs
+      #- ./cosmos-data:/data
+      #- ./cosmos-certs:/certs
+
+  jaeger:
+    container_name: rpc-tutorial-jaeger
+    image: jaegertracing/all-in-one:latest
+    command:
+      - "--collector.otlp.http.cors.allowed-headers=*"
+      - "--collector.otlp.http.tls.enabled=false"
+    ports:
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "14250:14250"
+      - "14268:14268"
+      - "14269:14269"
+      - "9411:9411"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - QUERY_BASE_PATH=/
+    networks:
+      - jaeger-network
+    restart: unless-stopped
+
+networks:
+  jaeger-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

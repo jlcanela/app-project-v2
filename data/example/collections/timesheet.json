@@ -1,0 +1,12 @@
+{
+  "_tag": "ProjectTimesheet",
+  "id": "PRJ-101:e45baac9-7647-453c-bb2e-ed4b7c2c31ea:T1",
+  "properties": {
+    "userId": "e45baac9-7647-453c-bb2e-ed4b7c2c31ea",
+    "taskId": "T1",
+    "date": "2025-11-13",
+    "hours": 7,
+    "billable": false,
+    "projectId": "PRJ-101"
+  }
+}

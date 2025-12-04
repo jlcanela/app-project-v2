@@ -1,0 +1,11 @@
+{
+  "_tag": "ProjectIntegration",
+  "id": "PRJ-101:Tool 1",
+  "properties": {
+    "tool": "Tool 1",
+    "connected": true,
+    "channels": ["general", "alerts"],
+    "repo": "repo-1",
+    "projectId": "PRJ-101"
+  }
+}

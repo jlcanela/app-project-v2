@@ -1,0 +1,10 @@
+{
+  "_tag": "ProjectCustomFields",
+  "id": "PRJ-101",
+  "properties": {
+    "client": "Acme Corp",
+    "projectType": "External",
+    "customKPI": "On-time delivery",
+    "projectId": "PRJ-101"
+  }
+}

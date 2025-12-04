@@ -1,0 +1,12 @@
+{
+  "_tag": "ProjectRisk",
+  "id": "PRJ-101:a393c144-ca92-41e6-9ad8-164b616cf08a",
+  "properties": {
+    "riskId": "a393c144-ca92-41e6-9ad8-164b616cf08a",
+    "description": "Risk 1 description",
+    "probability": "High",
+    "impact": "High",
+    "mitigationPlan": "Mitigation plan for risk 1",
+    "projectId": "PRJ-101"
+  }
+}

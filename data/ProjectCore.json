@@ -1,0 +1,13 @@
+{
+  "id": "project:PRJ-123:core",
+  "projectId": "PRJ-123",
+  "type": "ProjectCore",
+  "version": 1,
+  "payload": {
+    "name": "Awesome Project",
+    "description": "Replatform the billing system",
+    "startDate": "2025-01-01",
+    "endDate": "2025-12-31",
+    "status": "Active"
+  }
+}

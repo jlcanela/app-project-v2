@@ -1,0 +1,10 @@
+{
+  "_tag": "ProjectExpense",
+  "id": "PRJ-101:73bc4862-fba6-4c2c-823e-335dd178b339",
+  "properties": {
+    "expenseId": "73bc4862-fba6-4c2c-823e-335dd178b339",
+    "description": "Expense 1",
+    "amount": 2996.65,
+    "projectId": "PRJ-101"
+  }
+}

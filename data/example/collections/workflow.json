@@ -1,0 +1,11 @@
+{
+  "_tag": "ProjectWorkflow",
+  "id": "PRJ-101:6b78fcf6-bb51-4b31-b370-17da9650d130",
+  "projectId": "PRJ-101",
+  "properties": {
+    "workflowId": "6b78fcf6-bb51-4b31-b370-17da9650d130",
+    "name": "Workflow 1",
+    "steps": ["plan", "implement", "review"],
+    "automationRules": ["auto-assign", "notify-owner"]
+  }
+}

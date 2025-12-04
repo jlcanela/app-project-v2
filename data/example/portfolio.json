@@ -1,0 +1,13 @@
+{
+  "_tag": "Portfolio",
+  "id": "9be8db13-007e-4205-8aac-65634ca65d79",
+  "properties": {
+    "portfolioId": "9be8db13-007e-4205-8aac-65634ca65d79",
+    "name": "Portfolio 1",
+    "projects": ["PRJ-101"],
+    "aggregateKPIs": {
+      "totalBudget": 95137,
+      "activeProjects": 5
+    }
+  }
+}

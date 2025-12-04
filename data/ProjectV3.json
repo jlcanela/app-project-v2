@@ -1,0 +1,220 @@
+[
+  {
+    "entity": {
+      "_tag": "Project",
+      "id": "PRJ-101",
+      "ownerId": "PTY-1001",
+      "version": 3
+    },
+    "core": {
+      "name": "Project 1",
+      "description": "Sample project 1 for demonstration.",
+      "startDate": "2025-09-20",
+      "endDate": "2026-09-16",
+      "status": "Draft"
+    },
+    "planning": {
+      "milestones": [
+        {
+          "milestoneId": "M1",
+          "name": "Milestone 1",
+          "date": "2026-04-08"
+        },
+        {
+          "milestoneId": "M2",
+          "name": "Milestone 2",
+          "date": "2026-01-28"
+        }
+      ],
+      "tasks": [
+        {
+          "taskId": "T1",
+          "name": "Task 1",
+          "assignedTo": "user1",
+          "priority": "Medium",
+          "status": "In Progress",
+          "dueDate": "2026-07-28",
+          "dependencies": [],
+          "comments": [
+            "Comment for task 1"
+          ],
+          "attachments": [
+            "file1.txt"
+          ]
+        },
+        {
+          "taskId": "T2",
+          "name": "Task 2",
+          "assignedTo": "user2",
+          "priority": "High",
+          "status": "In Progress",
+          "dueDate": "2026-03-16",
+          "dependencies": [],
+          "comments": [
+            "Comment for task 2"
+          ],
+          "attachments": [
+            "file2.txt"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "workflowId": "6b78fcf6-bb51-4b31-b370-17da9650d130",
+          "name": "Workflow 1",
+          "steps": [
+            "plan",
+            "implement",
+            "review"
+          ],
+          "automationRules": [
+            "auto-assign",
+            "notify-owner"
+          ]
+        }
+      ]
+    },
+    "execution": {
+      "resources": [
+        {
+          "resourceId": "4a9b0f0a-db33-4940-98cf-81a70d887001",
+          "name": "Resource 1",
+          "skillSet": [
+            "analysis",
+            "development"
+          ],
+          "availability": "Full-time",
+          "assignments": [
+            "T1"
+          ]
+        },
+        {
+          "resourceId": "5fca93a0-ad1d-46bd-900f-14110721e4b1",
+          "name": "Resource 2",
+          "skillSet": [
+            "analysis",
+            "development"
+          ],
+          "availability": "Part-time",
+          "assignments": [
+            "T2"
+          ]
+        }
+      ],
+      "timesheets": [
+        {
+          "userId": "e45baac9-7647-453c-bb2e-ed4b7c2c31ea",
+          "taskId": "T1",
+          "date": "2025-11-13",
+          "hours": 7,
+          "billable": false
+        },
+        {
+          "userId": "a667c2ec-6a07-44c3-bd2a-51204cc1ca2b",
+          "taskId": "T2",
+          "date": "2025-01-20",
+          "hours": 1,
+          "billable": true
+        }
+      ]
+    },
+    "governance": {
+      "documents": [
+        {
+          "documentId": "ee148e9c-aefb-430a-958c-e3fb781bae29",
+          "name": "spec-1.md",
+          "version": "1.1",
+          "uploadedBy": "user1",
+          "lastModified": "2025-04-13"
+        },
+        {
+          "documentId": "2c267fda-c401-4a6e-bff8-5d037e240cc4",
+          "name": "spec-2.md",
+          "version": "1.2",
+          "uploadedBy": "user2",
+          "lastModified": "2025-07-14"
+        }
+      ],
+      "risks": [
+        {
+          "riskId": "a393c144-ca92-41e6-9ad8-164b616cf08a",
+          "description": "Risk 1 description",
+          "probability": "High",
+          "impact": "High",
+          "mitigationPlan": "Mitigation plan for risk 1"
+        },
+        {
+          "riskId": "3a8709b6-e945-4875-9b54-bc748edd7640",
+          "description": "Risk 2 description",
+          "probability": "Low",
+          "impact": "Low",
+          "mitigationPlan": "Mitigation plan for risk 2"
+        }
+      ],
+      "budget": {
+        "totalBudget": 7879,
+        "currency": "USD",
+        "expenses": [
+          {
+            "expenseId": "73bc4862-fba6-4c2c-823e-335dd178b339",
+            "description": "Expense 1",
+            "amount": 2996.65
+          },
+          {
+            "expenseId": "8993443d-b6eb-4af3-b88c-373ced26d0f2",
+            "description": "Expense 2",
+            "amount": 600.91
+          },
+          {
+            "expenseId": "4c06f981-7ae2-4439-a21e-026646946df8",
+            "description": "Expense 3",
+            "amount": 1655.41
+          }
+        ]
+      }
+    },
+    "auxiliary": {
+      "integrations": [
+        {
+          "tool": "Tool 1",
+          "connected": true,
+          "channels": [
+            "general",
+            "alerts"
+          ],
+          "repo": "repo-1"
+        }
+      ],
+      "customFields": {
+        "client": "Acme Corp",
+        "projectType": "External",
+        "customKPI": "On-time delivery"
+      },
+      "notifications": [
+        {
+          "notificationId": "413daf29-2b21-42bc-b36b-5606674f1431",
+          "type": "INFO",
+          "recipient": "user1",
+          "timestamp": "2025-11-28T23:41:34.613223Z"
+        },
+        {
+          "notificationId": "f64e0d3a-5f1f-43c8-83e7-9d39b8577a2f",
+          "type": "INFO",
+          "recipient": "user2",
+          "timestamp": "2025-11-28T23:41:34.613242Z"
+        }
+      ],
+      "portfolio": {
+        "portfolioId": "9be8db13-007e-4205-8aac-65634ca65d79",
+        "name": "Portfolio 1",
+        "projects": [
+          "PRJ-101"
+        ],
+        "aggregateKPIs": {
+          "totalBudget": 95137,
+          "activeProjects": 5
+        }
+      }
+    }
+  }
+]

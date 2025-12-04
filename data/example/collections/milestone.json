@@ -1,0 +1,10 @@
+{
+  "_tag": "ProjectMilestone",
+  "id": "PRJ-101:M1",
+  "projectId": "PRJ-101",
+  "properties": {
+    "milestoneId": "M1",
+    "name": "Milestone 1",
+    "date": "2026-04-08"
+  }
+}

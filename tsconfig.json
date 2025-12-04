@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "target": "es2017",
+        "downlevelIteration": true,
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "plugins": [
+            {
+                "name": "@effect/language-service"
+            }
+        ]
+    }
+}

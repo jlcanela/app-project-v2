@@ -1,0 +1,16 @@
+{
+  "_tag": "ProjectTask",
+  "projectId": "PRJ-101",
+  "id": "PRJ-101:T1",
+  "properties": {
+    "taskId": "T1",
+    "name": "Task 1",
+    "assignedTo": "user1",
+    "priority": "Medium",
+    "status": "In Progress",
+    "dueDate": "2026-07-28",
+    "dependencies": [],
+    "comments": ["Comment for task 1"],
+    "attachments": ["file1.txt"]
+  }
+}

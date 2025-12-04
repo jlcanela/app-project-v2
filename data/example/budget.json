@@ -1,0 +1,9 @@
+{
+  "_tag": "ProjectBudget",
+  "id": "PRJ-101",
+  "properties": {
+    "totalBudget": 7879,
+    "currency": "USD",
+    "projectId": "PRJ-101"
+  }
+}

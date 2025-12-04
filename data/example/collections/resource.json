@@ -1,0 +1,17 @@
+{
+    "_tag": "ProjectResource",
+    "id": "PRJ-101:4a9b0f0a-db33-4940-98cf-81a70d887001",
+    "projectId": "PRJ-101",
+    "properties": {
+        "resourceId": "4a9b0f0a-db33-4940-98cf-81a70d887001",
+        "name": "Resource 1",
+        "skillSet": [
+            "analysis",
+            "development"
+        ],
+        "availability": "Full-time",
+        "assignments": [
+            "T1"
+        ]
+    }
+}
