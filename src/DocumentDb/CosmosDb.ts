@@ -1,7 +1,6 @@
 //import "dotenv/config"
 import { CosmosClient, type ItemDefinition, PartitionKey, PartitionKeyKind } from "@azure/cosmos"
-import { clientAbortFiberId } from "@effect/platform/HttpServerError";
-import { Console, Data, Effect, pipe, Schedule } from "effect"
+import { Console, Data, Effect, pipe, Schedule, Schema } from "effect"
 // import { timed } from "./timed.ts"
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
@@ -84,10 +83,6 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
     yield* Effect.log(`Cosmos DB initialized with projectContainer: ${projectContainer}`)
 
     const a = yield* Effect.promise(() => client.getReadEndpoint())
-    // const { endpoint, key } = yield* pipe(
-    //   connectionParam("cosmos"),
-    //   Effect.tapError((err) => Effect.log(err)),
-    // )
 
     const readAllDatabases = Effect.gen(function* () {
       const response = yield* Effect.tryPromise({
@@ -123,7 +118,8 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
           }).pipe(Effect.tapError((e) => Effect.logError(`Failed to read document with id ${id}: ${e.message}`)))
           return item
         })
-      
+    
+    const dummy = projectContainer.readPartitionKeyRanges
 
     return {
       read: a,
@@ -317,4 +313,116 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
 //     })
 //   ),
 //   dependencies: []
+// }) { }
+
+
+
+// // 2. Generic transformer builder
+// export const makeCosmosTransformer = <
+//   T extends { id: string/*; _version?: number*/ },
+//   Tag extends string
+// >(
+//   tag: Tag,
+//   schema: Schema.Schema<T>
+// ) =>
+//   Schema.transform(
+//     Schema.Struct({
+//       _tag: Schema.Literal(tag),
+//       id: Schema.String,
+//       //version: Schema.Number,
+//       properties: Schema.Record({ key: Schema.String, value: Schema.Unknown })
+//     }),
+//     schema,
+//     {
+//       strict: false,
+//       decode: (doc) => {
+//         const { id,/*, version,*/ properties } = doc as any
+//         return {
+//           id,
+//           //_version: version,
+//           ...properties
+//         } as T
+//       },
+//       encode: (entity) => {
+//         const { id, /*_version, */...rest } = entity as any
+//         return {
+//           _tag: tag,
+//           id,
+//           //version: _version,
+//           properties: rest
+//         }
+//       }
+//     }
+//   )
+
+  
+// export class RepositoryA extends Effect.Service<RepositoryA>()("app/CosmosDb", {
+//   effect: Effect.gen(function* () {
+
+//     const ProjectFromCosmos = makeCosmosTransformer("Project", ProjectRootAggregate.fields.entity)
+//     const cosmos = yield* Cosmos
+
+//     const upsertItem = Effect.fn("UpsertItem")(function* <K extends SingleItemKey<Project>>(partitionKey: PartitionKey,
+//       key: K,
+//       value: SingleItemPayload<Project, K> | null,) {
+//       if (value === null) {
+//         return yield* Effect.void
+//       }
+//       const encoded = yield* Schema.encode(ProjectFromCosmos)(value).pipe(Effect.tapError((e) => Effect.logError(`Encoding error: ${e.message}`)))
+//       yield* cosmos.upsertDocument(encoded)
+//       return yield* Effect.void //: Effect.Effect<void, Error>;
+//     })
+
+//     const getItem = Effect.fn("GetItem")(function* <
+//       K extends SingleItemKey<Project>
+//     >(
+//       partitionKey: PartitionKey,
+//       key: K,
+//       id: string,
+//     ) {
+
+//       yield* Effect.log(`Fetching item with id: ${id} and partitionKey: ${partitionKey}`)
+
+//       // //yield* Effect.log(cosmos.readDocument(id, id))
+//       // // 1. Fetch raw document from Cosmos
+//       //const projectContainer = cosmos.projectContainer
+//       //yield* Effect.log("info:", cosmos.info()) //osmos.info
+//       //yield* Effect.log(`Accessed project container: ${projectContainer}`)
+//       //const item = projectContainer.item("2025-11-30T22:38:45.604Z-PRJ-001")//.read()
+//       //const r = Effect.promise(() => item)
+//       //yield* Effect.log(`Read item result: ${JSON.stringify(r)}`)
+//       const raw = yield* cosmos.readDocument(id, id)
+
+//       yield* Effect.log(`Raw document from Cosmos: ${JSON.stringify(raw.item)}`)
+//       if (raw === null) {
+//        return null
+//       }
+
+//       // type Enc = typeof ProjectFromCosmos.Encoded
+//       // const item = raw as unknown as Enc
+//       // // 2. Decode Cosmos -> ProjectEntity
+//       const entity = yield* Schema.decode(ProjectFromCosmos)(raw.item as any).pipe(
+//         Effect.tapError(e =>
+//           Effect.logError(`Decoding error: ${e.message}`)
+//         )
+//       )
+
+//       yield* Effect.log(`Decoded entity: ${JSON.stringify(entity)}`)
+
+//       // // 3. Wrap in Project
+//       // const project: Project = { entity }
+
+//       // // 4. Narrow to SingleItemPayload<Project, K>
+//       // //    Typically SingleItemPayload<Project, 'entity'> is Project['entity'], etc.
+//       // //    If SingleItemPayload is properly defined, this cast is safe.
+//       // return project.entity as SingleItemPayload<Project, K>
+//       return raw.item
+//     })
+
+//     return {
+//       upsertItem,
+//       getItem,
+//     };
+//   }),
+//   dependencies: [Cosmos.Default]
 // }) { }

@@ -1,5 +1,10 @@
 import { Schema } from "effect"
-import { AggregateConfig, AggregateId, EntityConfig, makeRepositoryConfig } from "./Common.js"
+import { AggregateConfig, EntityConfig, makeRepositoryConfig } from "./Common.js"
+import { Context, Effect, Layer } from "effect"
+import { makeRepository, Repository } from "./Repository.js"
+
+import type { AggregateRoot } from "./Common.js"
+import { DocumentDb } from "../DocumentDb/Document.js"
 
 // usage
 export const projectAggregateConfig = new AggregateConfig<"Project", "ProjectId">({
@@ -7,9 +12,7 @@ export const projectAggregateConfig = new AggregateConfig<"Project", "ProjectId"
   idSchema: "ProjectId",
 })
 
-//const DeliverableId = Schema.String.pipe(Schema.brand("DeliverableId"))
 export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
-
 
 export const Project = Schema.Struct({
   name: Schema.String
@@ -24,6 +27,7 @@ export const projectConfig = new EntityConfig<
 >({
   name: "project",
   kind: "root",
+  type: "project",
   path: "",
   idSchema: ProjectId,
   domainSchema: Project
@@ -42,6 +46,7 @@ export const budgetConfig = new EntityConfig<
 >({
   name: "budget",
   kind: "single",
+  type: "budget",
   path: "",
   idSchema: ProjectId,
   domainSchema: Budget
@@ -62,6 +67,7 @@ export const deliverablesConfig = new EntityConfig<
   //Schema.Schema<any, any, never>
 >({
   name: "deliverables",
+  type: "deliverable",
   kind: "collection",
   path: "deliverables",
   idSchema: DeliverableId,
@@ -76,3 +82,18 @@ export const projectRepositoryConfig = makeRepositoryConfig({
     deliverables: deliverablesConfig,
   }
 })
+
+// The concrete Project aggregate root type
+export type Project = AggregateRoot<typeof projectRepositoryConfig>
+
+// Tag for the ProjectRepository service
+export class ProjectRepository extends Context.Tag("ProjectRepository")<
+  ProjectRepository,
+  Repository<typeof projectRepositoryConfig>
+>() {}
+
+// Live implementation of the ProjectRepository service
+export const ProjectRepositoryLive: Layer.Layer<ProjectRepository, never, DocumentDb> = Layer.effect(
+  ProjectRepository,
+  makeRepository(projectRepositoryConfig)
+)

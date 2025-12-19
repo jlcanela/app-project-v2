@@ -1,4 +1,5 @@
 import { Data, Schema } from "effect"
+import { makeCosmosTransformer } from "./Repository.js"
 
 export const AggregateId = Schema.String.pipe(Schema.brand("AggregateId"))
 export type AggregateId = typeof AggregateId.Type
@@ -21,6 +22,7 @@ export class EntityConfig<
 > extends Data.TaggedClass("EntityConfig")<{
     readonly name: Name
     readonly kind: Kind
+    readonly type: string
     readonly path: string
     readonly idSchema: Id
     readonly domainSchema: S
@@ -41,7 +43,13 @@ export class RepositoryConfig<
     readonly entities: EntitiesConfig
     // selections: SelectionConfig[]
     // updates: UpdateConfig[]
-}> { }
+}> {
+    rootSchema() { 
+        return Schema.Struct({
+            id: Schema.String, 
+            ...this.root.domainSchema.fields}) 
+    }
+ }
 
 export function makeRepositoryConfig<
     AggregateName extends string,
@@ -75,7 +83,7 @@ export type AggregateRoot<
     R extends RepositoryConfig<any, any, any, any, any, any>
 > =
     // root is always a single object
-    { id: string } & SchemaType<R["root"]["domainSchema"]> & {
+    { id: SchemaType<R["root"]["idSchema"]> } & SchemaType<R["root"]["domainSchema"]> & {
         [K in keyof R["entities"]]: EntityShape<R["entities"][K]>
     }
 
@@ -86,7 +94,7 @@ export function splitAggregateRoot<R extends RepositoryConfig<any, any, any, any
     config: R,
     aggregate: AggregateRoot<R>
 ): {
-    id: string
+    id: SchemaType<R["root"]["idSchema"]>
     root: SchemaType<R["root"]["domainSchema"]>
     entities: {
         [K in keyof R["entities"]]:
@@ -94,8 +102,7 @@ export function splitAggregateRoot<R extends RepositoryConfig<any, any, any, any
         ? SchemaType<DomainSchema>
         : never
     }
-} {
-    const { id, ...rest } = aggregate as any
+} {    const { id, ...rest } = aggregate as any
 
     const root = { ...rest } as any
     const entities: any = {}
@@ -103,15 +110,14 @@ export function splitAggregateRoot<R extends RepositoryConfig<any, any, any, any
     for (const key in config.entities) {
         entities[key] = (rest as any)[key]
         delete (root as any)[key]
-    }
-
+    }    
     return { id, root, entities }
 }
 
-type PartitionKeyOf<R extends RepositoryConfig<any, any, any, any, any, any>> =
+export type PartitionKeyOf<R extends RepositoryConfig<any, any, any, any, any, any>> =
     Schema.Schema.Type<R["aggregate"]["idSchema"]>
 
-type AggregateKeyOf<R extends RepositoryConfig<any, any, any, any, any, any>> = R["aggregate"]["idSchema"]
+export type AggregateKeyOf<R extends RepositoryConfig<any, any, any, any, any, any>> = R["aggregate"]["idSchema"]
 
 type RootRow<R extends RepositoryConfig<any, any, any, any, any, any>> =
     { id: string } & 
@@ -138,4 +144,17 @@ export type AllRows<R extends RepositoryConfig<any, any, any, any, any, any>> =
     | {
         [K in keyof R["entities"]]: EntityRow<R, K>
     }[keyof R["entities"]]
+
+// Utility types to discriminate between single-item and collection fields
+export type SingleItemKey<T> = {
+  [K in keyof T]: T[K] extends ReadonlyArray<any> ? never : K;
+}[keyof T];
+
+export type CollectionKey<T> = {
+  [K in keyof T]: T[K] extends ReadonlyArray<any> ? K : never;
+}[keyof T];
+
+export type SingleItemPayload<T, K extends SingleItemKey<T>> = T[K];
+
+export type CollectionItemPayload<T, K extends CollectionKey<T>> = T[K] extends ReadonlyArray<infer U> ? U : never;
 

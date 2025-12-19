@@ -8,7 +8,7 @@
     "server-dev": "dotenv -e .env -- tsx watch src/index.ts",
     "demo": "tsx src/Repository4.ts",
     "demo2": "tsx src/Repository2.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "@effect/opentelemetry": "^0.59.1",
     "@effect/platform": "^0.93.5",
     "@effect/platform-node": "^0.102.0",
+    "@effect/vitest": "^0.27.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.208.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.208.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.208.0",
@@ -28,7 +29,8 @@
     "@opentelemetry/sdk-node": "^0.208.0",
     "@opentelemetry/sdk-trace-base": "^2.2.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
-    "effect": "^3.19.8"
+    "effect": "^3.19.8",
+    "vitest": "^4.0.16"
   },
   "devDependencies": {
     "@effect/language-service": "^0.57.1",
