@@ -1,6 +1,6 @@
 //import "dotenv/config"
-import { CosmosClient, type ItemDefinition, PartitionKey, PartitionKeyKind } from "@azure/cosmos"
-import { Console, Data, Effect, pipe, Schedule, Schema } from "effect"
+import { CosmosClient, FeedOptions, type ItemDefinition, PartitionKey, PartitionKeyKind, QueryIterator, SqlQuerySpec } from "@azure/cosmos"
+import { Config, ConfigProvider, Console, Context, Data, Effect, Layer, pipe, Schedule, Schema, Stream } from "effect"
 // import { timed } from "./timed.ts"
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
@@ -11,39 +11,93 @@ export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   }
 }
 
-function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string> {
+type CosmosConfig = { endpoint: string; key: string }
 
-  const connectionStringName = `ConnectionStrings__${name}`;
-  const connectionString = process.env[connectionStringName]
-  const cosmosEndpoint = process.env.COSMOS_ENDPOINT;
-  const cosmosKey = process.env.COSMOS_KEY;
+// A Config that expects a full connection string env var and parses it.
+const cosmosFromConnectionString = Effect.fn(function* (name: string) {
 
-  if (connectionString) {
-    const parts = connectionString.split(';').filter(Boolean);
-    const map: Record<string, string> = {};
-    for (const part of parts) {
-      const [key, ...rest] = part.split('=');
-      map[key] = rest.join('=');
-    }
-    const endpoint = map['AccountEndpoint'];
-    const key = map['AccountKey'];
-    if (endpoint && key) {
-      return Effect.succeed({ endpoint, key });
-    }
-  } else if (cosmosEndpoint && cosmosKey) {
-    return Effect.succeed({ endpoint: cosmosEndpoint, key: cosmosKey });
+  yield* Effect.log("Logging:", Config.string("ConnectionStrings__cosmos"))
+
+  const connectionString = yield* Config.nested(Config.string(name), "ConnectionStrings")
+  const map = connectionString
+    .split(";")
+    .filter(Boolean)
+    .reduce<Record<string, string>>((acc, part) => {
+      const [k, ...rest] = part.split("=")
+      acc[k] = rest.join("=")
+      return acc
+    }, {})
+
+  const endpoint = map["AccountEndpoint"]
+  const key = map["AccountKey"]
+
+  if (!endpoint || !key) {
+    return yield* Effect.fail("INVALID_COSMOSDB_CONNECTION_STRING")
   }
-  return Effect.fail("INVALID_COSMOSDB_CONFIG");
-}
 
-export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
-  effect: Effect.gen(function* () {
+  return { endpoint, key } as CosmosConfig
+})
 
-    const { endpoint, key } = yield* pipe(
-      connectionParam("cosmos"),
-      Effect.tapError((err) => Effect.log(err)),
-    )
+// A Config that expects COSMOS_ENDPOINT / COSMOS_KEY directly.
+const cosmosFromSeparateVars: Config.Config<CosmosConfig> = Config.all({
+  endpoint: Config.string("COSMOS_ENDPOINT"),
+  key: Config.string("COSMOS_KEY")
+})
 
+// // High-level Config: try connection string, then fallback to separate vars.
+// const cosmosConfig = Effect.fn(function* (name: string) {
+//   return yield* Effect.withConfigProvider(
+//   cosmosFromConnectionString(name),
+//   ConfigProvider.fromEnv({ pathDelim: "__", seqDelim: "|"})
+//   ).pipe(Effect.orElse(() => cosmosFromSeparateVars),
+//   )
+// })
+
+const cosmosConfig = Effect.fn(function* (
+  name: string,
+  provider: ConfigProvider.ConfigProvider
+) {
+  return yield* Effect.withConfigProvider(
+    cosmosFromConnectionString(name),
+    provider
+  ).pipe(
+    Effect.orElse(() => cosmosFromSeparateVars)
+  )
+})
+
+
+ //   cosmosFromConnectionString(name).pipe(Config.orElse(() => cosmosFromSeparateVars))
+  
+// function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string> {
+
+//   const connectionStringName = `ConnectionStrings__${name}`;
+//   const connectionString = process.env[connectionStringName]
+//   const cosmosEndpoint = process.env.COSMOS_ENDPOINT;
+//   const cosmosKey = process.env.COSMOS_KEY;
+
+//   if (connectionString) {
+//     const parts = connectionString.split(';').filter(Boolean);
+//     const map: Record<string, string> = {};
+//     for (const part of parts) {
+//       const [key, ...rest] = part.split('=');
+//       map[key] = rest.join('=');
+//     }
+//     const endpoint = map['AccountEndpoint'];
+//     const key = map['AccountKey'];
+//     if (endpoint && key) {
+//       return Effect.succeed({ endpoint, key });
+//     }
+//   } else if (cosmosEndpoint && cosmosKey) {
+//     return Effect.succeed({ endpoint: cosmosEndpoint, key: cosmosKey });
+//   }
+//   return Effect.fail("INVALID_COSMOSDB_CONFIG");
+// }
+
+export class CosmosClientC extends Context.Tag("CosmosClientC")<CosmosClientC, CosmosClient>() {}
+
+const make = Effect.fn(function* (name: string, provider: ConfigProvider.ConfigProvider) {
+   const { endpoint, key } = yield* cosmosConfig(name, provider)
+   
     const connectionParams = {
       endpoint,
       key,
@@ -52,7 +106,16 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       }
     }
 
-    const client = new CosmosClient(connectionParams)
+    return new CosmosClient(connectionParams)
+  
+})
+
+export const layerCosmos = ( provider: ConfigProvider.ConfigProvider) => Layer.effect(CosmosClientC, make("cosmos", provider))
+
+export class CosmosContainer extends Effect.Service<CosmosContainer>()("app/CosmosContainer", {
+  effect: Effect.gen(function* () {
+
+    const client = yield* CosmosClientC // new CosmosClient(connectionParams)
 
     const initializeProjectDB = Effect.gen(function* () {
       // Create database if not exists
@@ -80,7 +143,46 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
 
     const projectContainer = yield* initializeProjectDB.pipe(Effect.tapError((e) => Console.log(e)))
 
-    yield* Effect.log(`Cosmos DB initialized with projectContainer: ${projectContainer}`)
+    return {
+       projectContainer
+    };
+  }),
+  dependencies: []
+}) { }
+
+
+export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
+  effect: Effect.gen(function* () {
+
+    const client = yield* CosmosClientC // new CosmosClient(connectionParams)
+
+    const initializeProjectDB = Effect.gen(function* () {
+      // Create database if not exists
+      const { database } = yield* Effect.tryPromise({
+        try: () => client.databases.createIfNotExists({ id: "ProjectDB" }),
+        catch: (error) => new DatabaseError({ error })
+      }).pipe(Effect.withSpan("createDatabase"))
+
+      yield* Effect.log("init databases").pipe(Effect.withSpan("init"))
+      // Create container if not exists
+      const { container } = yield* Effect.tryPromise({
+        try: () =>
+          database.containers.createIfNotExists({
+            id: "Project",
+            partitionKey: {
+              paths: ["/project_id"],
+              kind: PartitionKeyKind.Hash
+            }
+          }),
+        catch: (error) => new DatabaseError({ error })
+      }).pipe(Effect.withSpan("createContainer"))
+
+      return container
+    })
+
+    const projectContainer = yield* initializeProjectDB.pipe(Effect.tapError((e) => Console.log(e)))
+
+    yield* Effect.log(`Cosmos DB initialized with projectContainer: ${projectContainer.id}`)
 
     const a = yield* Effect.promise(() => client.getReadEndpoint())
 
@@ -97,18 +199,29 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
 
     const upsertDocument = <T>(t: T) => Effect.tryPromise({
       try: () => projectContainer.items.upsert(t),
-      catch: (error) => new DatabaseError({ error })
+      catch: (error) => {
+        console.log(error)
+        return new DatabaseError({ error })
+      }
     })
 
+    const queryDocument = (query: string | SqlQuerySpec, options?: FeedOptions) => Effect.gen(function*() {
+      const feed = projectContainer.items.query(query, options).getAsyncIterator()
+      const stream = Stream.fromAsyncIterable(feed, (e: any) =>  new Error(e?.message))
+      return Stream.map(stream, item => item.resources)
+      //Stream.fromAsyncIterable(projectContainer.items.query(query, options).getAsyncIterator(), (e: any) =>  new Error(e?.message))
+    })
+      
+
     const readDocument = Effect.fn("ReadDocument")(function* (id: string, partitionKey: PartitionKey) {
-      yield* Effect.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
+      //yield* Effect.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
           const item = yield* Effect.tryPromise({
             try: async () => { 
-              console.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
-              const item =  projectContainer.item(id)
+              // console.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
+              const item =  projectContainer.item(id, partitionKey);
               //console.log(`Retrieved item: ${JSON.stringify(item)}`);
               const p = await item.read();
-              console.log(`Read item result: ${JSON.stringify(p.item.id)}`);
+              console.log(`Read item result: ${JSON.stringify(p.resource)}`);
               return p;
             },
             catch: (error) => {
@@ -126,6 +239,7 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       readAllDatabases,
       upsertDocument,
       readDocument,
+      queryDocument,
       projectContainer,
       info: () => Effect.log("project container", projectContainer)
     };

@@ -6,12 +6,14 @@ import {
   HttpApiSwagger
 } from "@effect/platform"
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
-import { Effect, Layer, Schema } from "effect"
+import { ConfigProvider, Effect, Layer, Schema } from "effect"
 import { createServer } from "node:http"
 import * as Otlp from "@effect/opentelemetry/Otlp"
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
-import { Cosmos } from "./CosmosDb.js"
-import { Project, Repository } from "./Repository.js"
+import { Cosmos, layerCosmos } from "./DocumentDb/CosmosDb.js"
+import { Project, ProjectId, ProjectRepository, ProjectRepositoryLive } from "./Repository/Project.js"
+import * as Document from "./DocumentDb/Document.js"
+//import { Repository } from "./Repository/Repository.js"
 
 const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
@@ -30,27 +32,31 @@ const MyApi = HttpApi.make("MyApi").add(
 
 const hello = Effect.gen(function* () {
 
-  const repo = yield* Repository
+  const repo = yield* ProjectRepository
 
-  const project: Project = {
-    entity: {
-      id: `${new Date().toISOString()}-PRJ-001`,
-      _version: 1,
-      ownerId: "PTY-1001",
+  const project: Project = {    
+      id: ProjectId.make(`${new Date().toISOString()}-PRJ-001`),
+     // _version: 1,
+      //ownerId: "PTY-1001",
       name: "Project 1",
-      description: "Sample project 1 for demonstration.",
-      startDate: "2025-09-20",
-      endDate: "2026-09-16",
-      status: "Draft"
-    }
+      //description: "Sample project 1 for demonstration.",
+      //startDate: "2025-09-20",
+      //endDate: "2026-09-16",
+      //status: "Draft"
+      budget: {
+        amount: 100000
+      },
+      deliverables: []
+    
   }
 
   //yield* repo.upsertItem("partitionKey", "id", "value"); // Simulate some async work 
 
-  yield* repo.upsertItem("project_id", "entity", project.entity)
+  yield* repo.upsert(project)
+  //yield* repo.upsertItem("project_id", "entity", project.entity)
 
-  yield* Effect.log(`Inserted project with id: ${project.entity.id}`)
-  const fetch = repo.getItem("id", "entity", project.entity.id).pipe(Effect.tapError(err => Effect.logError(`Error fetching project: ${err.message}`)));
+  yield* Effect.log(`Inserted project with id: ${project.id}`)
+  const fetch = repo.getById(project.id).pipe(Effect.tapError(err => Effect.logError(`Error fetching project: ${err.message}`)));
   const fetchedProject = yield* Effect.exit(fetch) //fetch.pipe(Effect.failCause)
   yield* Effect.log(`Fetched project: ${JSON.stringify(fetchedProject)}`)
   //return JSON.stringify(fetchedProject, null, 2);
@@ -70,11 +76,15 @@ const GreetingsLive = Layer.unwrapEffect(Effect.gen(function* () {
   )
 }))
 
+const envProvider = ConfigProvider.fromEnv({ pathDelim: "__", seqDelim: "|" })
+
 const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
   Layer.provide(Observability),
   Layer.provide(GreetingsLive),
-  Layer.provide(Repository.Default),
-  Layer.provide(Cosmos.Default)
+  Layer.provide(ProjectRepositoryLive),
+  Layer.provide(Document.layerKV),
+  Layer.provide(Cosmos.Default),
+  Layer.provide(layerCosmos(envProvider))
 )
 
 const portEnv = process.env.PORT;

@@ -1,5 +1,6 @@
 // src/Repository/DocumentDb.ts
-import { Context, Effect, Layer } from "effect";
+import { Chunk, Context, Effect, Layer, Stream } from "effect";
+import { Cosmos } from "./CosmosDb.js";
 
 // A unique identifier for a document in the document store.
 // This could be a simple string or a more structured type.
@@ -45,8 +46,8 @@ export const makeKV = Effect.fnUntraced(function*(options: {}){
 
   const makeKey = (id: DocumentId, partition: PartitionId) => `doc:${partition}:${id}`
 
-  return {
-    get: <T>(documentId: DocumentId, partitionId: PartitionId, type: string) =>
+  return DocumentDb.of({
+    get: <T>(documentId: DocumentId, partitionId: PartitionId) =>
       Effect.succeed((() => {
         const k = makeKey(documentId, partitionId)
         if (!store.has(k)) return null
@@ -97,7 +98,78 @@ export const makeKV = Effect.fnUntraced(function*(options: {}){
         store.delete(k)
         return void 0
       })())
-  }
+  })
 })
 
 export const layerKV: Layer.Layer<DocumentDb, never> = Layer.effect(DocumentDb, makeKV({}))
+
+export const makeCosmos = Effect.fnUntraced(function*(options: {}){
+  // simple in-memory map: keys are `doc:{partition}:{id}` and values are JSON strings
+  //const store = new Map<string, string>()
+
+  const cosmos = yield* Cosmos
+
+  //console.log(cosmos)
+//  const makeKey = (id: DocumentId, partition: PartitionId) => `doc:${partition}:${id}`
+
+  return DocumentDb.of({
+    get: <T>(documentId: DocumentId, partitionId: PartitionId) => Effect.gen(function*() {
+      const res = (yield* cosmos.readDocument(documentId, partitionId)).resource
+      return res as T
+    }),
+
+    query: <T>(query: Record<string, any>, partitionId: PartitionId) => Effect.gen(function*() {
+      const chunk = yield* Stream.runCollect(cosmos.queryDocument("select * from c"))
+      const arr = Chunk.toArray(chunk)
+      return arr as T[]
+      //return res.pipe(Chunk)
+      // Effect.succeed((() => {
+      //   const prefix = `doc:${partitionId}:`        
+      //   const results: T[] = []
+      //   for (const [k, v] of store.entries()) {
+      //     if (!k.startsWith(prefix)) continue
+      //     try {
+      //       const obj = JSON.parse(v) as any
+      //       let match = true
+      //       for (const qk in query) {
+      //         if ((obj as any)[qk] !== (query as any)[qk]) { 
+      //           match = false; 
+      //           break 
+      //         }
+      //       }
+      //       if (match) {
+      //         results.push(obj)
+      //       }
+      //     } catch {
+      //       // skip invalid JSON
+      //     }
+      //   }
+      //   return results
+    }),     
+
+    upsert: <T>(documentId: DocumentId, partitionId: PartitionId, document: T) => Effect.gen(function*() {
+      //console.log("Upserting document:", documentId, partitionId, document)
+      const res = yield* cosmos.upsertDocument({
+        ...document as any,
+        project_id: partitionId
+        //id: documentId,
+        //partitionKey: partitionId
+      })
+      return res
+    }),
+     
+    delete: (documentId: DocumentId, partitionId: PartitionId) => Effect.gen(function*() {
+      //yield* cosmos.projectContainer.items.delete(documentId, partitionId)
+      return void 0
+    })
+    // delete: (documentId: DocumentId, partitionId: PartitionId) =>
+    //
+      // Effect.succeed((() => {
+      //   const k = makeKey(documentId, partitionId)
+      //   store.delete(k)
+      //   return void 0
+      // })())
+  })
+})
+
+export const layerCosmos: Layer.Layer<DocumentDb, never, Cosmos> = Layer.effect(DocumentDb, makeCosmos({}))

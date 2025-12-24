@@ -29,14 +29,15 @@
     "@opentelemetry/sdk-node": "^0.208.0",
     "@opentelemetry/sdk-trace-base": "^2.2.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
-    "effect": "^3.19.8",
-    "vitest": "^4.0.16"
+    "@testcontainers/azure-cosmosdb-emulator": "^11.10.0",
+    "effect": "^3.19.8"
   },
   "devDependencies": {
     "@effect/language-service": "^0.57.1",
     "@types/node": "^24.10.1",
     "dotenv-cli": "^11.0.0",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }

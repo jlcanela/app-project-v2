@@ -165,7 +165,7 @@ export const makeRepository = <
     return r
   })
 
-  const upsert = Effect.fn(function* (value: Aggregate) {
+  const upsert = Effect.fn("Repository.upsert")(function* (value: Aggregate) {
     const db = yield* DocumentDb
     const id = value.id
 
@@ -175,7 +175,7 @@ export const makeRepository = <
     }
   })
 
-  const remove = Effect.fn(function* (id: AggregateId) {
+  const remove = Effect.fn("Repository.delete")(function* (id: AggregateId) {
     const db = yield* DocumentDb
     yield* db.delete(
       docId(id as unknown as PartitionKey, rootKey, String(id)),
@@ -185,7 +185,7 @@ export const makeRepository = <
 
   // ----- single items -----
 
-  const getItem = Effect.fn(function* (partitionKey, key) {
+  const getItem = Effect.fn("Repository.getItem")(function* (partitionKey, key) {
     const db = yield* DocumentDb
     type Payload = EntityPayload<R, typeof key>
     const res = yield* db.get<Payload>(
@@ -195,7 +195,7 @@ export const makeRepository = <
     return res
   })
 
-  const queryItems = Effect.fn(function* (partitionKey, key) {
+  const queryItems = Effect.fn("Repository.queryItems")(function* (partitionKey, key) {
     const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     // Very naive: all docs in partition with this "type"/key
@@ -206,7 +206,7 @@ export const makeRepository = <
     return results
   })
 
-  const upsertItem = Effect.fn(function* (partitionKey, key, value) {
+  const upsertItem = Effect.fn("Repository.upsertItem")(function* (partitionKey, key, value) {
     const db = yield* DocumentDb
     const id = docId(partitionKey, String(key))
     if (value === null) {
@@ -219,7 +219,7 @@ export const makeRepository = <
 
   // ----- collections -----
 
-  const upsertCollectionItem = Effect.fn(function* (partitionKey, key, value) {
+  const upsertCollectionItem = Effect.fn("Repository.upsertCollectionItem")(function* (partitionKey, key, value) {
     const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     const id = (value as any).id ?? crypto.randomUUID()
@@ -230,7 +230,7 @@ export const makeRepository = <
     )
   })
 
-  const deleteCollectionItem = Effect.fn(function* (partitionKey, key, predicate) {
+  const deleteCollectionItem = Effect.fn("Repository.deleteCollectionItem")(function* (partitionKey, key, predicate) {
     const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     const docs = yield* db.query<Payload>(
