@@ -1,4 +1,5 @@
 // src/Repository/DocumentDb.ts
+import type { SqlQuerySpec } from "@azure/cosmos";
 import { Chunk, Context, Effect, Layer, Stream } from "effect";
 import { Cosmos } from "./CosmosDb.js";
 
@@ -119,33 +120,25 @@ export const makeCosmos = Effect.fnUntraced(function*(options: {}){
     }),
 
     query: <T>(query: Record<string, any>, partitionId: PartitionId) => Effect.gen(function*() {
-      const chunk = yield* Stream.runCollect(cosmos.queryDocument("select * from c"))
-      const arr = Chunk.toArray(chunk)
-      return arr as T[]
-      //return res.pipe(Chunk)
-      // Effect.succeed((() => {
-      //   const prefix = `doc:${partitionId}:`        
-      //   const results: T[] = []
-      //   for (const [k, v] of store.entries()) {
-      //     if (!k.startsWith(prefix)) continue
-      //     try {
-      //       const obj = JSON.parse(v) as any
-      //       let match = true
-      //       for (const qk in query) {
-      //         if ((obj as any)[qk] !== (query as any)[qk]) { 
-      //           match = false; 
-      //           break 
-      //         }
-      //       }
-      //       if (match) {
-      //         results.push(obj)
-      //       }
-      //     } catch {
-      //       // skip invalid JSON
-      //     }
-      //   }
-      //   return results
-    }),     
+      const querySpec: SqlQuerySpec = {
+        query: "select * from c",
+        parameters: []
+      };
+
+      if (query && Object.keys(query).length > 0) {
+        const whereClauses = Object.keys(query).map(key => {
+          const paramName = `@${key}`;
+          querySpec.parameters!.push({ name: paramName, value: query[key] });
+          return `c.${key} = ${paramName}`;
+        });
+        querySpec.query += ` WHERE ${whereClauses.join(" AND ")}`;
+      }
+
+      const chunk = yield* Stream.runCollect(yield* cosmos.queryDocument(querySpec))
+      const arr = Chunk.toArray(chunk.pipe(Chunk.map(arr => Chunk.fromIterable(arr)), Chunk.flatten))
+    
+      return arr as T[];
+    }),
 
     upsert: <T>(documentId: DocumentId, partitionId: PartitionId, document: T) => Effect.gen(function*() {
       //console.log("Upserting document:", documentId, partitionId, document)
@@ -160,6 +153,7 @@ export const makeCosmos = Effect.fnUntraced(function*(options: {}){
      
     delete: (documentId: DocumentId, partitionId: PartitionId) => Effect.gen(function*() {
       //yield* cosmos.projectContainer.items.delete(documentId, partitionId)
+      const res = yield* cosmos.deleteDocument(documentId, partitionId)
       return void 0
     })
     // delete: (documentId: DocumentId, partitionId: PartitionId) =>

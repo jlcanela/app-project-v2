@@ -58,7 +58,7 @@ export interface Repository<
    */
   queryItems<K extends CollectionItemKey<R>>(
     partitionKey: PartitionKey,
-    key: K,
+    key?: K,
   ): Effect.Effect<ReadonlyArray<CollectionItemPayload<R, K>>, Error>;
 
   /**
@@ -170,6 +170,7 @@ export const makeRepository = <
     const id = value.id
 
     const documents = splitDocuments(value, { config: repositoryConfig })
+    yield* Effect.log(`Upserting ${documents.length} documents for aggregate id=${String(id)}`)
     for (const doc of documents) {
       yield* db.upsert<unknown>(doc.id as unknown as DocumentId, id as PartitionId, doc)
     }
@@ -200,7 +201,7 @@ export const makeRepository = <
     type Payload = CollectionItemPayload<R, typeof key>
     // Very naive: all docs in partition with this "type"/key
     const results = yield* db.query<Payload>(
-      { key: String(key) },
+      {},//{ key: String(key) },
       partitionKey
     )
     return results

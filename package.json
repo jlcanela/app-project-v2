@@ -8,7 +8,7 @@
     "server-dev": "dotenv -e .env -- tsx watch src/index.ts",
     "demo": "tsx src/Repository4.ts",
     "demo2": "tsx src/Repository2.ts",
-    "test": "vitest"
+    "test": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest"
   },
   "keywords": [],
   "author": "",

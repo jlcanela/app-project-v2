@@ -50,6 +50,7 @@ const hello = Effect.gen(function* () {
     
   }
 
+  //{} 
   //yield* repo.upsertItem("partitionKey", "id", "value"); // Simulate some async work 
 
   yield* repo.upsert(project)
@@ -57,6 +58,8 @@ const hello = Effect.gen(function* () {
 
   yield* Effect.log(`Inserted project with id: ${project.id}`)
   const fetch = repo.getById(project.id).pipe(Effect.tapError(err => Effect.logError(`Error fetching project: ${err.message}`)));
+  const projectA = yield* repo.queryItems(project.id, undefined)
+  yield* Effect.log(`Queried projects: ${JSON.stringify(projectA)}`)
   const fetchedProject = yield* Effect.exit(fetch) //fetch.pipe(Effect.failCause)
   yield* Effect.log(`Fetched project: ${JSON.stringify(fetchedProject)}`)
   //return JSON.stringify(fetchedProject, null, 2);

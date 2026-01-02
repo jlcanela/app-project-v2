@@ -52,11 +52,12 @@ it.layer(Layer.mergeAll(CosmosDbDockerContainer.Default), { timeout: "30 seconds
             yield* db.delete(id, id)
 
             const res = yield* db.get("123", "123")
-            expect(res).toEqual(null)
+            expect(res).toEqual(undefined)
         }).pipe(
             Effect.provide(Document.layerCosmos),
             Effect.provide(Live),
         ))
+
 
     it.effect("query should return matching documents in a partition", () =>
         Effect.gen(function* () {

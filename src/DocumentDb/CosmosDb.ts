@@ -44,15 +44,6 @@ const cosmosFromSeparateVars: Config.Config<CosmosConfig> = Config.all({
   key: Config.string("COSMOS_KEY")
 })
 
-// // High-level Config: try connection string, then fallback to separate vars.
-// const cosmosConfig = Effect.fn(function* (name: string) {
-//   return yield* Effect.withConfigProvider(
-//   cosmosFromConnectionString(name),
-//   ConfigProvider.fromEnv({ pathDelim: "__", seqDelim: "|"})
-//   ).pipe(Effect.orElse(() => cosmosFromSeparateVars),
-//   )
-// })
-
 const cosmosConfig = Effect.fn(function* (
   name: string,
   provider: ConfigProvider.ConfigProvider
@@ -64,34 +55,6 @@ const cosmosConfig = Effect.fn(function* (
     Effect.orElse(() => cosmosFromSeparateVars)
   )
 })
-
-
- //   cosmosFromConnectionString(name).pipe(Config.orElse(() => cosmosFromSeparateVars))
-  
-// function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string> {
-
-//   const connectionStringName = `ConnectionStrings__${name}`;
-//   const connectionString = process.env[connectionStringName]
-//   const cosmosEndpoint = process.env.COSMOS_ENDPOINT;
-//   const cosmosKey = process.env.COSMOS_KEY;
-
-//   if (connectionString) {
-//     const parts = connectionString.split(';').filter(Boolean);
-//     const map: Record<string, string> = {};
-//     for (const part of parts) {
-//       const [key, ...rest] = part.split('=');
-//       map[key] = rest.join('=');
-//     }
-//     const endpoint = map['AccountEndpoint'];
-//     const key = map['AccountKey'];
-//     if (endpoint && key) {
-//       return Effect.succeed({ endpoint, key });
-//     }
-//   } else if (cosmosEndpoint && cosmosKey) {
-//     return Effect.succeed({ endpoint: cosmosEndpoint, key: cosmosKey });
-//   }
-//   return Effect.fail("INVALID_COSMOSDB_CONFIG");
-// }
 
 export class CosmosClientC extends Context.Tag("CosmosClientC")<CosmosClientC, CosmosClient>() {}
 
@@ -205,6 +168,17 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       }
     })
 
+      const deleteDocument =  Effect.fn("DeleteDocument")(function* (id: string, partitionKey: PartitionKey) {
+        const res = yield* Effect.tryPromise({
+          try: () => projectContainer.item(id, partitionKey).delete(), //.delete({}),//.upsert(t),
+          catch: (error) => {
+            console.log(error)
+            return new DatabaseError({ error })
+          }
+        });
+      return void 0
+    })
+
     const queryDocument = (query: string | SqlQuerySpec, options?: FeedOptions) => Effect.gen(function*() {
       const feed = projectContainer.items.query(query, options).getAsyncIterator()
       const stream = Stream.fromAsyncIterable(feed, (e: any) =>  new Error(e?.message))
@@ -214,14 +188,10 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       
 
     const readDocument = Effect.fn("ReadDocument")(function* (id: string, partitionKey: PartitionKey) {
-      //yield* Effect.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
           const item = yield* Effect.tryPromise({
             try: async () => { 
-              // console.log(`Reading document with id: ${id} and partitionKey: ${partitionKey}`);
               const item =  projectContainer.item(id, partitionKey);
-              //console.log(`Retrieved item: ${JSON.stringify(item)}`);
               const p = await item.read();
-              console.log(`Read item result: ${JSON.stringify(p.resource)}`);
               return p;
             },
             catch: (error) => {
@@ -240,6 +210,7 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       upsertDocument,
       readDocument,
       queryDocument,
+      deleteDocument,
       projectContainer,
       info: () => Effect.log("project container", projectContainer)
     };

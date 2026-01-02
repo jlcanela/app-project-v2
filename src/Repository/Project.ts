@@ -36,6 +36,7 @@ export const projectConfig = new EntityConfig<
 const Budget = Schema.Struct({
   amount: Schema.Number
 })
+export type Budget = typeof Budget.Type
 
 export const budgetConfig = new EntityConfig<
   "budget",
