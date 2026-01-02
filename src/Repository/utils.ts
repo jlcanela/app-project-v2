@@ -1,31 +1,33 @@
 import { AggregateRoot, AllRows, RepositoryConfig, splitAggregateRoot } from "./Common.js"
 import { Schema } from "effect"
 import { makeCosmosTransformer } from "./Repository.js"
+import { guard, type MongoQuery } from "@ucast/mongo2js"
 
 export function splitDocuments<R extends RepositoryConfig<any, any, any, any, any, any>>(
     item: AggregateRoot<R>,
     { config }: { config: R }
 ): unknown[] {
     const { id, root, entities } = splitAggregateRoot(config, item)
+    const partitionKey = config.aggregate.partitionKey
 
-    const RootFromCosmos = makeCosmosTransformer(config.root.type, config.rootSchema())
-    const newRoot = { id, ...root as object }
-
+    const RootFromCosmos = makeCosmosTransformer(config.root.type, config.aggregate.partitionKey, config.rootSchema())
+    const newRoot = { id, [partitionKey]: id, ...root as object }
     const rootEncoded = Schema.encodeSync(RootFromCosmos)(newRoot)//.pipe(Effect.tapError((e) => Effect.logError(`Encoding error: ${e.message}`)))
-    const partitionKey = config.aggregate.idSchema
 
     const toUpsert: unknown[] = []
 
     // root gets its id
-    toUpsert.push({ id, ...(rootEncoded as object) })
+    toUpsert.push({ id, [partitionKey]: id, ...(rootEncoded as object) })
 
     // entities: add id to "single", keep "collection" as is
     for (const key in config.entities) {
         const value = (entities as any)[key]
         const schema = Schema.Struct({
-            id: Schema.String, 
-            ...config.entities[key].domainSchema.fields}) 
-        const EntityFromCosmos = makeCosmosTransformer(config.entities[key].type, schema)
+            id: Schema.String,
+            [partitionKey]: Schema.String,
+            ...config.entities[key].domainSchema.fields
+        })
+        const EntityFromCosmos = makeCosmosTransformer(config.entities[key].type, config.aggregate.partitionKey, schema)
 
         // "collection" or others: keep each element as is
         if (Array.isArray(value)) {
@@ -38,24 +40,24 @@ export function splitDocuments<R extends RepositoryConfig<any, any, any, any, an
     return toUpsert
 }
 
-export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, any, any>>(
+export function mergeDocumentsById<R extends RepositoryConfig<any, any, any, any, any, any>>(
     documents: AllRows<R>[],
+    aggregateId: string,
     { config, items }: { config: R, items?: (keyof R['entities'])[] }
 ): AggregateRoot<R> {
     if (documents.length === 0) {
         throw new Error("Cannot merge from empty rows array.");
     }
 
-    const partitionKey = config.aggregate.idSchema;
-    const aggregateId = (documents[0] as any)[partitionKey];
+    const aggregatedDocuments = documents.filter(d => (d as any)[config.aggregate.partitionKey] === aggregateId);
 
-    const candidateRootRow = documents.find(r => r.type === config.root.type);
+    const candidateRootRow = aggregatedDocuments.find(r => r.type === config.root.type);
     if (!candidateRootRow) throw new Error("Root row not found.");
 
-     const { [partitionKey]: _pk, ...encodedRootRow } = candidateRootRow as any;
-     const RootFromCosmos = makeCosmosTransformer(config.root.type, config.rootSchema())
-     const rootRow = Schema.decodeSync(RootFromCosmos)(encodedRootRow as any);
-     
+    //const { [partitionKey]: _pk, ...encodedRootRow } = candidateRootRow as any;
+    const RootFromCosmos = makeCosmosTransformer(config.root.type, config.aggregate.partitionKey, config.rootSchema())
+    const rootRow = Schema.decodeSync(RootFromCosmos)(candidateRootRow as any);
+
 
     const result: any = rootRow
 
@@ -70,29 +72,29 @@ export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, an
         }
 
         const entityConfig = config.entities[key];
-         const EntityFromCosmos = makeCosmosTransformer(config.entities[key].type, config.entities[key].domainSchema)
+        const EntityFromCosmos = makeCosmosTransformer(config.entities[key].type, config.aggregate.partitionKey, config.entities[key].domainSchema)
 
         if (entityConfig.kind === "single") {
-            const row = documents.find(r =>
-                r.id ===  config.entities[key].name && 
+            const row = aggregatedDocuments.find(r =>
+                r.id === config.entities[key].name &&
                 r.type === entityConfig.type
             );
             if (row) {
-                const { [partitionKey]: _pk, ...data } = row as any;
-                const decoded = Schema.decodeSync(EntityFromCosmos)(data as any);
+                const decoded = Schema.decodeSync(EntityFromCosmos)(row as any);
+                //const decoded = Schema.decodeSync(EntityFromCosmos)(data as any);
                 result[key] = decoded;
             } else {
                 result[key] = undefined;
             }
         } else if (entityConfig.kind === "collection") {
-            const collectionItems = documents
+            const collectionItems = aggregatedDocuments
                 .filter(r => {
-                    return r.type === entityConfig.type 
+                    return r.type === entityConfig.type
                 })
                 .map(r => {
-                    const { [partitionKey]: _pk, ...data } = r as any;
-                    const decoded = Schema.decodeSync(EntityFromCosmos)(data as any);
-                    
+                    const decoded = Schema.decodeSync(EntityFromCosmos)(r as any);
+                    //const decoded = Schema.decodeSync(EntityFromCosmos)(data as any);
+
                     return decoded;
                 });
             result[key] = collectionItems;
@@ -100,4 +102,37 @@ export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, an
     }
 
     return result as AggregateRoot<R>;
+}
+
+export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, any, any>>(
+    documents: AllRows<R>[],
+    { config, items }: { config: R, items?: (keyof R['entities'])[] }
+): AggregateRoot<R>[] {
+    if (documents.length === 0) {
+        throw new Error("Cannot merge from empty rows array.");
+    }
+
+    return documents
+        .filter(d => d.type === config.root.type).map(d => (d as any).id)
+        .map(id => mergeDocumentsById(documents, id, { config, items }));
+}
+
+export function filterAggregates<Aggregate>(
+    query: string | undefined,
+    aggregates: Aggregate[]
+): Aggregate[] {
+    if (query) {
+        let parsed: MongoQuery<Aggregate>
+        try {
+            parsed = JSON.parse(query)
+        } catch {
+            // For simplicity, just ignore invalid filter or map to 400 in real code
+            parsed = {} as MongoQuery<Aggregate>
+        }
+
+        const predicate = guard<Aggregate>(parsed) // returns (p: ProjectType) => boolean[web:52]
+        return aggregates.filter(predicate)
+    }
+
+    return aggregates
 }

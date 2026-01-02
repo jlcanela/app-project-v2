@@ -9,7 +9,7 @@ import { DocumentDb } from "../DocumentDb/Document.js"
 // usage
 export const projectAggregateConfig = new AggregateConfig<"Project", "ProjectId">({
   name: "Project",
-  idSchema: "ProjectId",
+  partitionKey: "ProjectId",
 })
 
 export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
@@ -28,12 +28,11 @@ export const projectConfig = new EntityConfig<
   name: "project",
   kind: "root",
   type: "project",
-  path: "",
   idSchema: ProjectId,
   domainSchema: Project
 })
 
-const Budget = Schema.Struct({
+export const Budget = Schema.Struct({
   amount: Schema.Number
 })
 export type Budget = typeof Budget.Type
@@ -48,7 +47,6 @@ export const budgetConfig = new EntityConfig<
   name: "budget",
   kind: "single",
   type: "budget",
-  path: "",
   idSchema: ProjectId,
   domainSchema: Budget
 })
@@ -70,12 +68,18 @@ export const deliverablesConfig = new EntityConfig<
   name: "deliverables",
   type: "deliverable",
   kind: "collection",
-  path: "deliverables",
   idSchema: DeliverableId,
   domainSchema: Deliverable
 })
 
-export const projectRepositoryConfig = makeRepositoryConfig({
+export const projectRepositoryConfig = makeRepositoryConfig<
+  "Project",
+  "ProjectId",
+  "project",
+  never,
+  typeof projectConfig,
+  {}
+>({
   aggregate: projectAggregateConfig,
   root: projectConfig,
   entities: {

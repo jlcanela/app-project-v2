@@ -10,7 +10,6 @@
     "demo2": "tsx src/Repository2.ts",
     "test": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest",
     "test:ci": "vitest"
-
   },
   "keywords": [],
   "author": "",
@@ -32,6 +31,7 @@
     "@opentelemetry/sdk-trace-base": "^2.2.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
     "@testcontainers/azure-cosmosdb-emulator": "^11.10.0",
+    "@ucast/mongo2js": "^1.4.0",
     "effect": "^3.19.8"
   },
   "devDependencies": {

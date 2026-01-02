@@ -23,7 +23,7 @@ export class DocumentDb extends Context.Tag("DocumentDb")<DocumentDb, {
    * @param query An object defining the query criteria.
    * @returns An Effect that succeeds with a ReadonlyArray of document payloads (Type T).
    */
-  query<T>(query: Record<string, any>, partitionId: PartitionId): Effect.Effect<ReadonlyArray<T>, Error>;
+  query<T>(query: Record<string, any>, partitionId?: PartitionId): Effect.Effect<ReadonlyArray<T>, Error>;
   
   /**
    * Upserts (inserts or updates) a document.
@@ -61,9 +61,9 @@ export const makeKV = Effect.fnUntraced(function*(options: {}){
         }
       })()),
 
-    query: <T>(query: Record<string, any>, partitionId: PartitionId) =>
+    query: <T>(query: Record<string, any>, partitionId?: PartitionId) =>
       Effect.succeed((() => {
-        const prefix = `doc:${partitionId}:`        
+        const prefix = partitionId ? `doc:${partitionId}:` : "doc:"        
         const results: T[] = []
         for (const [k, v] of store.entries()) {
           if (!k.startsWith(prefix)) continue
@@ -119,7 +119,7 @@ export const makeCosmos = Effect.fnUntraced(function*(options: {}){
       return res as T
     }),
 
-    query: <T>(query: Record<string, any>, partitionId: PartitionId) => Effect.gen(function*() {
+    query: <T>(query: Record<string, any>, partitionId?: PartitionId) => Effect.gen(function*() {
       const querySpec: SqlQuerySpec = {
         query: "select * from c",
         parameters: []

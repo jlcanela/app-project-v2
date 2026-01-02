@@ -1,7 +1,9 @@
 import { Effect, Schema } from "effect"
 import type { AggregateRoot, PartitionKeyOf, RepositoryConfig, EntityConfig, AggregateId, AllRows } from "./Common.js"
 import { DocumentDb, DocumentId, PartitionId } from "../DocumentDb/Document.js";
-import { mergeDocuments, splitDocuments } from "./utils.js";
+import { filterAggregates, mergeDocuments, splitDocuments } from "./utils.js";
+
+import { Project } from "./Project.js";
 
 // Helper types to extract entity information from RepositoryConfig
 type SingleEntityNamesFromConfig<R extends RepositoryConfig<any, any, any, any, any, any>> = {
@@ -38,6 +40,8 @@ export interface Repository<
   PartitionKey = PartitionKeyOf<R>,
   Aggregate = AggregateRoot<R>
 > {
+  readonly search: (query: string) => Effect.Effect<readonly Aggregate[], Error>
+
   readonly getById: (id: AggregateId) => Effect.Effect<Aggregate, Error>
   readonly upsert: (value: Aggregate) => Effect.Effect<void, Error>
   readonly delete: (id: AggregateId) => Effect.Effect<void, Error>
@@ -94,16 +98,18 @@ export interface Repository<
 }
 
 export const makeCosmosTransformer = <
-  T extends { id: string/*; _version?: number*/ },
+  T extends { id: string, partitionKey: string/*; _version?: number*/ },
   Tag extends string
 >(
   tag: Tag,
+  partitionKeyName: string,
   schema: Schema.Schema<T>
 ) =>
   Schema.transform(
     Schema.Struct({
       type: Schema.Literal(tag),
       id: Schema.String,
+      [partitionKeyName]: Schema.String,
       //version: Schema.Number,
       properties: Schema.Record({ key: Schema.String, value: Schema.Unknown })
     }),
@@ -111,21 +117,24 @@ export const makeCosmosTransformer = <
     {
       strict: false,
       decode: (doc) => {
-        const { id,/*, version,*/ properties } = doc as any
+        const { id, [partitionKeyName]: partitionKey,/*, version,*/ properties } = doc as any
         return {
           id,
+          [partitionKeyName]: partitionKey,
           //_version: version,
           ...properties
         } as T
       },
       encode: (entity) => {
-        const { id, /*_version, */...rest } = entity as any
-        return {
+        const { id, [partitionKeyName]: partitionKey,/*_version, */...rest } = entity as any
+        const encoded =  {
           type: tag,
           id,
+          [partitionKeyName]: partitionKey,
           //version: _version,
           properties: rest
         }
+        return encoded
       }
     }
   )
@@ -144,6 +153,7 @@ export const makeRepository = <
 
   const transformer = makeCosmosTransformer<R["root"]["domainSchema"], R["root"]["name"]>(
     repositoryConfig.root.name,
+    repositoryConfig.aggregate.partitionKey,
     repositoryConfig.root.domainSchema
   )
 
@@ -156,19 +166,29 @@ export const makeRepository = <
 
   const db = yield* DocumentDb
 
+  //  readonly search: () => Effect.Effect<readonly Aggregate[], Error>
+  const search = Effect.fn("Repository.search")(function* (query: string) {
+    const res = (yield* db.query<Aggregate>({}, undefined))as AllRows<R>[]
+    if (!res) {
+      return yield* Effect.fail(new Error("Not found"))
+    }
+    const aggregates = mergeDocuments(res, { config: repositoryConfig, transformer })
+    return filterAggregates<Aggregate>(query, aggregates)
+  })
+
+
+   
   const getById = Effect.fn("Repository.getById")(function* (id: AggregateId) {
     const res = (yield* db.query<Aggregate>({}, id as PartitionId))as AllRows<R>[]
     if (!res) {
       return yield* Effect.fail(new Error("Not found"))
     }
     const r = mergeDocuments(res, { config: repositoryConfig, transformer })
-    return r
+    return r && r[0]
   })
 
   const upsert = Effect.fn("Repository.upsert")(function* (value: Aggregate) {
-    const db = yield* DocumentDb
     const id = value.id
-
     const documents = splitDocuments(value, { config: repositoryConfig })
     yield* Effect.log(`Upserting ${documents.length} documents for aggregate id=${String(id)}`)
     for (const doc of documents) {
@@ -177,7 +197,6 @@ export const makeRepository = <
   })
 
   const remove = Effect.fn("Repository.delete")(function* (id: AggregateId) {
-    const db = yield* DocumentDb
     yield* db.delete(
       docId(id as unknown as PartitionKey, rootKey, String(id)),
       id as PartitionId
@@ -187,7 +206,6 @@ export const makeRepository = <
   // ----- single items -----
 
   const getItem = Effect.fn("Repository.getItem")(function* (partitionKey, key) {
-    const db = yield* DocumentDb
     type Payload = EntityPayload<R, typeof key>
     const res = yield* db.get<Payload>(
       docId(partitionKey, String(key)),
@@ -197,7 +215,6 @@ export const makeRepository = <
   })
 
   const queryItems = Effect.fn("Repository.queryItems")(function* (partitionKey, key) {
-    const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     // Very naive: all docs in partition with this "type"/key
     const results = yield* db.query<Payload>(
@@ -208,7 +225,6 @@ export const makeRepository = <
   })
 
   const upsertItem = Effect.fn("Repository.upsertItem")(function* (partitionKey, key, value) {
-    const db = yield* DocumentDb
     const id = docId(partitionKey, String(key))
     if (value === null) {
       yield* db.delete(id, partitionKey)
@@ -221,7 +237,6 @@ export const makeRepository = <
   // ----- collections -----
 
   const upsertCollectionItem = Effect.fn("Repository.upsertCollectionItem")(function* (partitionKey, key, value) {
-    const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     const id = (value as any).id ?? crypto.randomUUID()
     yield* db.upsert<Payload>(
@@ -232,7 +247,6 @@ export const makeRepository = <
   })
 
   const deleteCollectionItem = Effect.fn("Repository.deleteCollectionItem")(function* (partitionKey, key, predicate) {
-    const db = yield* DocumentDb
     type Payload = CollectionItemPayload<R, typeof key>
     const docs = yield* db.query<Payload>(
       { key: String(key) },
@@ -256,6 +270,7 @@ export const makeRepository = <
 
   return {
     // ----- aggregate root -----
+    search,
     getById,
     upsert,
     delete: remove,
