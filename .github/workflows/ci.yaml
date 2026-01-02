@@ -22,10 +22,13 @@ jobs:
         node-version: '20'
         cache: 'pnpm'
 
+    - name: Create Testcontainers directory
+      run: mkdir -p ${{ github.workspace }}/.testcontainers
+
     - name: Cache Testcontainers images
       uses: actions/cache@v4
       with:
-        path: ~/.testcontainers
+        path: ${{ github.workspace }}/.testcontainers
         key: ${{ runner.os }}-testcontainers-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ runner.os }}-testcontainers-
@@ -35,3 +38,9 @@ jobs:
 
     - name: Run tests
       run: pnpm run test:ci
+      env:
+        TESTCONTAINERS_HOME: ${{ github.workspace }}/.testcontainers
+
+    - name: List Testcontainers directory
+      if: always()
+      run: ls -la ${{ github.workspace }}/.testcontainers
