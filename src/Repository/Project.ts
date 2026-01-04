@@ -89,7 +89,8 @@ export const projectRepositoryConfig = makeRepositoryConfig<
 })
 
 // The concrete Project aggregate root type
-export type Project = AggregateRoot<typeof projectRepositoryConfig>
+const aggregateSchema = projectRepositoryConfig.aggregateSchema()
+export type Project = typeof aggregateSchema.Type
 
 // Tag for the ProjectRepository service
 export class ProjectRepository extends Context.Tag("ProjectRepository")<

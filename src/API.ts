@@ -2,11 +2,23 @@ import {
     HttpApi,
     HttpApiBuilder,
     HttpApiEndpoint,
+    HttpApiError,
     HttpApiGroup,
     HttpApiSchema,
 } from "@effect/platform"
 import { Effect, Layer, Schema } from "effect"
 import { Budget, Deliverable, DeliverableId, Project, ProjectId, ProjectRepository, projectRepositoryConfig, ProjectRepositoryLive } from "./Repository/Project.js"
+import { AuthParams, genToken, JWT } from "./lib/auth.js";
+import { Authorization, CurrentUserTag } from "./lib/authorization.js";
+
+const auth = HttpApiEndpoint.post("auth", "/")
+      .setPayload(AuthParams)
+      .addSuccess(JWT)
+      .addError(HttpApiError.Forbidden)
+  
+export const AuthApi = HttpApiGroup.make("AuthApi")
+    .add(auth)
+    .prefix("/auth")
 
 const OffsetPagination = Schema.Struct({
     limit: Schema.NumberFromString,
@@ -30,7 +42,8 @@ const projectIdParam = HttpApiSchema.param("projectId", ProjectId)
 // GET /search
 export const search = HttpApiEndpoint.get("search")`/search`
     .setUrlParams(ProjectListQuery)
-    .addSuccess(Schema.Array(projectRepositoryConfig.allSearchEntities()))
+    .addSuccess(Schema.Array(projectRepositoryConfig.partialAggregateSchema()))
+    .addError(Schema.String)
 
 
 // GET /projects?limit=&offset=&search=
@@ -40,23 +53,23 @@ export const getProjects = HttpApiEndpoint.get("getProjects")`/projects`
 
 // POST /projects
 export const newProject = HttpApiEndpoint.post("createProject")`/projects`
-    .setPayload(Project)          // or a narrower CreateProject schema
-    .addSuccess(Project)
+    .setPayload(projectRepositoryConfig.aggregateSchema())          // or a narrower CreateProject schema
+    .addSuccess(projectRepositoryConfig.aggregateSchema())
 
 // GET /projects/:projectId
 export const getProject = HttpApiEndpoint.get("getProject")`/projects/${projectIdParam}`
-    .addSuccess(Project)
+    .addSuccess(projectRepositoryConfig.aggregateSchema())
 
 // PUT /projects/:projectId  (full replace / upsert)
 export const updateProject = HttpApiEndpoint.put("updateProject")`/projects/${projectIdParam}`
-    .setPayload(Project)
-    .addSuccess(Project)
+    .setPayload(projectRepositoryConfig.aggregateSchema())
+    .addSuccess(projectRepositoryConfig.aggregateSchema())
 
 // PATCH /projects/:projectId  (partial update of root)
-const PatchProject = Schema.partial(Project)
+const PatchProject = Schema.partial(projectRepositoryConfig.aggregateSchema())
 export const patchProject = HttpApiEndpoint.patch("patchProject")`/projects/${projectIdParam}`
     .setPayload(PatchProject)
-    .addSuccess(Project)
+    .addSuccess(projectRepositoryConfig.aggregateSchema())
 
 // DELETE /projects/:projectId
 export const deleteProject = HttpApiEndpoint.del("deleteProject")`/projects/${projectIdParam}`
@@ -113,11 +126,12 @@ export const deleteProject = HttpApiEndpoint.del("deleteProject")`/projects/${pr
 
 export const SearchApi = HttpApiGroup.make("SearchApi")
     .add(search)
+    .middleware(Authorization)
 
 export const ProjectsApi = HttpApiGroup.make("ProjectsApi")
     // project
     .add(getProjects)
-//  .add(newProject)
+    .add(newProject)
 //  .add(getProject)
 //  .add(updateProject)
 //  .add(patchProject)
@@ -134,19 +148,34 @@ export const ProjectsApi = HttpApiGroup.make("ProjectsApi")
 //   .add(updateDeliverable)
 //   .add(patchDeliverable)
 //   .add(deleteDeliverable)
+    .middleware(Authorization)
 
 
 export const MyApi = HttpApi.make("Api")
     .add(SearchApi)
     .add(ProjectsApi)
+    .add(AuthApi)
 
+
+export const AuthApiLive = Layer.unwrapEffect(Effect.gen(function* () {
+    return HttpApiBuilder.group(MyApi, "AuthApi", (handlers) =>
+        handlers
+        .handle("auth", ({ payload }) => genToken(payload))
+    )
+}))
+      
 export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
     //const cosmos = yield* Cosmos
+    const repo = yield* ProjectRepository
+
     return HttpApiBuilder.group(MyApi, "SearchApi", (handlers) =>
         handlers
         .handle("search", ({ urlParams }) =>
             Effect.gen(function* () {
                 const { search, fields, limit, offset, continuationToken } = urlParams
+
+                const currentUser = yield* CurrentUserTag;
+                yield* Effect.log(`Current user: ${JSON.stringify(currentUser)}`)
 
                 if (continuationToken != null && (limit != null || offset != null)) {
                     //   return yield* Effect.fail(
@@ -162,15 +191,17 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
                             : { kind: "none" as const }
 
                 // use `pagination` downstream
-                // ...
-                return []
-            })
+                const results = yield* (repo.search(urlParams.search ?? "").pipe(
+                    Effect.mapError((err) => err.message)
+                ))
+                return results
+            }).pipe(Effect.tapError((e) => Effect.logError(`Search API error: ${e}`)))
         )
     )
 }))
 
 export const ProjectsApiLive = Layer.unwrapEffect(Effect.gen(function* () {
-    //const cosmos = yield* Cosmos
+    const repo = yield* ProjectRepository
     return HttpApiBuilder.group(MyApi, "ProjectsApi", (handlers) =>
         handlers
         .handle("getProjects", ({ urlParams }) =>
@@ -195,6 +226,14 @@ export const ProjectsApiLive = Layer.unwrapEffect(Effect.gen(function* () {
                 return []
             })
         )
+        .handle("createProject", ({ payload }) =>
+            Effect.gen(function* () {
+                yield* repo.upsert(payload).pipe(
+                    Effect.tapError((e) => Effect.logError(`Error creating project: ${e.message}`)),
+                    Effect.orDie)
+                return yield* Effect.succeed(payload)
+            }
+        ))
         //   handlers.handle("getProjects", () => Effect.succeed([]))
     )
 }))

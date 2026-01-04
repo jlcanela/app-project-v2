@@ -1,0 +1,103 @@
+{
+  "access_control2": {
+    "project": [
+      {
+        "action": "create",
+        "roles": ["admin"]
+      },
+      {
+        "action": "read",
+        "roles": ["admin", "project-manager"]
+      },
+      {
+        "action": "read",
+        "roles": ["developer"],
+        "condition": ["is_assigned"]
+      },
+      {
+        "action": "update",
+        "roles": ["developer", "project-manager"]
+      },
+      {
+        "action": "delete",
+        "roles": ["admin"]
+      }
+    ],
+    "party": [
+      {
+        "action": "create",
+        "roles": ["admin"]
+      },
+      {
+        "action": "read",
+        "roles": ["admin"]
+      },
+      {
+        "action": "update",
+        "roles": ["admin"]
+      },
+      {
+        "action": "delete",
+        "roles": ["admin"]
+      }
+    ],
+    "about": [
+      {
+        "action": "read",
+        "roles": ["*"]
+      }
+    ],
+    "admin": [
+      {
+        "action": "create",
+        "roles": ["admin"]
+      },
+      {
+        "action": "read",
+        "roles": ["admin"]
+      },
+      {
+        "action": "update",
+        "roles": ["admin"]
+      },
+      {
+        "action": "delete",
+        "roles": ["admin"]
+      }
+    ],
+    "config": [
+      {
+        "action": "read",
+        "roles": ["admin"]
+      }
+    ],
+    "communication": [
+      {
+        "action": "create",
+        "roles": ["project-manager"]
+      },
+      {
+        "action": "read",
+        "roles": ["project-manager"]
+      }
+    ],
+    "template": [
+      {
+        "action": "create",
+        "roles": ["admin"]
+      },
+      {
+        "action": "read",
+        "roles": ["admin", "project-manager"]
+      },
+      {
+        "action": "update",
+        "roles": ["admin"]
+      },
+      {
+        "action": "delete",
+        "roles": ["admin"]
+      }
+    ]
+  }
+}

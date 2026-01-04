@@ -1,6 +1,7 @@
 import {
   HttpApiBuilder,
-  HttpApiSwagger
+  HttpApiSwagger,
+  HttpServer
 } from "@effect/platform"
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
 import { ConfigProvider, Effect, Layer, Schema } from "effect"
@@ -10,7 +11,9 @@ import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
 import { Cosmos, layerCosmos } from "./DocumentDb/CosmosDb.js"
 import { ProjectRepositoryLive } from "./Repository/Project.js"
 import * as Document from "./DocumentDb/Document.js"
-import { MyApi, ProjectsApiLive, SearchApiLive } from "./API.js"
+import { AuthApiLive, MyApi, ProjectsApiLive, SearchApiLive } from "./API.js"
+import { Security } from "./lib/security.js"
+import { AuthorizationLive } from "./lib/authorization.js"
 //import { Repository } from "./Repository/Repository.js"
 
 const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
@@ -76,13 +79,12 @@ const Observability = Otlp.layer({
 
 const envProvider = ConfigProvider.fromEnv({ pathDelim: "__", seqDelim: "|" })
 
-
-
 const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
   Layer.provide(Observability),
   Layer.provide(SearchApiLive),
   Layer.provide(ProjectsApiLive),
   Layer.provide(ProjectRepositoryLive),
+  Layer.provide(AuthApiLive),
   Layer.provide(Document.layerKV),
   Layer.provide(Cosmos.Default),
   Layer.provide(layerCosmos(envProvider))
@@ -92,9 +94,14 @@ const portEnv = process.env.PORT;
 const port = Number.isInteger(Number(portEnv)) && Number(portEnv) > 0 ? Number(portEnv) : 3000;
 
 const ServerLive = HttpApiBuilder.serve().pipe(
+  HttpServer.withLogAddress,
   // Provide the Swagger layer so clients can access auto-generated docs
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(MyApiLive),
+  Layer.provide(AuthorizationLive),
+    //Layer.provide(Security.Default),
+  Layer.provide(Security.Default),
+  Layer.provide(HttpApiBuilder.middlewareCors()),
   Layer.provide(NodeHttpServer.layer(createServer, { port }))
 )
 

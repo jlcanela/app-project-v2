@@ -4,6 +4,7 @@ import { DocumentDb, DocumentId, PartitionId } from "../DocumentDb/Document.js";
 import { filterAggregates, mergeDocuments, splitDocuments } from "./utils.js";
 
 import { Project } from "./Project.js";
+import { cons } from "effect/List";
 
 // Helper types to extract entity information from RepositoryConfig
 type SingleEntityNamesFromConfig<R extends RepositoryConfig<any, any, any, any, any, any>> = {
@@ -173,11 +174,10 @@ export const makeRepository = <
       return yield* Effect.fail(new Error("Not found"))
     }
     const aggregates = mergeDocuments(res, { config: repositoryConfig, transformer })
-    return filterAggregates<Aggregate>(query, aggregates)
+    const filtered = filterAggregates<Aggregate>(query, aggregates)
+    return filtered
   })
 
-
-   
   const getById = Effect.fn("Repository.getById")(function* (id: AggregateId) {
     const res = (yield* db.query<Aggregate>({}, id as PartitionId))as AllRows<R>[]
     if (!res) {
@@ -190,7 +190,6 @@ export const makeRepository = <
   const upsert = Effect.fn("Repository.upsert")(function* (value: Aggregate) {
     const id = value.id
     const documents = splitDocuments(value, { config: repositoryConfig })
-    yield* Effect.log(`Upserting ${documents.length} documents for aggregate id=${String(id)}`)
     for (const doc of documents) {
       yield* db.upsert<unknown>(doc.id as unknown as DocumentId, id as PartitionId, doc)
     }

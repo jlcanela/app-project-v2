@@ -1,0 +1,14 @@
+POST http://localhost:8181/v1/data/search/allow
+Content-Type: application/json
+
+{
+  "input":{
+    "search_entity": "project",
+    "user": {
+      "id": "01996653-a1cd-757e-9d83-b10baf119c9d",
+      "roles": [
+        "developer"
+      ]
+    }
+  }
+}

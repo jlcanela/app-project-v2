@@ -66,6 +66,33 @@ export class RepositoryConfig<
         const domainSchemas: ReadonlyArray<Schema.Schema.All> = schemas.map(s => Schema.partial(s.domainSchema))
         return Schema.Union(...domainSchemas)
     }
+    aggregateSchema() {
+        return Schema.Struct({
+            ...this.rootSchema().fields,
+            ...Object.fromEntries(
+                (Object.entries(this.entities) as Array<[string, EntityConfig<any, any, Schema.Struct<any>, any>]>).map(([key, entityConfig]) => {
+                    const domainSchema = entityConfig.domainSchema
+                    return [key, entityConfig.kind === "collection"
+                        ? Schema.Array(domainSchema)
+                        : domainSchema
+                    ]
+                }))
+        })
+    }
+    partialAggregateSchema() {
+        return Schema.partial(Schema.Struct({
+            ...this.rootSchema().fields,
+            ...Object.fromEntries(
+                (Object.entries(this.entities) as Array<[string, EntityConfig<any, any, Schema.Struct<any>, any>]>).map(([key, entityConfig]) => {
+                    const domainSchema = Schema.partial(entityConfig.domainSchema)
+                    return [key, entityConfig.kind === "collection"
+                        ? Schema.Array(domainSchema)
+                        : domainSchema
+                    ]
+                }))
+        }))
+    }
+
 }
 
 type RepositoryConfigInput<

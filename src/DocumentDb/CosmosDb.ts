@@ -14,9 +14,7 @@ export class DatabaseError extends Data.TaggedError("DatabaseError")<{
 type CosmosConfig = { endpoint: string; key: string }
 
 // A Config that expects a full connection string env var and parses it.
-const cosmosFromConnectionString = Effect.fn(function* (name: string) {
-
-  yield* Effect.log("Logging:", Config.string("ConnectionStrings__cosmos"))
+const cosmosFromConnectionString = Effect.fn("CosmosFromConnectionString")(function* (name: string) {
 
   const connectionString = yield* Config.nested(Config.string(name), "ConnectionStrings")
   const map = connectionString

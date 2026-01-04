@@ -2,6 +2,7 @@ import { AggregateRoot, AllRows, RepositoryConfig, splitAggregateRoot } from "./
 import { Schema } from "effect"
 import { makeCosmosTransformer } from "./Repository.js"
 import { guard, type MongoQuery } from "@ucast/mongo2js"
+import { cons } from "effect/List"
 
 export function splitDocuments<R extends RepositoryConfig<any, any, any, any, any, any>>(
     item: AggregateRoot<R>,
@@ -44,17 +45,16 @@ export function mergeDocumentsById<R extends RepositoryConfig<any, any, any, any
     documents: AllRows<R>[],
     aggregateId: string,
     { config, items }: { config: R, items?: (keyof R['entities'])[] }
-): AggregateRoot<R> {
+): AggregateRoot<R> | undefined {
     if (documents.length === 0) {
-        throw new Error("Cannot merge from empty rows array.");
+        console.error("No documents to merge for aggregateId:", aggregateId);
+        return undefined;
     }
 
     const aggregatedDocuments = documents.filter(d => (d as any)[config.aggregate.partitionKey] === aggregateId);
-
     const candidateRootRow = aggregatedDocuments.find(r => r.type === config.root.type);
     if (!candidateRootRow) throw new Error("Root row not found.");
 
-    //const { [partitionKey]: _pk, ...encodedRootRow } = candidateRootRow as any;
     const RootFromCosmos = makeCosmosTransformer(config.root.type, config.aggregate.partitionKey, config.rootSchema())
     const rootRow = Schema.decodeSync(RootFromCosmos)(candidateRootRow as any);
 
@@ -109,7 +109,7 @@ export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, an
     { config, items }: { config: R, items?: (keyof R['entities'])[] }
 ): AggregateRoot<R>[] {
     if (documents.length === 0) {
-        throw new Error("Cannot merge from empty rows array.");
+        return []
     }
 
     return documents

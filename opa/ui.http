@@ -1,0 +1,11 @@
+POST http://localhost:8181/v1/data/ui/access_control
+Content-Type: application/json
+
+{
+  "input": {
+    "user": {
+      "id": "developer_id",
+      "roles": [ "project-manager"]
+    }
+  }
+}

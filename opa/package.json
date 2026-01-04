@@ -1,0 +1,13 @@
+{
+  "name": "opa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd project && opa build -t wasm -e ui/access_control  -e search/allow -b .",
+    "test": "opa test ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
