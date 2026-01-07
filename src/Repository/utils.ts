@@ -1,8 +1,6 @@
 import { AggregateRoot, AllRows, RepositoryConfig, splitAggregateRoot } from "./Common.js"
 import { Schema } from "effect"
 import { makeCosmosTransformer } from "./Repository.js"
-import { guard, type MongoQuery } from "@ucast/mongo2js"
-import { cons } from "effect/List"
 
 export function splitDocuments<R extends RepositoryConfig<any, any, any, any, any, any>>(
     item: AggregateRoot<R>,
@@ -115,24 +113,4 @@ export function mergeDocuments<R extends RepositoryConfig<any, any, any, any, an
     return documents
         .filter(d => d.type === config.root.type).map(d => (d as any).id)
         .map(id => mergeDocumentsById(documents, id, { config, items }));
-}
-
-export function filterAggregates<Aggregate>(
-    query: string | undefined,
-    aggregates: Aggregate[]
-): Aggregate[] {
-    if (query) {
-        let parsed: MongoQuery<Aggregate>
-        try {
-            parsed = JSON.parse(query)
-        } catch {
-            // For simplicity, just ignore invalid filter or map to 400 in real code
-            parsed = {} as MongoQuery<Aggregate>
-        }
-
-        const predicate = guard<Aggregate>(parsed) // returns (p: ProjectType) => boolean[web:52]
-        return aggregates.filter(predicate)
-    }
-
-    return aggregates
 }

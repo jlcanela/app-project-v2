@@ -65,17 +65,4 @@ describe('Aggregate utils tests', () => {
 
     });
 
-    it('should filter documents', () => {
-        const aggregates = [newProject, newProject2]
-
-        const query = JSON.stringify({
-            "budget.amount": { $gte: 50000 },
-            deliverables: {
-              $elemMatch: { name: "Deliverable 1-1" }
-            }
-        })
-
-        const filtered = filterAggregates<ProjectAggregateRoot>(query, aggregates)
-        expect(filtered).toEqual([newProject]);
-    });
 });

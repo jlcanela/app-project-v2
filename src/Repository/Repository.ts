@@ -1,10 +1,9 @@
 import { Effect, Schema } from "effect"
 import type { AggregateRoot, PartitionKeyOf, RepositoryConfig, EntityConfig, AggregateId, AllRows } from "./Common.js"
 import { DocumentDb, DocumentId, PartitionId } from "../DocumentDb/Document.js";
-import { filterAggregates, mergeDocuments, splitDocuments } from "./utils.js";
+import { mergeDocuments, splitDocuments } from "./utils.js";
 
-import { Project } from "./Project.js";
-import { cons } from "effect/List";
+import { CompoundCondition, Condition, guard, interpret, MongoQuery } from "@ucast/mongo2js";
 
 // Helper types to extract entity information from RepositoryConfig
 type SingleEntityNamesFromConfig<R extends RepositoryConfig<any, any, any, any, any, any>> = {
@@ -41,7 +40,7 @@ export interface Repository<
   PartitionKey = PartitionKeyOf<R>,
   Aggregate = AggregateRoot<R>
 > {
-  readonly search: (query: string) => Effect.Effect<readonly Aggregate[], Error>
+  readonly search: (query: string) => Effect.Effect<readonly Aggregate[], Error, SecurityPredicate>
 
   readonly getById: (id: AggregateId) => Effect.Effect<Aggregate, Error>
   readonly upsert: (value: Aggregate) => Effect.Effect<void, Error>
@@ -128,7 +127,7 @@ export const makeCosmosTransformer = <
       },
       encode: (entity) => {
         const { id, [partitionKeyName]: partitionKey,/*_version, */...rest } = entity as any
-        const encoded =  {
+        const encoded = {
           type: tag,
           id,
           [partitionKeyName]: partitionKey,
@@ -139,6 +138,20 @@ export const makeCosmosTransformer = <
       }
     }
   )
+
+// eslint-disable-next-line no-use-before-define
+export class SecurityPredicate extends Effect.Service<SecurityPredicate>()("app/SecurityPredicate", {
+  effect: Effect.gen(function* () {
+    const securityFilter = Effect.fn("Repository.securityFilter")(function* () {
+      const securityFilter = {} as Condition<unknown>
+      return securityFilter
+    })
+
+    return {
+      securityFilter,
+    } as const;
+  }),
+}) { }
 
 // const makeRepository: <R extends RepositoryConfig<any, any, any, any, any, any>>(repositoryConfig: R) => Effect.Effect<Repository<R>, never, DocumentDb>
 export const makeRepository = <
@@ -167,19 +180,59 @@ export const makeRepository = <
 
   const db = yield* DocumentDb
 
+  const isEmptyCondition = (c: object) => Object.keys(c).length === 0;
+
+  const includeSecurityCondition = <Aggregate>(searchPredicate: MongoQuery<Aggregate>) =>
+    Effect.gen(function* () {
+   
+      const q = guard<Aggregate>(searchPredicate)
+      const searchFilter = q.ast as Condition<Aggregate>
+
+      // // get SecurityPredicate service
+      const security = yield* SecurityPredicate
+      
+      // // run the effect that computes the security filter
+      const securityFilterUnknown = yield* security.securityFilter()
+      const securityFilter = securityFilterUnknown as Condition<Aggregate>
+      
+      if (isEmptyCondition(securityFilter)) {
+        return searchFilter
+      } else {
+        if (isEmptyCondition(securityFilter)) {
+          return searchFilter
+        }
+        return new CompoundCondition('and', [searchFilter, securityFilter])
+      }
+    })
+
+    const condition2predicate = (c: Condition<unknown>) => isEmptyCondition(c) ? () => true : (a: Aggregate) => interpret(c, a)
+    
+
   //  readonly search: () => Effect.Effect<readonly Aggregate[], Error>
   const search = Effect.fn("Repository.search")(function* (query: string) {
-    const res = (yield* db.query<Aggregate>({}, undefined))as AllRows<R>[]
+
+    const res = (yield* db.query<Aggregate>({}, undefined)) as AllRows<R>[]
     if (!res) {
       return yield* Effect.fail(new Error("Not found"))
     }
     const aggregates = mergeDocuments(res, { config: repositoryConfig, transformer })
-    const filtered = filterAggregates<Aggregate>(query, aggregates)
-    return filtered
+
+    let searchPredicate = {} as MongoQuery<Aggregate>
+
+    if (query) {
+      try {
+        searchPredicate = JSON.parse(query)
+      } catch {
+      }
+    }
+    const condition = yield* includeSecurityCondition(searchPredicate)
+    const predicate = condition2predicate(condition) 
+
+    return aggregates.filter(predicate)
   })
 
   const getById = Effect.fn("Repository.getById")(function* (id: AggregateId) {
-    const res = (yield* db.query<Aggregate>({}, id as PartitionId))as AllRows<R>[]
+    const res = (yield* db.query<Aggregate>({}, id as PartitionId)) as AllRows<R>[]
     if (!res) {
       return yield* Effect.fail(new Error("Not found"))
     }

@@ -3,7 +3,7 @@ import { Effect, Layer, Schema } from "effect"
 import { DeliverableId, Project, ProjectRepository, projectRepositoryConfig, ProjectRepositoryLive } from "./Project.js"
 import { ProjectId } from "./Project.js"
 import * as Document from "../DocumentDb/Document.js"
-import { makeCosmosTransformer } from "./Repository.js"
+import { makeCosmosTransformer, SecurityPredicate } from "./Repository.js"
 import { splitAggregateRoot } from "./Common.js"
 
 const sampleProject: Project = {
@@ -84,18 +84,23 @@ describe("ProjectRepository", () => {
       yield* repo.upsert(sampleProject)
       yield* repo.upsert(sampleProject2)
 
-      const projects = yield* repo.search("")
+      const projects = yield* repo.search("").pipe(
+        Effect.provide(SecurityPredicate.Default)
+      )
       expect(projects).toEqual([sampleProject, sampleProject2].map(p => ({ ProjectId: p.id, ...p })))
 
-      const query = {
+      const query = JSON.stringify({
         "budget.amount": { $gte: 50000 },
         deliverables: {
           $elemMatch: { name: "Deliverable 1" }
         }
-      }
-
-        const projectsFiltered = yield* repo.search(JSON.stringify(query))
-        expect(projectsFiltered).toEqual([sampleProject, sampleProject2].map(p => ({ ProjectId: p.id, ...p })))
+      })
+      
+      const projectsFiltered = yield* repo.search(query).pipe(
+        Effect.provide(SecurityPredicate.Default
+      ))
+      
+      expect(projectsFiltered).toEqual([sampleProject, sampleProject2].map(p => ({ ProjectId: p.id, ...p })))
 
     }).pipe(
       Effect.provide(TestLive)
