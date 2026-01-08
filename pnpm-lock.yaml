@@ -59,6 +59,12 @@ importers:
       '@testcontainers/azure-cosmosdb-emulator':
         specifier: ^11.10.0
         version: 11.10.0
+      '@ucast/core':
+        specifier: ^1.10.2
+        version: 1.10.2
+      '@ucast/js':
+        specifier: ^3.0.4
+        version: 3.0.4
       '@ucast/mongo2js':
         specifier: ^1.4.0
         version: 1.4.0

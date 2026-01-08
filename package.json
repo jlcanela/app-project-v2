@@ -34,6 +34,8 @@
     "@opentelemetry/sdk-trace-base": "^2.2.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
     "@testcontainers/azure-cosmosdb-emulator": "^11.10.0",
+    "@ucast/core": "^1.10.2",
+    "@ucast/js": "^3.0.4",
     "@ucast/mongo2js": "^1.4.0",
     "effect": "^3.19.8",
     "jose": "^6.1.3",

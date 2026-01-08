@@ -4,15 +4,14 @@ package projects
 # scope: document
 # compile:
 #   unknowns: [input.projects]
-include if input.projects.name == input.favorite
 
-include if {
-	input.projects.name == "the-project"
+read if {
+	input.projects.owner == input.user.id
 	not input.favorite
 }
 
 # Include if user is admin
-include if {
+read if {
   some i
   input.user.roles[i] == "admin"
 }

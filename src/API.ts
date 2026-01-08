@@ -1,4 +1,5 @@
 import {
+    FetchHttpClient,
     HttpApi,
     HttpApiBuilder,
     HttpApiEndpoint,
@@ -10,6 +11,8 @@ import { Effect, Layer, Schema } from "effect"
 import { Budget, Deliverable, DeliverableId, Project, ProjectId, ProjectRepository, projectRepositoryConfig, ProjectRepositoryLive } from "./Repository/Project.js"
 import { AuthParams, genToken, JWT } from "./lib/auth.js";
 import { Authorization, CurrentUserTag } from "./lib/authorization.js";
+import { SecurityPredicate } from "./Repository/Repository.js";
+import { OpenPolicyAgentApi } from "./lib/OpenPolicyAgentApi.js";
 
 const auth = HttpApiEndpoint.post("auth", "/")
       .setPayload(AuthParams)
@@ -192,6 +195,9 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
 
                 // use `pagination` downstream
                 const results = yield* (repo.search(urlParams.search ?? "").pipe(
+                    Effect.provide(SecurityPredicate.Live),
+                    Effect.provide(OpenPolicyAgentApi.Default),
+                    Effect.provide(FetchHttpClient.layer),
                     Effect.mapError((err) => err.message)
                 ))
                 return results

@@ -15,7 +15,8 @@ export const projectAggregateConfig = new AggregateConfig<"Project", "ProjectId"
 export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
 
 export const Project = Schema.Struct({
-  name: Schema.String
+  name: Schema.String,
+  owner: Schema.String,
 })
 
 export const projectConfig = new EntityConfig<

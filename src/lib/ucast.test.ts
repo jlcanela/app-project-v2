@@ -1,6 +1,8 @@
 import { CompoundCondition, FieldCondition, guard } from '@ucast/mongo2js';
 import { interpret } from '@ucast/js';
 import { describe, it, expect, vi } from 'vitest';
+import { fromOpaNode, OpaFieldNode } from './ucast.js';
+import { all } from 'effect/Equivalence';
 
 describe('Ucast tests', () => {
 
@@ -52,4 +54,26 @@ describe('Ucast tests', () => {
 
     });
 
+    
+    it('should convert OPA condition', () => {
+       
+       const opaQuery: OpaFieldNode = {
+         type: 'field',
+         field: 'projects.owner',
+         operator: 'eq',
+         value: '1234',
+       };
+       
+       const condition = fromOpaNode(opaQuery);
+       
+       // `jsInterpreter` is (condition, obj) => boolean
+       console.log(condition)
+       const allowed = interpret(condition, { projects: { owner: '1234'} });
+       expect(allowed).toEqual(true)
+
+       const denied = interpret(condition, { 'projects.owner': '9999' });
+       expect(denied).toEqual(false)
+       
+
+    });
 });

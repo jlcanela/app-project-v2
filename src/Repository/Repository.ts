@@ -1,9 +1,13 @@
-import { Effect, Schema } from "effect"
+import { Effect, Layer, Schema } from "effect"
 import type { AggregateRoot, PartitionKeyOf, RepositoryConfig, EntityConfig, AggregateId, AllRows } from "./Common.js"
 import { DocumentDb, DocumentId, PartitionId } from "../DocumentDb/Document.js";
 import { mergeDocuments, splitDocuments } from "./utils.js";
 
-import { CompoundCondition, Condition, guard, interpret, MongoQuery } from "@ucast/mongo2js";
+import { BuildMongoQuery, CompoundCondition, Condition, guard, interpret, MongoQuery } from "@ucast/mongo2js";
+import { OpenPolicyAgentApi } from "../lib/OpenPolicyAgentApi.js";
+import { HttpClientError } from "@effect/platform/HttpClientError";
+import { cons } from "effect/List";
+import { emptyCondition, fromOpaNode, OpaCompoundNode, OpaNode, prefixFields } from "../lib/ucast.js";
 
 // Helper types to extract entity information from RepositoryConfig
 type SingleEntityNamesFromConfig<R extends RepositoryConfig<any, any, any, any, any, any>> = {
@@ -139,19 +143,72 @@ export const makeCosmosTransformer = <
     }
   )
 
+
+
 // eslint-disable-next-line no-use-before-define
 export class SecurityPredicate extends Effect.Service<SecurityPredicate>()("app/SecurityPredicate", {
   effect: Effect.gen(function* () {
+    const securityFilter: Effect.Effect<
+        Condition<unknown>,
+        Error | HttpClientError,
+        never
+      > = Effect.succeed({} as Condition<unknown>)
+
+    return {
+      securityFilter: () => securityFilter
+    } as const;
+  }),
+}) {
+
+  static Live = Layer.effect(SecurityPredicate, Effect.gen(function* () {
+    const opa = yield* OpenPolicyAgentApi
     const securityFilter = Effect.fn("Repository.securityFilter")(function* () {
-      const securityFilter = {} as Condition<unknown>
+      const perm = yield* opa.fetchPermission<unknown>(
+          { resource: "projects", access: "read" },
+          { id: "1234", roles: ["dev"] }
+      )
+      const securityFilter = perm.condition// as Condition<unknown>
       return securityFilter
     })
 
-    return {
-      securityFilter,
-    } as const;
-  }),
-}) { }
+    return new SecurityPredicate({ securityFilter })
+
+  }))
+}
+
+export const includeSecurityCondition = <Aggregate>(query: string) =>
+    Effect.gen(function* () {
+
+      const security = yield* SecurityPredicate
+      const securityFilterUnknown = yield* security.securityFilter()      
+      const securityFilter = Object.keys(securityFilterUnknown).length === 0
+       ? emptyCondition 
+       : fromOpaNode(securityFilterUnknown as unknown as OpaCompoundNode) // as Condition<Aggregate>
+
+      if (query === "" || query === "{}") {
+        return securityFilter
+      }
+
+      const searchFilter = yield* Effect.try({
+        try: () => {
+          const searchPredicate = JSON.parse(query)
+          const prefixedWithProjects = prefixFields<Aggregate>(searchPredicate, "projects.")
+          const q = guard<Aggregate>(prefixedWithProjects)
+          return q.ast as Condition<Aggregate>
+        },
+        catch: (error) => {
+          console.log(error, query)
+          return new Error(`Invalid query (${query})`)
+        }
+      })
+      
+      if (securityFilter === emptyCondition) {
+        return searchFilter
+      }
+
+      return new CompoundCondition('and', [searchFilter, securityFilter])
+      
+    })
 
 // const makeRepository: <R extends RepositoryConfig<any, any, any, any, any, any>>(repositoryConfig: R) => Effect.Effect<Repository<R>, never, DocumentDb>
 export const makeRepository = <
@@ -171,42 +228,12 @@ export const makeRepository = <
     repositoryConfig.root.domainSchema
   )
 
-  // Depending on your layout, you might derive a collection / container name:
-  //const container = repositoryConfig.container ?? repositoryConfig.root.name
-
-  // Helper to build a DocumentDb id from partition + key + item id, etc.
   const docId = (partition: PartitionKey, key: string, id?: string) =>
     id ?? String(partition)
 
   const db = yield* DocumentDb
 
-  const isEmptyCondition = (c: object) => Object.keys(c).length === 0;
 
-  const includeSecurityCondition = <Aggregate>(searchPredicate: MongoQuery<Aggregate>) =>
-    Effect.gen(function* () {
-   
-      const q = guard<Aggregate>(searchPredicate)
-      const searchFilter = q.ast as Condition<Aggregate>
-
-      // // get SecurityPredicate service
-      const security = yield* SecurityPredicate
-      
-      // // run the effect that computes the security filter
-      const securityFilterUnknown = yield* security.securityFilter()
-      const securityFilter = securityFilterUnknown as Condition<Aggregate>
-      
-      if (isEmptyCondition(securityFilter)) {
-        return searchFilter
-      } else {
-        if (isEmptyCondition(securityFilter)) {
-          return searchFilter
-        }
-        return new CompoundCondition('and', [searchFilter, securityFilter])
-      }
-    })
-
-    const condition2predicate = (c: Condition<unknown>) => isEmptyCondition(c) ? () => true : (a: Aggregate) => interpret(c, a)
-    
 
   //  readonly search: () => Effect.Effect<readonly Aggregate[], Error>
   const search = Effect.fn("Repository.search")(function* (query: string) {
@@ -217,16 +244,8 @@ export const makeRepository = <
     }
     const aggregates = mergeDocuments(res, { config: repositoryConfig, transformer })
 
-    let searchPredicate = {} as MongoQuery<Aggregate>
-
-    if (query) {
-      try {
-        searchPredicate = JSON.parse(query)
-      } catch {
-      }
-    }
-    const condition = yield* includeSecurityCondition(searchPredicate)
-    const predicate = condition2predicate(condition) 
+    const condition = yield* includeSecurityCondition(query)
+    const predicate = (a: unknown) => interpret(condition, { projects: a})
 
     return aggregates.filter(predicate)
   })

@@ -18,6 +18,7 @@ describe('Aggregate utils tests', () => {
     const newProject: ProjectAggregateRoot = {
         id: "proj-1" as ProjectId,
         name: "New Project",
+        owner: "1234",
         budget: {
             amount: 100000
         },
@@ -30,6 +31,7 @@ describe('Aggregate utils tests', () => {
     const newProject2: ProjectAggregateRoot = {
         id: "proj-2" as ProjectId,
         name: "New Project",
+        owner: "1234",
         budget: {
             amount: 100000
         },
@@ -40,7 +42,7 @@ describe('Aggregate utils tests', () => {
     };
 
     const allProjectData: AllRows<typeof projectRepositoryConfig>[] = [
-        { id: 'proj-1', ProjectId: 'proj-1', type: 'project', properties: { name: 'New Project' } },
+        { id: 'proj-1', ProjectId: 'proj-1', type: 'project', properties: { name: 'New Project', owner: "1234" } },
         { id: 'budget', ProjectId: 'proj-1', type: 'budget', properties: { amount: 100000 } },
         { id: 'deliv-1-1', ProjectId: 'proj-1', type: 'deliverable', properties: { name: 'Deliverable 1-1' } },
         { id: 'deliv-1-2', ProjectId: 'proj-1', type: 'deliverable', properties: { name: 'Deliverable 1-2' } }
