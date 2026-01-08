@@ -127,8 +127,8 @@ describe("ProjectRepository utils", () => {
 
       }).pipe(
         Effect.provide(TestLive),
-        Effect.provide(OpenPolicyAgentApi.Default),
-        Effect.provide(FetchHttpClient.layer)
+        Effect.provideService(OpenPolicyAgentApi, OpenPolicyAgentApi.Test),
+        
       )
     )
 
@@ -155,8 +155,7 @@ describe("ProjectRepository utils", () => {
       const query = ""
       const condition = yield* (includeSecurityCondition(query).pipe(
         Effect.provide(SecurityPredicate.Live),
-        Effect.provide(OpenPolicyAgentApi.Default),
-        Effect.provide(FetchHttpClient.layer)
+        Effect.provideService(OpenPolicyAgentApi, OpenPolicyAgentApi.Test),
       ))
 
        expect(condition).toEqual({

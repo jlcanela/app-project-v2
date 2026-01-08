@@ -1,6 +1,7 @@
 import { Effect } from "effect"
 import { HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
-import type { Condition } from "@ucast/mongo2js"
+import { FieldCondition, guard, type Condition } from "@ucast/mongo2js"
+import { emptyCondition } from "./ucast.js"
 
 type ApiRequest = {
   resource: "projects" // | ... other resources
@@ -16,7 +17,6 @@ type Permission<T> = {
   apiRequest: ApiRequest
   condition: Condition<T>
 }
-
 
 export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
   "app/OpenPolicyAgentApi",
@@ -34,55 +34,70 @@ export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
         apiRequest: ApiRequest,
         user: User
       ) => Effect.gen(function* () {
-          // Build OPA input from apiRequest + user
-          const body = {
-            input: {
-              user
-            }
+        // Build OPA input from apiRequest + user
+        const body = {
+          input: {
+            user
           }
+        }
 
-          const { resource, access } = apiRequest
-          const request = HttpClientRequest.post(`/v1/compile/${resource}/${access}`, {
-            headers: {
-              "Accept": "application/vnd.opa.ucast.all+json",
-            },
-            body: HttpBody.raw(JSON.stringify(body), {
-                contentType: "application/json"
-            })
+        const { resource, access } = apiRequest
+        const request = HttpClientRequest.post(`/v1/compile/${resource}/${access}`, {
+          headers: {
+            "Accept": "application/vnd.opa.ucast.all+json",
+          },
+          body: HttpBody.raw(JSON.stringify(body), {
+            contentType: "application/json"
           })
-        
-          const response = yield* client.execute(request)
-
-          if (response.status !== 200) {
-            return yield* Effect.fail(
-              new Error(`OPA error: ${response.status}`)
-            )
-          }
-
-          const json = (yield* response.json) as {
-            result?: { query?: Condition<T> }
-          }
-
-          if (!json.result || !json.result.query) {
-            return yield* Effect.fail(
-              new Error("OPA response missing result.query")
-            )
-          }
-
-          const condition = json.result.query
-
-          const permission: Permission<T> = {
-            apiRequest,
-            condition
-          }
-
-          return permission
         })
+
+        const response = yield* client.execute(request)
+
+        if (response.status !== 200) {
+          return yield* Effect.fail(
+            new Error(`OPA error: ${response.status}`)
+          )
+        }
+
+        const json = (yield* response.json) as {
+          result?: { query?: Condition<T> }
+        }
+
+        if (!json.result || !json.result.query) {
+          return yield* Effect.fail(
+            new Error("OPA response missing result.query")
+          )
+        }
+
+        const condition = json.result.query
+
+        const permission: Permission<T> = {
+          apiRequest,
+          condition
+        }
+
+        return permission
+      })
 
       return {
         fetchPermission
       } as const
     })
   }
-) {}
+) {
+  static Test = new OpenPolicyAgentApi({
+    fetchPermission: <T>(apiRequest: ApiRequest, user: User) => Effect.succeed<Permission<T>>({
+      apiRequest: {
+        resource: "projects",
+        access: "read"
+      },
+      condition: {
+        "field": "projects.owner",
+        "operator": "eq",
+        "type": "field",
+        "value": "1234"
+      } as unknown as Condition<T>
+    })
+  })
+}
 
