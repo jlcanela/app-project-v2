@@ -4,11 +4,12 @@ import { DocumentDb, DocumentId, PartitionId } from "../DocumentDb/Document.js";
 import { mergeDocuments, splitDocuments } from "./utils.js";
 
 import { BuildMongoQuery, CompoundCondition, Condition, guard, interpret, MongoQuery } from "@ucast/mongo2js";
-import { OpaConnexionError, OpaError, OpaInvalidResponseError, OpenPolicyAgentApi } from "../lib/OpenPolicyAgentApi.js";
+import { OpaConnexionError, OpaError, OpaInvalidResponseError, OpenPolicyAgentApi, User } from "../lib/OpenPolicyAgentApi.js";
 import { HttpClientError, ResponseError } from "@effect/platform/HttpClientError";
 import { cons } from "effect/List";
 import { emptyCondition, fromOpaNode, OpaCompoundNode, OpaNode, prefixFields } from "../lib/ucast.js";
 import { HttpApiError } from "@effect/platform";
+import { CurrentUser } from "../lib/authorization.js";
 
 // Helper types to extract entity information from RepositoryConfig
 type SingleEntityNamesFromConfig<R extends RepositoryConfig<any, any, any, any, any, any>> = {
@@ -148,12 +149,12 @@ export const makeCosmosTransformer = <
 
 // eslint-disable-next-line no-use-before-define
 export class SecurityPredicate extends Effect.Service<SecurityPredicate>()("app/SecurityPredicate", {
-  effect: Effect.gen(function* () {
+  effect: Effect.fn("Repository.securityFilter")(function* (currentUser: CurrentUser) {
     const opa = yield* OpenPolicyAgentApi
      const securityFilter = Effect.fn("Repository.securityFilter")(function* () {
       const perm = yield* opa.fetchPermission<unknown>(
           { resource: "projects", access: "read" },
-          { id: "1234", roles: ["dev"] }
+         { id: currentUser.userId, roles: currentUser.roles as Array<string>}
       )
       const securityFilter = perm.condition// as Condition<unknown>
       return securityFilter
@@ -252,15 +253,11 @@ export const makeRepository = <
     const aggregates = mergeDocuments(res, { config: repositoryConfig, transformer })
     const condition = yield* includeSecurityCondition(query).pipe(
        Effect.catchAll((error) =>  new OpaError({ message: error.message, status: 500 }))
-       //Effect.tapError((e) => Effect.logError("condition:", e))
-    )//.pipe(
-    //   Effect.catchAll((error) =>  new OpaError({ message: error.message, status: 500 }),
-    //   Effect.tapError((e) => Effect.logError("condition:", e))
-    // )))
+    )
+
+    yield* Effect.annotateCurrentSpan("condition", condition)
     
     const predicate = (a: unknown) => interpret(condition, { projects: a})
-
-    //const predicate = () => true
     return aggregates.filter(predicate)
   })
 

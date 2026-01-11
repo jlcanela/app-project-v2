@@ -6,6 +6,7 @@ import * as jose from "jose";
 // eslint-disable-next-line no-use-before-define
 export class AuthParams extends Schema.Class<AuthParams>("AuthParams")({
   id: PartyId,
+  roles: Schema.Array(Schema.String),
 }) {}
 
 // eslint-disable-next-line no-use-before-define
@@ -29,7 +30,7 @@ export const genToken =  (payload: AuthParams) =>
           "urn:example:claim": true,
           given_name: "party.firstName",
           family_name: "party.lastName",
-          roles: ["admin"],
+          roles: payload.roles
         })
           .setProtectedHeader({ alg: "HS256" })
           .setIssuedAt()

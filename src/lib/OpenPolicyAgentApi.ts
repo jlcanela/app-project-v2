@@ -3,17 +3,17 @@ import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from "@effec
 import { FieldCondition, guard, type Condition } from "@ucast/mongo2js"
 import { emptyCondition } from "./ucast.js"
 
-type ApiRequest = {
+export type ApiRequest = {
   resource: "projects" // | ... other resources
   access: "create" | "read" | "update" | "delete"
 }
 
-type User = {
+export type User = {
   id: string
   roles: Array<string>
 }
 
-type Permission<T> = {
+export type Permission<T> = {
   apiRequest: ApiRequest
   condition: Condition<T>
 }

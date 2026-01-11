@@ -180,8 +180,8 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
                 const { search, fields, limit, offset, continuationToken } = urlParams
 
                 const currentUser = yield* CurrentUserTag;
-                yield* Effect.log(`Current user: ${JSON.stringify(currentUser)}`)
-
+                yield* Effect.annotateCurrentSpan("currentUser.userId", currentUser.userId)
+                yield* Effect.annotateCurrentSpan("currentUser.roles", currentUser.roles)
                 if (continuationToken != null && (limit != null || offset != null)) {
                     //   return yield* Effect.fail(
                     //     new Error("Use either limit+offset or continuationToken, not both")
@@ -197,13 +197,13 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
 
                 // use `pagination` downstream
                 const results = yield* (repo.search(urlParams.search ?? "").pipe(
-                    Effect.provide(SecurityPredicate.Default),
+                    Effect.provide(SecurityPredicate.Default(currentUser)),
                     Effect.mapError((err) => err.message)
                 ))
                 return results
             }).pipe(
                 Effect.catchAll((error) => new HttpApiError.InternalServerError())
-            )//.pipe(Effect.tapError((e) => Effect.logError(`Search API error: ${e}`)))
+            )
         )
     )
 }))
@@ -236,7 +236,8 @@ export const ProjectsApiLive = Layer.unwrapEffect(Effect.gen(function* () {
         )
         .handle("createProject", ({ payload }) =>
             Effect.gen(function* () {
-                yield* repo.upsert(payload).pipe(
+                const currentUser = yield* CurrentUserTag;
+                yield* repo.upsert({...payload, ProjectId: payload.id, owner: currentUser.userId}).pipe(
                     Effect.tapError((e) => Effect.logError(`Error creating project: ${e.message}`)),
                     Effect.orDie)
                 return yield* Effect.succeed(payload)

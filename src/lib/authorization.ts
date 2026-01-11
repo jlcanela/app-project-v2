@@ -1,6 +1,6 @@
 import { HttpApiError, HttpApiMiddleware, HttpApiSecurity, OpenApi } from "@effect/platform";
 import { Unauthorized } from "@effect/platform/HttpApiError";
-import { Context, Effect, Layer, Redacted, Schema } from "effect";
+import { Context, Data, Effect, Layer, Redacted, Schema } from "effect";
 import { PartyId, Role } from "./parties.js";
 import * as jose from "jose";
 import { RoleType } from "./parties.js";
@@ -12,14 +12,14 @@ export class CurrentUser extends Schema.Class<CurrentUser>("")({
   roles: Schema.Array(Role),
   context: Schema.Record({ key: Schema.String, value: Schema.Any }),
   // readonly permissions: Set<Permission>;
-}) {}
+}) { }
 
 // Create a Context Tag for CurrentUser
 export class CurrentUserTag extends Context.Tag("CurrentUserTag")<
   // eslint-disable-next-line no-use-before-define
   CurrentUserTag,
-  CurrentUser | null
->() {}
+  CurrentUser
+>() { }
 
 // export class AuthParams extends Schema.Class<AuthParams>("AuthParams")({
 //   id: PartyId,
@@ -35,8 +35,11 @@ export class Authorization extends HttpApiMiddleware.Tag<Authorization>()("Autho
       HttpApiSecurity.annotate(OpenApi.Description, "OAuth2 Bearer Token"),
     ),
   },
-}) {}
+}) { }
 
+export class InvalidToken extends Data.TaggedError("InvalidToken")<{
+  error?: unknown
+}> { }
 
 export const AuthorizationLive = Layer.effect(
   Authorization,
@@ -48,8 +51,8 @@ export const AuthorizationLive = Layer.effect(
       // Define the handler for the Bearer token
       // The Bearer token is redacted for security
       myBearer: (bearerToken) =>
-        Effect.gen(function* () {
-          const user = yield* Effect.tryPromise({
+        Effect.fn("Authorization.myBearer")(function* () {
+          const payload = yield* Effect.tryPromise({
             try: async () => {
               const secret = new TextEncoder().encode(process.env.JWT_SECRET);
               const { payload } = await jose.jwtVerify(Redacted.value(bearerToken), secret, {
@@ -57,28 +60,21 @@ export const AuthorizationLive = Layer.effect(
                 audience: "urn:example:audience",
               });
 
-              const id = payload.sub as string;
-              const roles = payload.roles as ReadonlyArray<RoleType>;
-            //   const context = security.evaluate(
-            //     { search_entity: "project", user: { id, roles } },
-            //     "search/allow",
-            //   );
-
-              return CurrentUser.make({
-                userId: PartyId.make(payload.sub as string),
-                roles: payload.roles as ReadonlyArray<RoleType>,
-                context: {},
-              });
+              return payload
             },
-            catch: (err) => new HttpApiError.Unauthorized()//;new Error(`Invalid token: ${err}`),
+            catch: (error) => new InvalidToken({ error })
           }).pipe(
-            Effect.tap(Effect.log),
-            //Effect.tapError((e) => Effect.log(e.message)),
-            //Effect.orElseSucceed(() => null),
-          );
+            // TODO: use encryption to protect potentially sensitive bearer token
+            Effect.tapErrorTag("InvalidToken", () => Effect.annotateCurrentSpan("invalidToken", Redacted.value(bearerToken))),
+            Effect.catchTag("InvalidToken", () => new HttpApiError.Unauthorized()
+          ))
 
-          return user;
-        }),
+          return CurrentUser.make({
+            userId: PartyId.make(payload.sub as string),
+            roles: payload.roles as ReadonlyArray<RoleType>,
+            context: {},
+          });
+        })()
     };
   }),
 );
