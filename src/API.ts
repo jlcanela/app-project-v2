@@ -47,6 +47,8 @@ export const search = HttpApiEndpoint.get("search")`/search`
     .setUrlParams(ProjectListQuery)
     .addSuccess(Schema.Array(projectRepositoryConfig.partialAggregateSchema()))
     .addError(Schema.String)
+    .addError(HttpApiError.InternalServerError)
+
 
 
 // GET /projects?limit=&offset=&search=
@@ -195,13 +197,13 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
 
                 // use `pagination` downstream
                 const results = yield* (repo.search(urlParams.search ?? "").pipe(
-                    Effect.provide(SecurityPredicate.Live),
-                    Effect.provide(OpenPolicyAgentApi.Default),
-                    Effect.provide(FetchHttpClient.layer),
+                    Effect.provide(SecurityPredicate.Default),
                     Effect.mapError((err) => err.message)
                 ))
                 return results
-            }).pipe(Effect.tapError((e) => Effect.logError(`Search API error: ${e}`)))
+            }).pipe(
+                Effect.catchAll((error) => new HttpApiError.InternalServerError())
+            )//.pipe(Effect.tapError((e) => Effect.logError(`Search API error: ${e}`)))
         )
     )
 }))

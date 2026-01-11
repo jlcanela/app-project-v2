@@ -1,5 +1,5 @@
-import { Effect } from "effect"
-import { HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
+import { Data, Effect } from "effect"
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from "@effect/platform"
 import { FieldCondition, guard, type Condition } from "@ucast/mongo2js"
 import { emptyCondition } from "./ucast.js"
 
@@ -17,6 +17,21 @@ type Permission<T> = {
   apiRequest: ApiRequest
   condition: Condition<T>
 }
+
+export class OpaError extends Data.TaggedError("OpaError")<{
+  message: string,
+  status: number
+}> {}
+
+export class OpaConnexionError extends Data.TaggedError("OpaConnexionError")<{
+  cause?: unknown
+}> {}
+
+export class OpaServerDownError extends Data.TaggedError("OpaServerDownError")<{}> {}
+
+export class OpaInvalidResponseError extends Data.TaggedError("OpaInvalidResponseError")<{
+  query?: Condition<unknown>
+}> {}
 
 export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
   "app/OpenPolicyAgentApi",
@@ -51,22 +66,22 @@ export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
           })
         })
 
-        const response = yield* client.execute(request)
+        const response = yield* client.execute(request).pipe(
+          Effect.catchAll((error) => {
+            return new OpaConnexionError({ cause: error.cause})
+          })
+        )
 
         if (response.status !== 200) {
-          return yield* Effect.fail(
-            new Error(`OPA error: ${response.status}`)
-          )
+          return yield* new OpaError({ message: "", status: response.status })
         }
 
         const json = (yield* response.json) as {
-          result?: { query?: Condition<T> }
+          result: { query?: Condition<T> }
         }
 
         if (!json.result || !json.result.query) {
-          return yield* Effect.fail(
-            new Error("OPA response missing result.query")
-          )
+          return yield* new OpaInvalidResponseError({ query: json?.result as Condition<unknown>})
         }
 
         const condition = json.result.query
@@ -82,7 +97,8 @@ export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
       return {
         fetchPermission
       } as const
-    })
+    }),
+    dependencies: [FetchHttpClient.layer]
   }
 ) {
   static Test = new OpenPolicyAgentApi({
