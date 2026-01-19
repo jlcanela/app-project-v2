@@ -1,0 +1,155 @@
+{
+  "contentType": "application/vnd.gorules.decision",
+  "nodes": [
+    {
+      "id": "ca98730e-a40f-4601-98cc-b5a57429596d",
+      "type": "inputNode",
+      "position": {
+        "x": 80,
+        "y": 400
+      },
+      "name": "Request",
+      "content": {
+        "schema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"name\": {\n      \"type\": \"string\"\n    },\n    \"budget\": {\n      \"type\": \"integer\"\n    },\n    \"cost\": {\n      \"type\": \"integer\"\n    },\n    \"status\": {\n      \"type\": \"string\"\n    }\n  }\n}"
+      }
+    },
+    {
+      "type": "expressionNode",
+      "content": {
+        "expressions": [
+          {
+            "id": "4f7df401-2648-4f42-864b-59026a60687b",
+            "key": "rules.budget",
+            "value": "project.budget > project.cost"
+          }
+        ],
+        "passThrough": true,
+        "inputField": null,
+        "outputPath": null,
+        "executionMode": "single"
+      },
+      "id": "975d987f-f5a1-4284-995d-5d0e9e7275a4",
+      "name": "rule_finance",
+      "position": {
+        "x": 395,
+        "y": 625
+      }
+    },
+    {
+      "type": "expressionNode",
+      "content": {
+        "expressions": [
+          {
+            "id": "a02cc0dd-2182-44a3-a571-7fb1a3eed953",
+            "key": "event.type",
+            "value": "\"project-validation\""
+          },
+          {
+            "id": "f786ec18-6f5f-47b9-8d2b-0c3db2cbfc9f",
+            "key": "event.project",
+            "value": "name"
+          },
+          {
+            "id": "0b8daeee-7665-4fd8-a71f-f53e318961ee",
+            "key": "event.decision",
+            "value": "\"no-go\""
+          }
+        ],
+        "passThrough": true,
+        "inputField": null,
+        "outputPath": null,
+        "executionMode": "single"
+      },
+      "id": "23cb2c5b-0e93-4c49-bdb1-2f9bf8a194c4",
+      "name": "decision=NOGO",
+      "position": {
+        "x": 1100,
+        "y": 530
+      }
+    },
+    {
+      "type": "switchNode",
+      "content": {
+        "hitPolicy": "first",
+        "statements": [
+          {
+            "id": "321be261-26ef-42c3-aedb-18bedda16f2b",
+            "condition": "rules.budget",
+            "isDefault": false
+          },
+          {
+            "id": "defcb6c4-d6cf-4480-8519-7fd3cb2afb37",
+            "condition": "",
+            "isDefault": true
+          }
+        ]
+      },
+      "id": "e6f3e33f-9bf8-4930-b8b0-9ab90d1b284a",
+      "name": "outcome",
+      "position": {
+        "x": 715,
+        "y": 610
+      }
+    },
+    {
+      "type": "expressionNode",
+      "content": {
+        "expressions": [
+          {
+            "id": "d16ac180-d5d9-40de-a3d3-e65796a4d5bc",
+            "key": "event.type",
+            "value": "\"project-validation\""
+          },
+          {
+            "id": "eb4cf945-449e-4aeb-8b58-1fafc909f870",
+            "key": "event.project",
+            "value": "name"
+          },
+          {
+            "id": "17711868-540a-4f00-93cf-22e21ca0f519",
+            "key": "event.decision",
+            "value": "\"go\""
+          }
+        ],
+        "passThrough": true,
+        "inputField": null,
+        "outputPath": null,
+        "executionMode": "single"
+      },
+      "id": "77fbf1b0-6313-43c2-8e5d-f3e8707d1876",
+      "name": "decision=GO",
+      "position": {
+        "x": 1100,
+        "y": 380
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "f2ebebf4-ab71-4cdf-aadd-74659f05e2e7",
+      "sourceId": "ca98730e-a40f-4601-98cc-b5a57429596d",
+      "type": "edge",
+      "targetId": "975d987f-f5a1-4284-995d-5d0e9e7275a4"
+    },
+    {
+      "id": "7bf58a1c-d703-4902-a800-5623a807ad92",
+      "sourceId": "975d987f-f5a1-4284-995d-5d0e9e7275a4",
+      "type": "edge",
+      "targetId": "e6f3e33f-9bf8-4930-b8b0-9ab90d1b284a"
+    },
+    {
+      "id": "aa6e05d3-4153-462d-8910-d251cb443c3d",
+      "sourceId": "e6f3e33f-9bf8-4930-b8b0-9ab90d1b284a",
+      "type": "edge",
+      "targetId": "23cb2c5b-0e93-4c49-bdb1-2f9bf8a194c4",
+      "sourceHandle": "defcb6c4-d6cf-4480-8519-7fd3cb2afb37"
+    },
+    {
+      "id": "d9765f52-a136-4827-a549-3caedcb5f05c",
+      "sourceId": "e6f3e33f-9bf8-4930-b8b0-9ab90d1b284a",
+      "type": "edge",
+      "targetId": "77fbf1b0-6313-43c2-8e5d-f3e8707d1876",
+      "sourceHandle": "321be261-26ef-42c3-aedb-18bedda16f2b"
+    }
+  ]
+}

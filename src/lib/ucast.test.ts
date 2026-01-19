@@ -65,9 +65,6 @@ describe('Ucast tests', () => {
        };
        
        const condition = fromOpaNode(opaQuery);
-       
-       // `jsInterpreter` is (condition, obj) => boolean
-       console.log(condition)
        const allowed = interpret(condition, { projects: { owner: '1234'} });
        expect(allowed).toEqual(true)
 
