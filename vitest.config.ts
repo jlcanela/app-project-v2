@@ -11,8 +11,11 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'unit',
-          include: ['**/*.test.ts'],
-          exclude: ['**/*.integration.test.ts'],
+          include: ['src/**/*.test.ts'],
+          exclude: [
+            'src/**/*.integration.test.ts',
+            "node_modules/**",
+          ],
         },
       },
       {
@@ -21,7 +24,8 @@ export default defineConfig({
         //extends: false,
         test: {
           name: 'integration',
-          include: ['**/*.integration.test.ts'],
+          include: ['src/**/*.integration.test.ts'],
+          exclude: ["node_modules/**"],
         },
       },
     ],

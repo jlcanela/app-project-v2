@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image:  postgres:18-bookworm
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -13,11 +13,33 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - apv2-network
     restart: unless-stopped
- 
+
+  adminer:
+    image: adminer:5.2.1
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - apv2-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8090:80"
+    networks:
+      - apv2-network
+    #restart: unless-stopped
+    depends_on:
+      - postgres
+
   cosmos:
     image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
     restart: unless-stopped
@@ -58,7 +80,7 @@ services:
       - QUERY_BASE_PATH=/
     networks:
       - apv2-network
-    restart: unless-stopped
+    #restart: unless-stopped
 
 networks:
   apv2-network:

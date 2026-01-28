@@ -93,6 +93,16 @@ const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
 const portEnv = process.env.PORT;
 const port = Number.isInteger(Number(portEnv)) && Number(portEnv) > 0 ? Number(portEnv) : 3000;
 
+const AllLayers = Layer.mergeAll(
+  HttpApiSwagger.layer(),
+  MyApiLive,
+ AuthorizationLive,
+    //Layer.provide(Security.Default),
+ Security.Default,
+  HttpApiBuilder.middlewareCors(),
+
+)
+
 const ServerLive = HttpApiBuilder.serve().pipe(
   HttpServer.withLogAddress,
   // Provide the Swagger layer so clients can access auto-generated docs
