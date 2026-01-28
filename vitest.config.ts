@@ -5,6 +5,12 @@ export default defineConfig({
   //plugins: [react()],
   test: {
     pool: 'threads',
+    coverage: {
+      provider: "v8",                  // or "istanbul"
+      reporter: ["text", "html", "lcov"], // CLI + HTML + lcov
+      reportsDirectory: "./coverage",
+      enabled: false,                  // enable via CLI by default
+    },
     projects: [
       {
         // will inherit options from this config like plugins and pool

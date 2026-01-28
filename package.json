@@ -10,7 +10,8 @@
     "demo": "tsx src/Repository4.ts",
     "demo2": "tsx src/Repository2.ts",
     "test": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest",
-    "test:ci": "vitest",
+    "coverage": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest run --coverage",
+    "test:ci": "vitest run --coverage",
     "test:opa": "cd opa && opa test ."
   },
   "keywords": [],
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@effect/language-service": "^0.57.1",
     "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "4.0.16",
     "dotenv-cli": "^11.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
