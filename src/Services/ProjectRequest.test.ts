@@ -2,7 +2,7 @@
 // UC 1
 import { describe, expect, it } from "@effect/vitest"
 import { ProjectRequestService } from "./ProjectRequestService.js";
-import { isProjectInvalidStatus, ProjectRequestForm } from "../Domain/Project.js";
+import { isProjectInvalidStatus, ProjectRequestForm, ProjectSummary } from "../Domain/Project.js";
 import { Effect, Layer } from "effect";
 import { ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
 
@@ -72,4 +72,21 @@ describe('ProjectRequest', () => {
       )
   )
 
+    it.effect(
+    "should create project on validate request",
+    () =>
+      Effect.gen(function* () {
+        const projectRequestService = yield* ProjectRequestService
+        const projectRequest = yield* projectRequestService.create(form)
+        const summary = yield* projectRequestService.validate(projectRequest.id)
+        expect(summary).toStrictEqual(ProjectSummary.make({
+          id: projectRequest.id,
+          name: form.name,
+          budget: form.budget,
+          cost: form.cost
+        }))
+      }).pipe(
+        Effect.provide(TestLayer)
+      )
+  )
 });

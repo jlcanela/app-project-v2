@@ -2,7 +2,7 @@ import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
 import * as Document from "./Document.js"
 
-describe("DocumentDB KV", () => {
+describe.concurrent("DocumentDB KV", () => {
   it.effect("upsert and getById should return the object", () =>
     Effect.gen(function*() {
       const db = yield* Document.DocumentDb

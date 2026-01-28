@@ -1,9 +1,7 @@
 import { Option, Schema } from "effect"
 import * as Effect from "effect/Effect"
-import { ProjectRequestForm, ProjectRequestStatus, ProjectSummary } from "../Domain/Project.js";
-import { ProjectId } from "../Repository/Project.js";
-
-import { ProjectRequest, ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
+import { isProjectInvalidStatus, ProjectRequestForm, ProjectSummary } from "../Domain/Project.js";
+import { ProjectForm, ProjectRequest, ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
 import { BusinessRuleService } from "./BusinessRulesService.js";
 
 export class ProjectRequestNotFound extends Schema.TaggedError<ProjectRequestNotFound>()(
@@ -64,14 +62,27 @@ export class ProjectRequestService extends Effect.Service<ProjectRequestService>
         )
 
         const validate = Effect.fn("validateProjectRequest")(function* (id: string) {
-            const projectId = ProjectId.make(id)
-            const summary: ProjectSummary = {
-                id: projectId,
-                name: "New Project",
-                budget: 10000,
-                cost: 12000
+            const foundProject = yield* Option.match(yield* repository.findProjectRequestById({ id }), {
+                onNone: () => Effect.fail(new ProjectRequestNotFound({
+                    id,
+                    message: `Project Request with id ${id} not found`,
+                })),
+                onSome: (projectRequest: ProjectRequest) => Effect.succeed(projectRequest)
+            })
+            const status = yield* optionalProjectToStatus(id, Option.some(foundProject))
+            if (isProjectInvalidStatus(status)) {
+                yield* Effect.fail(new Error(`Project Request with id ${id} is invalid`))
             }
-            return summary
+            const created = yield* repository.insertProject(new ProjectForm({
+                id: foundProject.id,
+            }))
+           
+            return ProjectSummary.make({
+                id: created.id,
+                name: foundProject.name,
+                budget: foundProject.budget,
+                cost: foundProject.cost
+            })
         })
 
         return {
