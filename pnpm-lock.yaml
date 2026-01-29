@@ -92,9 +92,9 @@ importers:
       jose:
         specifier: ^6.1.3
         version: 6.1.3
-      pg:
-        specifier: ^8.17.2
-        version: 8.17.2
+      pg-types:
+        specifier: ^4.1.0
+        version: 4.1.0
       tar-stream:
         specifier: ^3.1.7
         version: 3.1.7
@@ -102,9 +102,15 @@ importers:
       '@effect/language-service':
         specifier: ^0.57.1
         version: 0.57.1
+      '@testcontainers/postgresql':
+        specifier: ^11.11.0
+        version: 11.11.0
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
+      '@types/pg':
+        specifier: ^8.16.0
+        version: 8.16.0
       '@vitest/coverage-v8':
         specifier: 4.0.16
         version: 4.0.16(vitest@4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(tsx@4.20.6)(yaml@2.8.2))
@@ -1153,6 +1159,9 @@ packages:
   '@testcontainers/azure-cosmosdb-emulator@11.10.0':
     resolution: {integrity: sha512-UtTIJ+P8aTfYwiPCGN3xTfXk6dAjEqOEYqV21jwtzoSiN88QmlwFf9fGcEI8sVfETzQ6vj7/fTgUXLIo3gpjyw==}
 
+  '@testcontainers/postgresql@11.11.0':
+    resolution: {integrity: sha512-Og64I/h5LKLVvUTkAcLeTXfFcMhh3dCHCypN3Uzd+tQMd70SpCfQ0LCP9v/U+MS7JBRzU9EmqhUFkTOm4hyZWw==}
+
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
@@ -1176,6 +1185,9 @@ packages:
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
+  '@types/pg@8.16.0':
+    resolution: {integrity: sha512-RmhMd/wD+CF8Dfo+cVIy3RR5cl8CyfXQ0tGgW6XBL8L4LM/UTEbNXYRbLwU6w+CgrKBNbrQWt4FUtTfaU5jSYQ==}
 
   '@types/ssh2-streams@0.1.13':
     resolution: {integrity: sha512-faHyY3brO9oLEA0QlcO8N2wT7R0+1sHWZvQ+y3rMLwdY1ZyS1z0W3t65j9PqT4HmQ6ALzNe7RZlNuCNE0wBSWA==}
@@ -2040,6 +2052,9 @@ packages:
 
   testcontainers@11.10.0:
     resolution: {integrity: sha512-8hwK2EnrOZfrHPpDC7CPe03q7H8Vv8j3aXdcmFFyNV8dzpBzgZYmqyDtduJ8YQ5kbzj+A+jUXMQ6zI8B5U3z+g==}
+
+  testcontainers@11.11.0:
+    resolution: {integrity: sha512-nKTJn3n/gkyGg/3SVkOwX+isPOGSHlfI+CWMobSmvQrsj7YW01aWvl2pYIfV4LMd+C8or783yYrzKSK2JlP+Qw==}
 
   text-decoder@1.2.3:
     resolution: {integrity: sha512-3/o9z3X0X0fTupwsYvR03pJ/DjWuqqrfwBgTQzdWDiQSm9KitAyz/9WqsT2JQW7KV2m+bC2ol/zqpW37NHxLaA==}
@@ -3167,6 +3182,15 @@ snapshots:
       - react-native-b4a
       - supports-color
 
+  '@testcontainers/postgresql@11.11.0':
+    dependencies:
+      testcontainers: 11.11.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
+
   '@tybys/wasm-util@0.10.1':
     dependencies:
       tslib: 2.8.1
@@ -3199,6 +3223,12 @@ snapshots:
   '@types/node@24.10.1':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/pg@8.16.0':
+    dependencies:
+      '@types/node': 24.10.1
+      pg-protocol: 1.11.0
+      pg-types: 2.2.0
 
   '@types/ssh2-streams@0.1.13':
     dependencies:
@@ -4169,6 +4199,29 @@ snapshots:
       - react-native-b4a
 
   testcontainers@11.10.0:
+    dependencies:
+      '@balena/dockerignore': 1.0.2
+      '@types/dockerode': 3.3.47
+      archiver: 7.0.1
+      async-lock: 1.4.1
+      byline: 5.0.0
+      debug: 4.4.3
+      docker-compose: 1.3.0
+      dockerode: 4.0.9
+      get-port: 7.1.0
+      proper-lockfile: 4.1.2
+      properties-reader: 2.3.0
+      ssh-remote-port-forward: 1.0.4
+      tar-fs: 3.1.1
+      tmp: 0.2.5
+      undici: 7.16.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
+
+  testcontainers@11.11.0:
     dependencies:
       '@balena/dockerignore': 1.0.2
       '@types/dockerode': 3.3.47

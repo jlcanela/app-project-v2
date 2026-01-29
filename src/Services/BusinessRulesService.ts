@@ -7,15 +7,6 @@ import { ZenEngine, ZenEngineResponse, ZenEvaluateOptions } from "@gorules/zen-e
 import { ProjectRequest } from "../Repository/ProjectRequestRepository.js";
 import { ParseError } from "effect/ParseResult";
 
-// Decoder: unknown -> Issues (Issue[])
-export const decodeGoRulesIssues = (input: unknown) =>
-    Effect.gen(function* () {
-        const raw = yield* Schema.decodeUnknown(Schema.Array(Schema.Struct({ issue: Issue })))(input)
-        const issues: Issues = raw.map((e) => e.issue)
-        return issues
-    }).pipe(
-        Effect.catchTag("ParseError", (error) => Effect.fail(new InvalidBusinessRuleResult({ error })))
-    )
 
 export class InvalidBusinessRuleResult extends Schema.TaggedError<InvalidBusinessRuleResult>()(
     "InvalidBusinessRuleResult",

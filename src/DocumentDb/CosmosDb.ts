@@ -73,43 +73,43 @@ const make = Effect.fn(function* (name: string, provider: ConfigProvider.ConfigP
 
 export const layerCosmos = ( provider: ConfigProvider.ConfigProvider) => Layer.effect(CosmosClientC, make("cosmos", provider))
 
-export class CosmosContainer extends Effect.Service<CosmosContainer>()("app/CosmosContainer", {
-  effect: Effect.gen(function* () {
+// export class CosmosContainer extends Effect.Service<CosmosContainer>()("app/CosmosContainer", {
+//   effect: Effect.gen(function* () {
 
-    const client = yield* CosmosClientC // new CosmosClient(connectionParams)
+//     const client = yield* CosmosClientC // new CosmosClient(connectionParams)
 
-    const initializeProjectDB = Effect.gen(function* () {
-      // Create database if not exists
-      const { database } = yield* Effect.tryPromise({
-        try: () => client.databases.createIfNotExists({ id: "ProjectDB" }),
-        catch: (error) => new DatabaseError({ error })
-      }).pipe(Effect.withSpan("createDatabase"))
+//     const initializeProjectDB = Effect.gen(function* () {
+//       // Create database if not exists
+//       const { database } = yield* Effect.tryPromise({
+//         try: () => client.databases.createIfNotExists({ id: "ProjectDB" }),
+//         catch: (error) => new DatabaseError({ error })
+//       }).pipe(Effect.withSpan("createDatabase"))
 
-      yield* Effect.log("init databases").pipe(Effect.withSpan("init"))
-      // Create container if not exists
-      const { container } = yield* Effect.tryPromise({
-        try: () =>
-          database.containers.createIfNotExists({
-            id: "Project",
-            partitionKey: {
-              paths: ["/project_id"],
-              kind: PartitionKeyKind.Hash
-            }
-          }),
-        catch: (error) => new DatabaseError({ error })
-      }).pipe(Effect.withSpan("createContainer"))
+//       yield* Effect.log("init databases").pipe(Effect.withSpan("init"))
+//       // Create container if not exists
+//       const { container } = yield* Effect.tryPromise({
+//         try: () =>
+//           database.containers.createIfNotExists({
+//             id: "Project",
+//             partitionKey: {
+//               paths: ["/project_id"],
+//               kind: PartitionKeyKind.Hash
+//             }
+//           }),
+//         catch: (error) => new DatabaseError({ error })
+//       }).pipe(Effect.withSpan("createContainer"))
 
-      return container
-    })
+//       return container
+//     })
 
-    const projectContainer = yield* initializeProjectDB.pipe(Effect.tapError((e) => Console.log(e)))
+//     const projectContainer = yield* initializeProjectDB.pipe(Effect.tapError((e) => Console.log(e)))
 
-    return {
-       projectContainer
-    };
-  }),
-  dependencies: []
-}) { }
+//     return {
+//        projectContainer
+//     };
+//   }),
+//   dependencies: []
+// }) { }
 
 
 export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
@@ -200,7 +200,7 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
           return item
         })
     
-    const dummy = projectContainer.readPartitionKeyRanges
+    //const dummy = projectContainer.readPartitionKeyRanges
 
     return {
       read: a,

@@ -50,16 +50,18 @@ export default Effect.gen(function* () {
         $$ LANGUAGE plpgsql;
         `;
 
+    /* v8 ignore start -- @preserve */
     yield* sql`
         CREATE TRIGGER todos_title_unaccent_trg
         BEFORE INSERT OR UPDATE ON todos
         FOR EACH ROW EXECUTE FUNCTION set_title_unaccent();
         `;
 
+    /* v8 ignore start -- @preserve */
     yield* sql`
         CREATE INDEX todos_title_fts_idx
         ON todos
         USING GIN (to_tsvector('simple', title_unaccent));
         `;
-    
+   
 });

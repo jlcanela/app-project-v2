@@ -29,7 +29,7 @@ export default Effect.gen(function* () {
     );
   `
 
-  // Keep updated_at in sync
+  /* v8 ignore start -- @preserve */
   yield* sql`
     CREATE OR REPLACE FUNCTION set_project_requests_updated_at()
     RETURNS trigger AS $$

@@ -2,16 +2,17 @@
 // UC 1
 import { describe, expect, it } from "@effect/vitest"
 import { isProjectInvalidStatus } from "../Domain/Project.js";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import { ProjectRequest } from "../Repository/ProjectRequestRepository.js";
 import { BusinessRuleService } from "./BusinessRulesService.js";
+import { ProjectId } from "../Repository/Project.js";
 
 describe('ProjectRequest', () => {
 
     const TestLayer = BusinessRuleService.Default
 
     const projectRequest = ProjectRequest.make({
-        id: "some-uuid",
+        id: ProjectId.make("some-uuid"),
         name: "project",
         budget: 15000, // triggers BUDGET_LIMIT_EXCEEDED & MARGIN_TO_LOW
         cost: 20000,    // triggers COST_LIMIT_EXCEEDED
