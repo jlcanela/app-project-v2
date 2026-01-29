@@ -12,7 +12,8 @@
     "test": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest",
     "coverage": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest run --coverage",
     "test:ci": "vitest run --coverage",
-    "test:opa": "cd opa && opa test ."
+    "test:opa": "cd opa && opa test .", 
+    "build": "tsc -p tsconfig.json"
   },
   "keywords": [],
   "author": "",
