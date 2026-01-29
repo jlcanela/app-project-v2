@@ -3,19 +3,18 @@ import { fileURLToPath } from "url"
 import { Effect } from "effect";
 import * as path from "node:path";
 
-//import { NodeContext, NodeRuntime } from '@effect/platform-node';
-//import { PgLive } from './pg-live.js';
+const isCi = process.env.CI === "true" || process.env.NODE_ENV === "test"
 
 export const migrateDatabase = Effect.gen(function* () {
     const currentDir = fileURLToPath(
         new URL(".", import.meta.url),
     );
 
+    const migrationsDir = path.join(currentDir, "migrations")
+
     const migrations = yield* PgMigrator.run({
-        loader: PgMigrator.fromFileSystem(
-            path.join(currentDir, "migrations"),
-        ),
-        schemaDirectory: path.join(currentDir, "migrations"),
+        loader: PgMigrator.fromFileSystem(migrationsDir),
+        schemaDirectory: migrationsDir,
     });
 
     if (migrations.length > 0) {
@@ -29,11 +28,3 @@ export const migrateDatabase = Effect.gen(function* () {
         yield* Effect.logInfo("No migrations applied");
     }
 })
-
-
-//export const program = migrateDatabase.pipe(
-//    Effect.provide([PgLive, NodeContext.layer]),
-//    Effect.orDie
-//)
-
-//NodeRuntime.runMain(program);
