@@ -1,0 +1,13 @@
+### Create a new user
+POST http://localhost:3000/status
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "0001",
+  "name": "some name",
+  "budget": 10000,
+  "cost": 5000,
+  "createdAt": "",
+  "updatedAt": ""
+}

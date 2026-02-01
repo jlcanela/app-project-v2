@@ -12,8 +12,10 @@
     "test": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest",
     "coverage": "DOCKER_HOST=unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock vitest run --coverage",
     "test:ci": "vitest run --coverage",
-    "test:opa": "cd opa && opa test .", 
-    "build": "tsc -p tsconfig.json"
+    "test:opa": "cd opa && opa test .",
+    "build": "tsc -p tsconfig.json",
+    "mcp:inspect": "mcp-inspector",
+    "mcp:inspect:server": "mcp-inspector node /home/jlcanela/dev/effect-mcp/dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -53,6 +55,8 @@
   },
   "devDependencies": {
     "@effect/language-service": "^0.57.1",
+    "@modelcontextprotocol/inspector": "^0.19.0",
+    "@niklaserik/effect-mcp": "^1.0.7",
     "@testcontainers/postgresql": "^11.11.0",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.16.0",

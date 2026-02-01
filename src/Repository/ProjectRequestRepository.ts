@@ -1,5 +1,5 @@
 import { SqlClient, SqlSchema } from "@effect/sql"
-import { Effect, Layer, Schema, flow } from "effect"
+import { Data, Effect, Layer, Schema, flow } from "effect"
 import * as Option from "effect/Option"
 
 // Domain-level IDs
@@ -12,6 +12,14 @@ export const ProjectRequestFormSchema = Schema.Struct({
   budget: Schema.Number,
   cost: Schema.Number,
 })
+
+export class GetProjectRequestError extends Data.TaggedError("GetProjectRequestError")<{
+  error: unknown
+}> {
+  toString() {
+    return `GetProjectRequestError: ${this.error}`
+  }
+}
 
 // Keep this shape in sync with your DB table and ProjectRequestForm / ProjectSummary
 export class ProjectRequest extends Schema.Class<ProjectRequest>("ProjectRequest")({

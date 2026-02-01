@@ -1,9 +1,9 @@
 import { Schema } from "effect"
 import * as Effect from "effect/Effect"
-import { Issue, Issues, ProjectInvalidStatus, ProjectRequestStatus, ProjectValidStatus } from "../Domain/Project.js";
+import { Issue, ProjectInvalidStatus, ProjectRequestStatus, ProjectValidStatus } from "../Domain/Project.js";
 import fs from 'fs';
 import path from "path"
-import { ZenEngine, ZenEngineResponse, ZenEvaluateOptions } from "@gorules/zen-engine";
+import { ZenEngine, ZenEvaluateOptions } from "@gorules/zen-engine";
 import { ProjectRequest } from "../Repository/ProjectRequestRepository.js";
 import { ParseError } from "effect/ParseResult";
 
@@ -140,8 +140,8 @@ export class BusinessRuleService extends Effect.Service<BusinessRuleService>()("
 
         return {
             validateProjectRequest: execRules("validateProject") as  (input: unknown) => Effect.Effect<ProjectRequestStatus, ParseError | InvalidBusinessRuleResult, never>,
+            execute: (ruleName: string, input: unknown) => execRules(ruleName)(input)
         };
     }),
     dependencies: []
 }) { }
-

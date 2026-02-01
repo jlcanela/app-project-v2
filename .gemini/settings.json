@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "effect-mcp": {
+      "command": "node",
+      "args": [
+        "/home/jlcanela/dev/effect-mcp/dist/index.js"
+      ],
+      "cwd": "/home/jlcanela/dev/effect-mcp"
+    }
+  }
+}

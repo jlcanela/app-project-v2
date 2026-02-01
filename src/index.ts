@@ -14,6 +14,9 @@ import * as Document from "./DocumentDb/Document.js"
 import { AuthApiLive, MyApi, ProjectsApiLive, SearchApiLive } from "./API.js"
 import { Security } from "./lib/security.js"
 import { AuthorizationLive } from "./lib/authorization.js"
+import { pipelinesToRouter, RequestDispatcher } from "./Services/PipelineInterpreter.js"
+import { Pipelines } from "./Services/BusinessRuleType.js"
+import { BusinessRuleService } from "./Services/BusinessRulesService.js"
 //import { Repository } from "./Repository/Repository.js"
 
 const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
@@ -45,7 +48,7 @@ const Observability = Otlp.layer({
 //         amount: 100000
 //       },
 //       deliverables: []
-    
+
 //   }
 
 //   //{} 
@@ -79,6 +82,8 @@ const Observability = Otlp.layer({
 
 const envProvider = ConfigProvider.fromEnv({ pathDelim: "__", seqDelim: "|" })
 
+const CustomApis = pipelinesToRouter([Pipelines[2]])
+
 const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
   Layer.provide(Observability),
   Layer.provide(SearchApiLive),
@@ -87,7 +92,11 @@ const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
   Layer.provide(AuthApiLive),
   Layer.provide(Document.layerKV),
   Layer.provide(Cosmos.Default),
-  Layer.provide(layerCosmos(envProvider))
+  Layer.provide(layerCosmos(envProvider)),
+  Layer.provide(CustomApis.pipe(
+    Layer.provide(BusinessRuleService.Default),
+    Layer.provide(RequestDispatcher.Default)
+  ))
 )
 
 const portEnv = process.env.PORT;
@@ -96,9 +105,9 @@ const port = Number.isInteger(Number(portEnv)) && Number(portEnv) > 0 ? Number(p
 const AllLayers = Layer.mergeAll(
   HttpApiSwagger.layer(),
   MyApiLive,
- AuthorizationLive,
-    //Layer.provide(Security.Default),
- Security.Default,
+  AuthorizationLive,
+  //Layer.provide(Security.Default),
+  Security.Default,
   HttpApiBuilder.middlewareCors(),
 
 )
@@ -109,7 +118,7 @@ const ServerLive = HttpApiBuilder.serve().pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(MyApiLive),
   Layer.provide(AuthorizationLive),
-    //Layer.provide(Security.Default),
+  //Layer.provide(Security.Default),
   Layer.provide(Security.Default),
   Layer.provide(HttpApiBuilder.middlewareCors()),
   Layer.provide(NodeHttpServer.layer(createServer, { port }))
