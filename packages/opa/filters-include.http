@@ -1,0 +1,93 @@
+
+### Partial evaluation with unknowns: input.users, input.products
+POST http://localhost:8181/v1/compile/filters/include
+Content-Type: application/json
+Accept: application/vnd.opa.sql.postgresql+json
+
+{
+  "input": {
+    "user": {
+      "name": "dana"
+    },
+    "budget": "medium"
+  }
+}
+
+### Check normal evaluation (for reference)
+POST http://localhost:8181/v1/data/filters/include
+Content-Type: application/json
+
+{
+  "input": {
+    "user": {
+      "name": "dana"
+    },
+    "users": {
+      "name": "dana"
+    },
+    "budget": "low",
+    "products": {
+      "price": 400
+    }
+  }
+}
+
+### Partial evaluation with unknowns: input.users, input.products
+POST http://localhost:8181/v1/compile
+Content-Type: application/json
+
+{
+  "query": "data.filters.include == true",
+  "input": {
+    "user": {
+      "name": "dana"
+    },
+    "budget": "low"
+  },
+  "unknowns": [
+    "input.users",
+    "input.products"
+  ]
+}
+
+### Same compile query, but show pretty result
+POST http://localhost:8181/v1/compile?pretty=true
+Content-Type: application/json
+
+{
+  "query": "data.filters.include == true",
+  "input": {
+    "user": {
+      "name": "dana"
+    },
+    "budget": "low"
+  },
+  "unknowns": [
+    "input.users",
+    "input.products"
+  ]
+}
+
+### Evaluate the compiled query (manually) with a concrete product/user
+# 1. First, copy one of the expressions from the compile result, e.g.
+#    input.users.name == "dana" ; input.products.price < 500
+#    or input.products.price == "free"
+# 2. Then plug concrete values as below.
+
+POST http://localhost:8181/v1/data/filters/include
+Content-Type: application/json
+
+{
+  "input": {
+    "user": {
+      "name": "dana"
+    },
+    "users": {
+      "name": "dana"
+    },
+    "budget": "low",
+    "products": {
+      "price": 300
+    }
+  }
+}
