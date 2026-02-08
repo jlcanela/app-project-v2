@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "check": "pnpm -r --filter @app/backend --filter @app/domain run check",
-    "test:ci": "pnpm -r --filter @app/backend --filter @app/domain run test:ci",
-    "build": "pnpm -r --filter @app/backend --filter @app/domain run build",
+    "check": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run check",
+    "test:ci": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run test:ci",
+    "build": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
