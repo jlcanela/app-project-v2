@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { IconDeviceFloppy, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { createFileRoute } from '@tanstack/react-router';
 import {
   ActionIcon,
   Badge,
@@ -15,25 +18,22 @@ import {
   Text,
   TextInput,
   Title,
-} from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import { IconDeviceFloppy, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 export const Route = createFileRoute('/catalog/$type')({
   component: CatalogPage,
-})
+});
 
 // Mock Data Types
 type SchemaItem = {
-  id: string
-  name: string
-  version: string
-  tags: string[]
-  description: string
-  schema: Record<string, any>
-}
+  id: string;
+  name: string;
+  version: string;
+  tags: string[];
+  description: string;
+  schema: Record<string, any>;
+};
 
 const MOCK_DATA: Record<string, SchemaItem[]> = {
   states: [
@@ -98,21 +98,21 @@ const MOCK_DATA: Record<string, SchemaItem[]> = {
       },
     },
   ],
-}
+};
 
 function CatalogPage() {
-  const { type } = Route.useParams()
-  const [opened, { open, close }] = useDisclosure(false)
-  const [selectedItem, setSelectedItem] = useState<SchemaItem | null>(null)
+  const { type } = Route.useParams();
+  const [opened, { open, close }] = useDisclosure(false);
+  const [selectedItem, setSelectedItem] = useState<SchemaItem | null>(null);
 
   // Normalize type to key of MOCK_DATA
-  const dataKey = (type as string) in MOCK_DATA ? type : 'states'
-  const items = MOCK_DATA[dataKey] || []
+  const dataKey = (type as string) in MOCK_DATA ? type : 'states';
+  const items = MOCK_DATA[dataKey] || [];
 
   const handleEdit = (item: SchemaItem) => {
-    setSelectedItem(item)
-    open()
-  }
+    setSelectedItem(item);
+    open();
+  };
 
   const handleCreate = () => {
     setSelectedItem({
@@ -122,9 +122,9 @@ function CatalogPage() {
       tags: [],
       description: '',
       schema: { type: 'object', properties: {} },
-    })
-    open()
-  }
+    });
+    open();
+  };
 
   return (
     <Container size="xl" py="md">
@@ -191,18 +191,22 @@ function CatalogPage() {
         onClose={close}
         position="right"
         size="xl"
-        title={<Text fw={700} size="lg">{selectedItem?.name || 'New Schema'}</Text>}
+        title={
+          <Text fw={700} size="lg">
+            {selectedItem?.name || 'New Schema'}
+          </Text>
+        }
         padding="md"
       >
         {selectedItem && <SchemaEditor item={selectedItem} />}
       </Drawer>
     </Container>
-  )
+  );
 }
 
 function SchemaEditor({ item }: { item: SchemaItem }) {
-  const [activeTab, setActiveTab] = useState<string | null>('visual')
-  const [schemaJson, setSchemaJson] = useState(JSON.stringify(item.schema, null, 2))
+  const [activeTab, setActiveTab] = useState<string | null>('visual');
+  const [schemaJson, setSchemaJson] = useState(JSON.stringify(item.schema, null, 2));
 
   return (
     <Stack h="calc(100vh - 100px)">
@@ -211,8 +215,13 @@ function SchemaEditor({ item }: { item: SchemaItem }) {
         <TextInput label="Version" defaultValue={item.version} />
       </Group>
       <TextInput label="Description" defaultValue={item.description} />
-      
-      <Tabs value={activeTab} onChange={setActiveTab} flex={1} style={{ display: 'flex', flexDirection: 'column' }}>
+
+      <Tabs
+        value={activeTab}
+        onChange={setActiveTab}
+        flex={1}
+        style={{ display: 'flex', flexDirection: 'column' }}
+      >
         <Tabs.List>
           <Tabs.Tab value="visual">Visual Editor</Tabs.Tab>
           <Tabs.Tab value="json">JSON Schema</Tabs.Tab>
@@ -220,9 +229,9 @@ function SchemaEditor({ item }: { item: SchemaItem }) {
         </Tabs.List>
 
         <Tabs.Panel value="visual" flex={1} py="md">
-           <ScrollArea h="100%">
-             <VisualSchemaBuilder schema={item.schema} />
-           </ScrollArea>
+          <ScrollArea h="100%">
+            <VisualSchemaBuilder schema={item.schema} />
+          </ScrollArea>
         </Tabs.Panel>
 
         <Tabs.Panel value="json" flex={1} py="md">
@@ -239,16 +248,26 @@ function SchemaEditor({ item }: { item: SchemaItem }) {
         </Tabs.Panel>
 
         <Tabs.Panel value="usage" flex={1} py="md">
-          <Text c="dimmed" size="sm">Rules using this schema:</Text>
+          <Text c="dimmed" size="sm">
+            Rules using this schema:
+          </Text>
           <Stack gap="xs" mt="sm">
-             <Card withBorder padding="sm">
-                <Text fw={500} size="sm">DiscountCalculation</Text>
-                <Text size="xs" c="dimmed">Rule Type: Pricing</Text>
-             </Card>
-             <Card withBorder padding="sm">
-                <Text fw={500} size="sm">ShippingValidation</Text>
-                <Text size="xs" c="dimmed">Rule Type: Logistics</Text>
-             </Card>
+            <Card withBorder padding="sm">
+              <Text fw={500} size="sm">
+                DiscountCalculation
+              </Text>
+              <Text size="xs" c="dimmed">
+                Rule Type: Pricing
+              </Text>
+            </Card>
+            <Card withBorder padding="sm">
+              <Text fw={500} size="sm">
+                ShippingValidation
+              </Text>
+              <Text size="xs" c="dimmed">
+                Rule Type: Logistics
+              </Text>
+            </Card>
           </Stack>
         </Tabs.Panel>
       </Tabs>
@@ -258,29 +277,33 @@ function SchemaEditor({ item }: { item: SchemaItem }) {
         <Button leftSection={<IconDeviceFloppy size={16} />}>Save Changes</Button>
       </Group>
     </Stack>
-  )
+  );
 }
 
 function VisualSchemaBuilder({ schema }: { schema: any }) {
-  const properties = schema?.properties || {}
-  
+  const properties = schema?.properties || {};
+
   return (
     <Stack>
-      <Text size="sm" fw={500}>Properties</Text>
+      <Text size="sm" fw={500}>
+        Properties
+      </Text>
       {Object.entries(properties).map(([key, value]: [string, any]) => (
         <Group key={key} align="center">
           <TextInput placeholder="Field Name" defaultValue={key} style={{ flex: 1 }} />
-          <Select 
-            data={['string', 'number', 'boolean', 'array', 'object']} 
-            defaultValue={value.type} 
-            style={{ width: 120 }} 
+          <Select
+            data={['string', 'number', 'boolean', 'array', 'object']}
+            defaultValue={value.type}
+            style={{ width: 120 }}
           />
-          <ActionIcon color="red" variant="subtle"><IconTrash size={16} /></ActionIcon>
+          <ActionIcon color="red" variant="subtle">
+            <IconTrash size={16} />
+          </ActionIcon>
         </Group>
       ))}
       <Button variant="outline" size="xs" leftSection={<IconPlus size={14} />} fullWidth>
         Add Property
       </Button>
     </Stack>
-  )
+  );
 }

@@ -1,4 +1,12 @@
 import {
+  IconArrowRight,
+  IconBulb,
+  IconDatabase,
+  IconGitPullRequest,
+  IconPlus,
+} from '@tabler/icons-react';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import {
   Badge,
   Button,
   Card,
@@ -9,32 +17,24 @@ import {
   Text,
   ThemeIcon,
   Title,
-} from '@mantine/core'
-import {
-  IconArrowRight,
-  IconBulb,
-  IconDatabase,
-  IconGitPullRequest,
-  IconPlus,
-} from '@tabler/icons-react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+} from '@mantine/core';
 
 export const Route = createFileRoute('/')({
   component: Dashboard,
-})
+});
 
 function Dashboard() {
   const stats = [
     { title: 'Total Rules', value: '124', icon: IconBulb, color: 'blue' },
     { title: 'Domain Schemas', value: '32', icon: IconDatabase, color: 'teal' },
     { title: 'Pending Reviews', value: '5', icon: IconGitPullRequest, color: 'orange' },
-  ]
+  ];
 
   const recentActivity = [
     { id: 1, action: 'Rule Updated', target: 'DiscountCalculation', time: '2 hours ago' },
     { id: 2, action: 'Schema Modified', target: 'CartState', time: '5 hours ago' },
     { id: 3, action: 'New Rule Created', target: 'ShippingValidation', time: '1 day ago' },
-  ]
+  ];
 
   return (
     <Container size="xl" py="md">
@@ -98,9 +98,7 @@ function Dashboard() {
                     </Badge>
                   </Table.Td>
                   <Table.Td fw={500}>{item.target}</Table.Td>
-                  <Table.Td c="dimmed" size="sm">
-                    {item.time}
-                  </Table.Td>
+                  <Table.Td c="dimmed">{item.time}</Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
@@ -128,5 +126,5 @@ function Dashboard() {
         </Card>
       </SimpleGrid>
     </Container>
-  )
+  );
 }

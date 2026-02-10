@@ -1,3 +1,6 @@
+import { useMemo, useState } from 'react';
+import { IconDeviceFloppy } from '@tabler/icons-react';
+import { createFileRoute } from '@tanstack/react-router';
 import {
   Badge,
   Button,
@@ -12,38 +15,38 @@ import {
   Text,
   TextInput,
   Title,
-} from '@mantine/core'
-import { IconDeviceFloppy } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+} from '@mantine/core';
 
 export const Route = createFileRoute('/rules/types')({
   component: RuleTypesPage,
-})
+});
 
 // Mock Catalog Data
 const CATALOG = {
   states: ['CartState', 'UserState', 'SessionState'],
   events: ['ItemAdded', 'OrderPlaced', 'PaymentFailed'],
   entities: ['Product', 'Order', 'Customer'],
-}
+};
 
 function RuleTypesPage() {
   // State for the Rule Type Definition
-  const [name, setName] = useState('DiscountCalculationType')
-  const [selectedInputs, setSelectedInputs] = useState<string[]>([])
+  const [name, setName] = useState('DiscountCalculationType');
+  const [selectedInputs, setSelectedInputs] = useState<string[]>([]);
 
   // Output Configuration
-  const [resultType, setResultType] = useState('number')
-  const [allowedStateUpdates, setAllowedStateUpdates] = useState<string[]>([])
-  const [allowedEvents, setAllowedEvents] = useState<string[]>([])
+  const [resultType, setResultType] = useState('number');
+  const [allowedStateUpdates, setAllowedStateUpdates] = useState<string[]>([]);
+  const [allowedEvents, setAllowedEvents] = useState<string[]>([]);
 
   // Computed Preview of the Input Schema
   const inputSchemaPreview = useMemo(() => {
-    const properties = selectedInputs.reduce((acc, item) => {
-      acc[item.toLowerCase()] = { $ref: `#/definitions/${item}` }
-      return acc
-    }, {} as Record<string, any>)
+    const properties = selectedInputs.reduce(
+      (acc, item) => {
+        acc[item.toLowerCase()] = { $ref: `#/definitions/${item}` };
+        return acc;
+      },
+      {} as Record<string, any>
+    );
 
     return JSON.stringify(
       {
@@ -51,26 +54,26 @@ function RuleTypesPage() {
         properties,
       },
       null,
-      2,
-    )
-  }, [selectedInputs])
+      2
+    );
+  }, [selectedInputs]);
 
   // Computed Preview of the Output Schema (Capability Contract)
   const outputSchemaPreview = useMemo(() => {
-    const actions = []
+    const actions = [];
 
     if (allowedStateUpdates.length > 0) {
       actions.push({
         type: 'UpdateState',
         oneOf: allowedStateUpdates.map((s) => ({ $ref: `#/definitions/${s}` })),
-      })
+      });
     }
 
     if (allowedEvents.length > 0) {
       actions.push({
         type: 'TriggerEvent',
         oneOf: allowedEvents.map((e) => ({ $ref: `#/definitions/${e}` })),
-      })
+      });
     }
 
     return JSON.stringify(
@@ -79,9 +82,9 @@ function RuleTypesPage() {
         allowedActions: actions,
       },
       null,
-      2,
-    )
-  }, [resultType, allowedStateUpdates, allowedEvents])
+      2
+    );
+  }, [resultType, allowedStateUpdates, allowedEvents]);
 
   return (
     <Container size="xl" py="md">
@@ -203,5 +206,5 @@ function RuleTypesPage() {
         </Grid>
       </Stack>
     </Container>
-  )
+  );
 }

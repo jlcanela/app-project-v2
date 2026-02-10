@@ -1,5 +1,12 @@
-import { Burger, Button, ButtonProps, Group, PolymorphicComponentProps, Title } from '@mantine/core';
 import { Link } from '@tanstack/react-router';
+import {
+  Burger,
+  Button,
+  ButtonProps,
+  Group,
+  PolymorphicComponentProps,
+  Title,
+} from '@mantine/core';
 import { ColorSchemeToggle } from './ColorSchemeToggle/ColorSchemeToggle';
 
 type HeaderLinkProps = PolymorphicComponentProps<typeof Link, ButtonProps>;
@@ -10,7 +17,10 @@ function HeaderLink(props: HeaderLinkProps) {
       component={Link}
       variant="subtle"
       activeProps={{
-        style: { backgroundColor: 'var(--mantine-primary-color-light)', color: 'var(--mantine-primary-color-light-color)' },
+        style: {
+          backgroundColor: 'var(--mantine-primary-color-light)',
+          color: 'var(--mantine-primary-color-light-color)',
+        },
       }}
       {...props}
     />

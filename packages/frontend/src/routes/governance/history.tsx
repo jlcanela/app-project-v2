@@ -1,20 +1,11 @@
-import {
-  Badge,
-  Card,
-  Container,
-  Group,
-  Select,
-  Text,
-  Timeline,
-  Title,
-} from '@mantine/core'
-import { IconGitCommit, IconUser } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState } from 'react';
+import { IconGitCommit, IconUser } from '@tabler/icons-react';
+import { createFileRoute } from '@tanstack/react-router';
+import { Badge, Card, Container, Group, Select, Text, Timeline, Title } from '@mantine/core';
 
 export const Route = createFileRoute('/governance/history')({
   component: HistoryPage,
-})
+});
 
 // Mock Audit Data
 const AUDIT_LOGS = [
@@ -48,10 +39,10 @@ const AUDIT_LOGS = [
     version: 'v0.0.1',
     details: 'Initial Draft',
   },
-]
+];
 
 function HistoryPage() {
-  const [filter, setFilter] = useState<string | null>('All')
+  const [filter, setFilter] = useState<string | null>('All');
 
   return (
     <Container size="xl" py="md">
@@ -100,5 +91,5 @@ function HistoryPage() {
         </Timeline>
       </Card>
     </Container>
-  )
+  );
 }

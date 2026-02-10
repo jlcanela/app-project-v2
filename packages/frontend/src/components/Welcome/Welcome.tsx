@@ -11,7 +11,8 @@ export function Welcome() {
         </Text>
       </Title>
       <Text c="dimmed" ta="center" size="lg" maw={580} mx="auto" mt="xl">
-        Your modern project management solution. Organize tasks, track progress, and collaborate with your team efficiently.
+        Your modern project management solution. Organize tasks, track progress, and collaborate
+        with your team efficiently.
       </Text>
     </>
   );

@@ -1,3 +1,5 @@
+import { IconPlus } from '@tabler/icons-react';
+import { createFileRoute } from '@tanstack/react-router';
 import {
   Avatar,
   Badge,
@@ -9,13 +11,11 @@ import {
   Table,
   Text,
   Title,
-} from '@mantine/core'
-import { IconPlus } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
+} from '@mantine/core';
 
 export const Route = createFileRoute('/governance/access')({
   component: AccessPage,
-})
+});
 
 // Mock Users
 const USERS = [
@@ -43,7 +43,7 @@ const USERS = [
     permissions: ['View All', 'Manage Infrastructure'],
     active: false,
   },
-]
+];
 
 function AccessPage() {
   return (
@@ -111,7 +111,7 @@ function AccessPage() {
                   </Group>
                 </Table.Td>
                 <Table.Td>
-                   <Switch checked={user.active} onLabel="ON" offLabel="OFF" size="sm" />
+                  <Switch checked={user.active} onLabel="ON" offLabel="OFF" size="sm" />
                 </Table.Td>
                 <Table.Td>
                   <Button variant="subtle" size="xs">
@@ -124,5 +124,5 @@ function AccessPage() {
         </Table>
       </Card>
     </Container>
-  )
+  );
 }

@@ -1,3 +1,13 @@
+import { useState } from 'react';
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconDeviceFloppy,
+  IconLayoutSidebarRight,
+  IconLayoutSidebarRightCollapse,
+  IconPlayerPlay,
+} from '@tabler/icons-react';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   ActionIcon,
   Badge,
@@ -10,18 +20,8 @@ import {
   Tabs,
   Text,
   Title,
-} from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconDeviceFloppy,
-  IconLayoutSidebarRight,
-  IconLayoutSidebarRightCollapse,
-  IconPlayerPlay,
-} from '@tabler/icons-react'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 // Mock Component for JDM Editor to simulate integration
 const DecisionGraph = ({ value, onChange }: { value: any; onChange: (val: any) => void }) => (
@@ -50,16 +50,16 @@ const DecisionGraph = ({ value, onChange }: { value: any; onChange: (val: any) =
       </Button>
     </Stack>
   </div>
-)
+);
 
 export const Route = createFileRoute('/rules/$id/')({
   component: RuleEditorPage,
-})
+});
 
 function RuleEditorPage() {
-  const { id } = Route.useParams()
-  const [graph, setGraph] = useState({ nodes: [], edges: [] })
-  const [asideOpen, { toggle: toggleAside }] = useDisclosure(true)
+  const { id } = Route.useParams();
+  const [graph, setGraph] = useState({ nodes: [], edges: [] });
+  const [asideOpen, { toggle: toggleAside }] = useDisclosure(true);
 
   // Mock Context Data derived from the Rule Type (IN/OUT Contract)
   const inputSchema = {
@@ -71,12 +71,12 @@ function RuleEditorPage() {
       tier: 'string',
       points: 'number',
     },
-  }
+  };
 
   const allowedActions = [
     { type: 'UpdateState', target: 'CartState' },
     { type: 'TriggerEvent', target: 'DiscountApplied' },
-  ]
+  ];
 
   return (
     <Stack h="calc(100vh - 100px)" gap={0}>
@@ -138,7 +138,10 @@ function RuleEditorPage() {
             bg="white"
             gap={0}
           >
-            <Tabs defaultValue="inputs" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Tabs
+              defaultValue="inputs"
+              style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
               <Tabs.List>
                 <Tabs.Tab value="inputs">Inputs</Tabs.Tab>
                 <Tabs.Tab value="actions">Actions</Tabs.Tab>
@@ -213,5 +216,5 @@ function RuleEditorPage() {
         )}
       </Group>
     </Stack>
-  )
+  );
 }

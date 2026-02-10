@@ -1,11 +1,11 @@
-import { Header } from '@/components/Header'
-import { AppShell, NavLink, ScrollArea } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { AppShell, NavLink, ScrollArea } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { Header } from '@/components/Header';
 
 const RootLayout = () => {
-  const [opened, { toggle }] = useDisclosure()
+  const [opened, { toggle }] = useDisclosure();
 
   return (
     <AppShell
@@ -49,7 +49,7 @@ const RootLayout = () => {
 
       <TanStackRouterDevtools />
     </AppShell>
-  )
-}
+  );
+};
 
-export const Route = createRootRoute({ component: RootLayout })
+export const Route = createRootRoute({ component: RootLayout });
