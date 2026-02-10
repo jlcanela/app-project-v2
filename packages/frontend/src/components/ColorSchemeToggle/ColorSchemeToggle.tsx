@@ -1,13 +1,17 @@
-import { Button, Group, useMantineColorScheme } from '@mantine/core';
+import { SegmentedControl, useMantineColorScheme } from '@mantine/core';
 
 export function ColorSchemeToggle() {
-  const { setColorScheme } = useMantineColorScheme();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   return (
-    <Group justify="center" mt="xl">
-      <Button onClick={() => setColorScheme('light')}>Light</Button>
-      <Button onClick={() => setColorScheme('dark')}>Dark</Button>
-      <Button onClick={() => setColorScheme('auto')}>Auto</Button>
-    </Group>
+    <SegmentedControl
+      value={colorScheme}
+      onChange={(value) => setColorScheme(value as any)}
+      data={[
+        { label: 'Light', value: 'light' },
+        { label: 'Dark', value: 'dark' },
+        { label: 'Auto', value: 'auto' },
+      ]}
+    />
   );
 }

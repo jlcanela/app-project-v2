@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently -p \"[{name}]\" -n \"BACKEND,FRONTEND,DOMAIN\" -c \"blue,green,yellow\" \"PORT=3000 pnpm --filter @app/backend run dev\" \"pnpm --filter @app/frontend run dev\" \"pnpm --filter @app/domain run dev\"",
     "check": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run check",
     "test:ci": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run test:ci",
     "build": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run build",
@@ -14,6 +15,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",
   "devDependencies": {
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "concurrently": "^9.1.2"
   }
 }

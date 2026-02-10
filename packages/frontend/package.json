@@ -21,8 +21,10 @@
     "storybook:build": "storybook build"
   },
   "dependencies": {
+    "@effect-atom/atom-react": "^0.5.0",
     "@mantine/core": "8.3.14",
     "@mantine/hooks": "8.3.14",
+    "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-router": "^1.158.4",
     "@tanstack/react-router-devtools": "^1.158.4",
     "react": "^19.2.0",

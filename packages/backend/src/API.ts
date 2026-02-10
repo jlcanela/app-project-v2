@@ -160,8 +160,7 @@ export const ProjectsApi = HttpApiGroup.make("ProjectsApi")
 export const MyApi = HttpApi.make("Api")
     .add(SearchApi)
     .add(ProjectsApi)
-    .add(AuthApi)
-
+    .add(AuthApi).prefix("/api")
 
 export const AuthApiLive = Layer.unwrapEffect(Effect.gen(function* () {
     return HttpApiBuilder.group(MyApi, "AuthApi", (handlers) =>

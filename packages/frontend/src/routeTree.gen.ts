@@ -11,6 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RulesTypesRouteImport } from './routes/rules/types'
+import { Route as RulesIdRouteImport } from './routes/rules/$id'
+import { Route as GovernanceHistoryRouteImport } from './routes/governance/history'
+import { Route as GovernanceAccessRouteImport } from './routes/governance/access'
+import { Route as CatalogTypeRouteImport } from './routes/catalog/$type'
+import { Route as RulesIdIndexRouteImport } from './routes/rules/$id.index'
+import { Route as RulesIdSimulateRouteImport } from './routes/rules/$id.simulate'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -22,31 +29,118 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RulesTypesRoute = RulesTypesRouteImport.update({
+  id: '/rules/types',
+  path: '/rules/types',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesIdRoute = RulesIdRouteImport.update({
+  id: '/rules/$id',
+  path: '/rules/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernanceHistoryRoute = GovernanceHistoryRouteImport.update({
+  id: '/governance/history',
+  path: '/governance/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernanceAccessRoute = GovernanceAccessRouteImport.update({
+  id: '/governance/access',
+  path: '/governance/access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogTypeRoute = CatalogTypeRouteImport.update({
+  id: '/catalog/$type',
+  path: '/catalog/$type',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesIdIndexRoute = RulesIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RulesIdRoute,
+} as any)
+const RulesIdSimulateRoute = RulesIdSimulateRouteImport.update({
+  id: '/simulate',
+  path: '/simulate',
+  getParentRoute: () => RulesIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/catalog/$type': typeof CatalogTypeRoute
+  '/governance/access': typeof GovernanceAccessRoute
+  '/governance/history': typeof GovernanceHistoryRoute
+  '/rules/$id': typeof RulesIdRouteWithChildren
+  '/rules/types': typeof RulesTypesRoute
+  '/rules/$id/simulate': typeof RulesIdSimulateRoute
+  '/rules/$id/': typeof RulesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/catalog/$type': typeof CatalogTypeRoute
+  '/governance/access': typeof GovernanceAccessRoute
+  '/governance/history': typeof GovernanceHistoryRoute
+  '/rules/types': typeof RulesTypesRoute
+  '/rules/$id/simulate': typeof RulesIdSimulateRoute
+  '/rules/$id': typeof RulesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/catalog/$type': typeof CatalogTypeRoute
+  '/governance/access': typeof GovernanceAccessRoute
+  '/governance/history': typeof GovernanceHistoryRoute
+  '/rules/$id': typeof RulesIdRouteWithChildren
+  '/rules/types': typeof RulesTypesRoute
+  '/rules/$id/simulate': typeof RulesIdSimulateRoute
+  '/rules/$id/': typeof RulesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/catalog/$type'
+    | '/governance/access'
+    | '/governance/history'
+    | '/rules/$id'
+    | '/rules/types'
+    | '/rules/$id/simulate'
+    | '/rules/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/about'
+    | '/catalog/$type'
+    | '/governance/access'
+    | '/governance/history'
+    | '/rules/types'
+    | '/rules/$id/simulate'
+    | '/rules/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/catalog/$type'
+    | '/governance/access'
+    | '/governance/history'
+    | '/rules/$id'
+    | '/rules/types'
+    | '/rules/$id/simulate'
+    | '/rules/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CatalogTypeRoute: typeof CatalogTypeRoute
+  GovernanceAccessRoute: typeof GovernanceAccessRoute
+  GovernanceHistoryRoute: typeof GovernanceHistoryRoute
+  RulesIdRoute: typeof RulesIdRouteWithChildren
+  RulesTypesRoute: typeof RulesTypesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +159,79 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rules/types': {
+      id: '/rules/types'
+      path: '/rules/types'
+      fullPath: '/rules/types'
+      preLoaderRoute: typeof RulesTypesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules/$id': {
+      id: '/rules/$id'
+      path: '/rules/$id'
+      fullPath: '/rules/$id'
+      preLoaderRoute: typeof RulesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/governance/history': {
+      id: '/governance/history'
+      path: '/governance/history'
+      fullPath: '/governance/history'
+      preLoaderRoute: typeof GovernanceHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/governance/access': {
+      id: '/governance/access'
+      path: '/governance/access'
+      fullPath: '/governance/access'
+      preLoaderRoute: typeof GovernanceAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalog/$type': {
+      id: '/catalog/$type'
+      path: '/catalog/$type'
+      fullPath: '/catalog/$type'
+      preLoaderRoute: typeof CatalogTypeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules/$id/': {
+      id: '/rules/$id/'
+      path: '/'
+      fullPath: '/rules/$id/'
+      preLoaderRoute: typeof RulesIdIndexRouteImport
+      parentRoute: typeof RulesIdRoute
+    }
+    '/rules/$id/simulate': {
+      id: '/rules/$id/simulate'
+      path: '/simulate'
+      fullPath: '/rules/$id/simulate'
+      preLoaderRoute: typeof RulesIdSimulateRouteImport
+      parentRoute: typeof RulesIdRoute
+    }
   }
 }
+
+interface RulesIdRouteChildren {
+  RulesIdSimulateRoute: typeof RulesIdSimulateRoute
+  RulesIdIndexRoute: typeof RulesIdIndexRoute
+}
+
+const RulesIdRouteChildren: RulesIdRouteChildren = {
+  RulesIdSimulateRoute: RulesIdSimulateRoute,
+  RulesIdIndexRoute: RulesIdIndexRoute,
+}
+
+const RulesIdRouteWithChildren =
+  RulesIdRoute._addFileChildren(RulesIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CatalogTypeRoute: CatalogTypeRoute,
+  GovernanceAccessRoute: GovernanceAccessRoute,
+  GovernanceHistoryRoute: GovernanceHistoryRoute,
+  RulesIdRoute: RulesIdRouteWithChildren,
+  RulesTypesRoute: RulesTypesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
