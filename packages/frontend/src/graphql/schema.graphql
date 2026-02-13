@@ -1,0 +1,358 @@
+"""
+Indicates exactly one field must be supplied and this field must not be `null`.
+"""
+directive @oneOf on INPUT_OBJECT
+
+input PostsInsertInput {
+  id: Int
+  content: String!
+  authorId: Int!
+}
+
+input PostsUpdateInput {
+  id: Int
+  content: String
+  authorId: Int
+}
+
+input PostsFilters {
+  id: PostsIdFilters
+  content: PostsContentFilters
+  authorId: PostsAuthorIdFilters
+  OR: [PostsFiltersOr!]
+}
+
+input PostsIdFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [PostsIdfiltersOr!]
+}
+
+input PostsIdfiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input PostsContentFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [PostsContentfiltersOr!]
+}
+
+input PostsContentfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input PostsAuthorIdFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [PostsAuthorIdfiltersOr!]
+}
+
+input PostsAuthorIdfiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input PostsFiltersOr {
+  id: PostsIdFilters
+  content: PostsContentFilters
+  authorId: PostsAuthorIdFilters
+}
+
+input PostsOrderBy {
+  id: InnerOrder
+  content: InnerOrder
+  authorId: InnerOrder
+}
+
+input InnerOrder {
+  direction: OrderDirection!
+
+  """Priority of current field"""
+  priority: Int!
+}
+
+"""Order by direction"""
+enum OrderDirection {
+  """Ascending order"""
+  asc
+
+  """Descending order"""
+  desc
+}
+
+input UsersInsertInput {
+  id: Int
+  name: String!
+}
+
+input UsersUpdateInput {
+  id: Int
+  name: String
+}
+
+input UsersFilters {
+  id: UsersIdFilters
+  name: UsersNameFilters
+  OR: [UsersFiltersOr!]
+}
+
+input UsersIdFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersIdfiltersOr!]
+}
+
+input UsersIdfiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersNameFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersNamefiltersOr!]
+}
+
+input UsersNamefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersFiltersOr {
+  id: UsersIdFilters
+  name: UsersNameFilters
+}
+
+input UsersOrderBy {
+  id: InnerOrder
+  name: InnerOrder
+}
+
+type PostsSelectItem {
+  id: Int!
+  content: String!
+  authorId: Int!
+  author(where: UsersFilters): PostsAuthorRelation
+}
+
+type PostsAuthorRelation {
+  id: Int!
+  name: String!
+  posts(where: PostsFilters, orderBy: PostsOrderBy, offset: Int, limit: Int): [PostsAuthorRelationPostsRelation!]!
+}
+
+type PostsAuthorRelationPostsRelation {
+  id: Int!
+  content: String!
+  authorId: Int!
+}
+
+type PostsItem {
+  id: Int!
+  content: String!
+  authorId: Int!
+}
+
+type UsersSelectItem {
+  id: Int!
+  name: String!
+  posts(where: PostsFilters, orderBy: PostsOrderBy, offset: Int, limit: Int): [UsersPostsRelation!]!
+}
+
+type UsersPostsRelation {
+  id: Int!
+  content: String!
+  authorId: Int!
+  author(where: UsersFilters): UsersPostsRelationAuthorRelation
+}
+
+type UsersPostsRelationAuthorRelation {
+  id: Int!
+  name: String!
+}
+
+type UsersItem {
+  id: Int!
+  name: String!
+}
+
+type Query {
+  posts(offset: Int, limit: Int, orderBy: PostsOrderBy, where: PostsFilters): [PostsSelectItem!]!
+  postsSingle(offset: Int, orderBy: PostsOrderBy, where: PostsFilters): PostsSelectItem
+  users(offset: Int, limit: Int, orderBy: UsersOrderBy, where: UsersFilters): [UsersSelectItem!]!
+  usersSingle(offset: Int, orderBy: UsersOrderBy, where: UsersFilters): UsersSelectItem
+}
+
+type Mutation {
+  insertIntoPosts(values: [PostsInsertInput!]!): [PostsItem!]!
+  insertIntoPostsSingle(values: PostsInsertInput!): PostsItem
+  updatePosts(set: PostsUpdateInput!, where: PostsFilters): [PostsItem!]!
+  deleteFromPosts(where: PostsFilters): [PostsItem!]!
+  insertIntoUsers(values: [UsersInsertInput!]!): [UsersItem!]!
+  insertIntoUsersSingle(values: UsersInsertInput!): UsersItem
+  updateUsers(set: UsersUpdateInput!, where: UsersFilters): [UsersItem!]!
+  deleteFromUsers(where: UsersFilters): [UsersItem!]!
+}

@@ -8,6 +8,11 @@
     "check": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run check",
     "test:ci": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run test:ci",
     "build": "pnpm -r --filter @app/backend --filter @app/domain --filter @app/frontend run build",
+    "podman:build": "podman build --platform linux/arm64,linux/amd64 --manifest ghcr.io/jlcanela/rule-studio:latest -f ./packages/backend/Dockerfile -t rule-studio:latest .",
+    "podman:sh": "podman run --rm -it --entrypoint /bin/sh rule-studio:latest",
+    "podman:start": "podman run --rm -p 3001:3000 rule-studio:latest",
+    "podman:push": "podman push --tls-verify=false dgx-spark:5000/rule-studio:latest",
+    "github:push": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

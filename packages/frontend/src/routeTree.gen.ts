@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PostsAndUsersIndexRouteImport } from './routes/posts-and-users/index'
 import { Route as RulesTypesRouteImport } from './routes/rules/types'
 import { Route as RulesIdRouteImport } from './routes/rules/$id'
 import { Route as GovernanceHistoryRouteImport } from './routes/governance/history'
@@ -27,6 +28,11 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsAndUsersIndexRoute = PostsAndUsersIndexRouteImport.update({
+  id: '/posts-and-users/',
+  path: '/posts-and-users/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RulesTypesRoute = RulesTypesRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/governance/history': typeof GovernanceHistoryRoute
   '/rules/$id': typeof RulesIdRouteWithChildren
   '/rules/types': typeof RulesTypesRoute
+  '/posts-and-users/': typeof PostsAndUsersIndexRoute
   '/rules/$id/simulate': typeof RulesIdSimulateRoute
   '/rules/$id/': typeof RulesIdIndexRoute
 }
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/governance/access': typeof GovernanceAccessRoute
   '/governance/history': typeof GovernanceHistoryRoute
   '/rules/types': typeof RulesTypesRoute
+  '/posts-and-users': typeof PostsAndUsersIndexRoute
   '/rules/$id/simulate': typeof RulesIdSimulateRoute
   '/rules/$id': typeof RulesIdIndexRoute
 }
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/governance/history': typeof GovernanceHistoryRoute
   '/rules/$id': typeof RulesIdRouteWithChildren
   '/rules/types': typeof RulesTypesRoute
+  '/posts-and-users/': typeof PostsAndUsersIndexRoute
   '/rules/$id/simulate': typeof RulesIdSimulateRoute
   '/rules/$id/': typeof RulesIdIndexRoute
 }
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/governance/history'
     | '/rules/$id'
     | '/rules/types'
+    | '/posts-and-users/'
     | '/rules/$id/simulate'
     | '/rules/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/governance/access'
     | '/governance/history'
     | '/rules/types'
+    | '/posts-and-users'
     | '/rules/$id/simulate'
     | '/rules/$id'
   id:
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/governance/history'
     | '/rules/$id'
     | '/rules/types'
+    | '/posts-and-users/'
     | '/rules/$id/simulate'
     | '/rules/$id/'
   fileRoutesById: FileRoutesById
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   GovernanceHistoryRoute: typeof GovernanceHistoryRoute
   RulesIdRoute: typeof RulesIdRouteWithChildren
   RulesTypesRoute: typeof RulesTypesRoute
+  PostsAndUsersIndexRoute: typeof PostsAndUsersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -157,6 +170,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts-and-users/': {
+      id: '/posts-and-users/'
+      path: '/posts-and-users'
+      fullPath: '/posts-and-users/'
+      preLoaderRoute: typeof PostsAndUsersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rules/types': {
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   GovernanceHistoryRoute: GovernanceHistoryRoute,
   RulesIdRoute: RulesIdRouteWithChildren,
   RulesTypesRoute: RulesTypesRoute,
+  PostsAndUsersIndexRoute: PostsAndUsersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

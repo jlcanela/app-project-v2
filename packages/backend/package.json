@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "check": "concurrently \"tsc --noEmit --skipLibCheck\" \"oxlint -c .oxlintrc.json\" \"pnpm build\"",
-    "dev": "dotenv -e ../../.env -- tsx watch src/index.ts",
+    "dev": "dotenv -e ../../.env -- tsx watch src/index.ts ../frontend/dist/",
     "db:migrate": "dotenv -e ../../.env -- tsx src/Services/database/migrator-cli.ts",
     "demo": "tsx src/Repository4.ts",
     "demo2": "tsx src/Repository2.ts",

@@ -13,3 +13,5 @@ yarn-error.log*
 *.swo
 obj/
 bin/
+charts/
+deploy/

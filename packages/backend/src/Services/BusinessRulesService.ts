@@ -64,7 +64,7 @@ const validateProjectInputSchema = Schema.Struct({ project: ProjectRequest })
 const validateProjectOutputSchema = Schema.Array(Schema.Struct({ issue: Issue }))
 const validateProjectRule = makeRule({
     name: "validateProject",
-    file: './src/Services/project_validation_19.json',
+    file: 'rules/project_validation_19.json',
     version: 19,
     decision: false,
     inputSchema: validateProjectInputSchema,

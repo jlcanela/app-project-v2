@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rule-studio-deployment
+  labels:
+    app: rule-studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rule-studio
+  template:
+    metadata:
+      labels:
+        app: rule-studio
+    spec:
+      # Secret with GitHub Container Registry credentials
+      # (created as type=kubernetes.io/dockerconfigjson)
+      #imagePullSecrets:
+      #  - name: ghcr-creds
+      containers:
+        - name: rule-studio
+          image: ghcr.io/jlcanela/rule-studio:latest@sha256:034f0e4ab74a8b349376eea82223766e5fd861614e055f7e16cdda00b96eacef
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rule-studio
+  namespace: rule-studio
+spec:
+  selector:
+    app: rule-studio
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rule-studio-tailscale
+  namespace: rule-studio
+  annotations:
+    tailscale.com/hostname: rule-studio  # optional: friendly name in your tailnet
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+      - rule-studio
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rule-studio
+                port:
+                  number: 80

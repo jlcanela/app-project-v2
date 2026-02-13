@@ -108,7 +108,7 @@ export class Security extends Effect.Service<Security>()("app/Security", {
     });
 
     //const p1 = "/home/jlcanela/dev/mailing-pro/opa/bundle.tar.gz";
-    const p2 = "../opa/project/bundle.tar.gz";
+    const p2 = "opa/bundle.tar.gz";
     const allFiles = yield* extractFiles(p2, files);
 
     const { [DataFile]: dataBytesOrEmpty, [PolicyFile]: wasmBytesOrEmpty } = allFiles;

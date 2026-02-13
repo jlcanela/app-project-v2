@@ -1,0 +1,509 @@
+/* eslint-disable */
+import { DocumentTypeDecoration } from '@graphql-typed-document-node/core';
+export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+};
+
+export type InnerOrder = {
+  direction: OrderDirection;
+  /** Priority of current field */
+  priority: Scalars['Int']['input'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  deleteFromPosts: Array<PostsItem>;
+  deleteFromUsers: Array<UsersItem>;
+  insertIntoPosts: Array<PostsItem>;
+  insertIntoPostsSingle?: Maybe<PostsItem>;
+  insertIntoUsers: Array<UsersItem>;
+  insertIntoUsersSingle?: Maybe<UsersItem>;
+  updatePosts: Array<PostsItem>;
+  updateUsers: Array<UsersItem>;
+};
+
+
+export type MutationDeleteFromPostsArgs = {
+  where?: InputMaybe<PostsFilters>;
+};
+
+
+export type MutationDeleteFromUsersArgs = {
+  where?: InputMaybe<UsersFilters>;
+};
+
+
+export type MutationInsertIntoPostsArgs = {
+  values: Array<PostsInsertInput>;
+};
+
+
+export type MutationInsertIntoPostsSingleArgs = {
+  values: PostsInsertInput;
+};
+
+
+export type MutationInsertIntoUsersArgs = {
+  values: Array<UsersInsertInput>;
+};
+
+
+export type MutationInsertIntoUsersSingleArgs = {
+  values: UsersInsertInput;
+};
+
+
+export type MutationUpdatePostsArgs = {
+  set: PostsUpdateInput;
+  where?: InputMaybe<PostsFilters>;
+};
+
+
+export type MutationUpdateUsersArgs = {
+  set: UsersUpdateInput;
+  where?: InputMaybe<UsersFilters>;
+};
+
+/** Order by direction */
+export enum OrderDirection {
+  /** Ascending order */
+  Asc = 'asc',
+  /** Descending order */
+  Desc = 'desc'
+}
+
+export type PostsAuthorIdFilters = {
+  OR?: InputMaybe<Array<PostsAuthorIdfiltersOr>>;
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsAuthorIdfiltersOr = {
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsAuthorRelation = {
+  __typename?: 'PostsAuthorRelation';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  posts: Array<PostsAuthorRelationPostsRelation>;
+};
+
+
+export type PostsAuthorRelationPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PostsOrderBy>;
+  where?: InputMaybe<PostsFilters>;
+};
+
+export type PostsAuthorRelationPostsRelation = {
+  __typename?: 'PostsAuthorRelationPostsRelation';
+  authorId: Scalars['Int']['output'];
+  content: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+};
+
+export type PostsContentFilters = {
+  OR?: InputMaybe<Array<PostsContentfiltersOr>>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsContentfiltersOr = {
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsFilters = {
+  OR?: InputMaybe<Array<PostsFiltersOr>>;
+  authorId?: InputMaybe<PostsAuthorIdFilters>;
+  content?: InputMaybe<PostsContentFilters>;
+  id?: InputMaybe<PostsIdFilters>;
+};
+
+export type PostsFiltersOr = {
+  authorId?: InputMaybe<PostsAuthorIdFilters>;
+  content?: InputMaybe<PostsContentFilters>;
+  id?: InputMaybe<PostsIdFilters>;
+};
+
+export type PostsIdFilters = {
+  OR?: InputMaybe<Array<PostsIdfiltersOr>>;
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsIdfiltersOr = {
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsInsertInput = {
+  authorId: Scalars['Int']['input'];
+  content: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PostsItem = {
+  __typename?: 'PostsItem';
+  authorId: Scalars['Int']['output'];
+  content: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+};
+
+export type PostsOrderBy = {
+  authorId?: InputMaybe<InnerOrder>;
+  content?: InputMaybe<InnerOrder>;
+  id?: InputMaybe<InnerOrder>;
+};
+
+export type PostsSelectItem = {
+  __typename?: 'PostsSelectItem';
+  author?: Maybe<PostsAuthorRelation>;
+  authorId: Scalars['Int']['output'];
+  content: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+};
+
+
+export type PostsSelectItemAuthorArgs = {
+  where?: InputMaybe<UsersFilters>;
+};
+
+export type PostsUpdateInput = {
+  authorId?: InputMaybe<Scalars['Int']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type Query = {
+  __typename?: 'Query';
+  posts: Array<PostsSelectItem>;
+  postsSingle?: Maybe<PostsSelectItem>;
+  users: Array<UsersSelectItem>;
+  usersSingle?: Maybe<UsersSelectItem>;
+};
+
+
+export type QueryPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PostsOrderBy>;
+  where?: InputMaybe<PostsFilters>;
+};
+
+
+export type QueryPostsSingleArgs = {
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PostsOrderBy>;
+  where?: InputMaybe<PostsFilters>;
+};
+
+
+export type QueryUsersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<UsersOrderBy>;
+  where?: InputMaybe<UsersFilters>;
+};
+
+
+export type QueryUsersSingleArgs = {
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<UsersOrderBy>;
+  where?: InputMaybe<UsersFilters>;
+};
+
+export type UsersFilters = {
+  OR?: InputMaybe<Array<UsersFiltersOr>>;
+  id?: InputMaybe<UsersIdFilters>;
+  name?: InputMaybe<UsersNameFilters>;
+};
+
+export type UsersFiltersOr = {
+  id?: InputMaybe<UsersIdFilters>;
+  name?: InputMaybe<UsersNameFilters>;
+};
+
+export type UsersIdFilters = {
+  OR?: InputMaybe<Array<UsersIdfiltersOr>>;
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersIdfiltersOr = {
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersInsertInput = {
+  id?: InputMaybe<Scalars['Int']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type UsersItem = {
+  __typename?: 'UsersItem';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type UsersNameFilters = {
+  OR?: InputMaybe<Array<UsersNamefiltersOr>>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersNamefiltersOr = {
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersOrderBy = {
+  id?: InputMaybe<InnerOrder>;
+  name?: InputMaybe<InnerOrder>;
+};
+
+export type UsersPostsRelation = {
+  __typename?: 'UsersPostsRelation';
+  author?: Maybe<UsersPostsRelationAuthorRelation>;
+  authorId: Scalars['Int']['output'];
+  content: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+};
+
+
+export type UsersPostsRelationAuthorArgs = {
+  where?: InputMaybe<UsersFilters>;
+};
+
+export type UsersPostsRelationAuthorRelation = {
+  __typename?: 'UsersPostsRelationAuthorRelation';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type UsersSelectItem = {
+  __typename?: 'UsersSelectItem';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  posts: Array<UsersPostsRelation>;
+};
+
+
+export type UsersSelectItemPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PostsOrderBy>;
+  where?: InputMaybe<PostsFilters>;
+};
+
+export type UsersUpdateInput = {
+  id?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type GetPostsQueryVariables = Exact<{
+  where?: InputMaybe<PostsFilters>;
+}>;
+
+
+export type GetPostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'PostsSelectItem', id: number, content: string, authorId: number, author?: { __typename?: 'PostsAuthorRelation', name: string } | null }> };
+
+export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UsersSelectItem', id: number, name: string }> };
+
+export class TypedDocumentString<TResult, TVariables>
+  extends String
+  implements DocumentTypeDecoration<TResult, TVariables>
+{
+  __apiType?: NonNullable<DocumentTypeDecoration<TResult, TVariables>['__apiType']>;
+  private value: string;
+  public __meta__?: Record<string, any> | undefined;
+
+  constructor(value: string, __meta__?: Record<string, any> | undefined) {
+    super(value);
+    this.value = value;
+    this.__meta__ = __meta__;
+  }
+
+  override toString(): string & DocumentTypeDecoration<TResult, TVariables> {
+    return this.value;
+  }
+}
+
+export const GetPostsDocument = new TypedDocumentString(`
+    query GetPosts($where: PostsFilters) {
+  posts(where: $where, orderBy: {id: {direction: desc, priority: 1}}) {
+    id
+    content
+    authorId
+    author {
+      name
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetPostsQuery, GetPostsQueryVariables>;
+export const GetUsersDocument = new TypedDocumentString(`
+    query GetUsers {
+  users(orderBy: {name: {direction: asc, priority: 1}}) {
+    id
+    name
+  }
+}
+    `) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
