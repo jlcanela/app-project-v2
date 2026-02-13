@@ -1,0 +1,11 @@
+### list users
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Accept: application/json
+
+{
+    "query":"query ExampleQuery { users { id name } }",
+    "variables":{},
+    "operationName":"ExampleQuery"
+}
+

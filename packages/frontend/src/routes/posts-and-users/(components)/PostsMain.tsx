@@ -1,4 +1,4 @@
-import { Result, useAtomValue } from '@effect-atom/atom-react'
+import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import {
   Avatar,
   Box,
@@ -12,8 +12,7 @@ import {
 } from '@mantine/core'
 
 import { graphql } from '@/graphql'
-import { selectedPostsAtom, selectedUserAtom } from './store'
-import { on } from 'node:cluster'
+import { deletePostAtom, selectedPostsAtom, selectedUserAtom } from './store'
 
 export const GetPosts = graphql(`
   query GetPosts($where: PostsFilters) {
@@ -35,8 +34,10 @@ interface PostsMainProps {
 export function PostsMain({ selectedUserId, onCreatePost }: PostsMainProps) {
   const selectedPosts = useAtomValue(selectedPostsAtom)
   const selectedUser = useAtomValue(selectedUserAtom)
+  const deletePost = useAtomSet(deletePostAtom)
+
   const handleDeletePost = (id: number) => {
-    setPosts((prev) => prev.filter((p) => p.id !== id))
+    deletePost(id)
   }
 
   return (

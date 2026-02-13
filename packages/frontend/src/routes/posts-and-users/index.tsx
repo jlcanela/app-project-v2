@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Box } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { AddPostModal } from './components/AddPostModal'
-import { AddUserModal } from './components/AddUserModal'
-import { PostsMain } from './components/PostsMain'
-import { UsersSidebar } from './components/UsersSidebar'
+import { AddPostModal } from './(components)/AddPostModal'
+import { AddUserModal } from './(components)/AddUserModal'
+import { PostsMain } from './(components)/PostsMain'
+import { UsersSidebar } from './(components)/UsersSidebar'
 import { useAtom } from '@effect-atom/atom-react'
-import { selectedUserIdAtom } from './components/store'
+import { selectedUserIdAtom } from './(components)/store'
 
 export const Route = createFileRoute('/posts-and-users/')({
   component: RouteComponent,

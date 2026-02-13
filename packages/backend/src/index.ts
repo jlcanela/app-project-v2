@@ -16,6 +16,7 @@ import { Pipelines } from "./Services/BusinessRuleType.js"
 import { BusinessRuleService } from "./Services/BusinessRulesService.js"
 //import { Repository } from "./Repository/Repository.js"
 import { WebAppRoutes } from "./WebApp.js"
+import { GraphqlLive } from "./graphql/apollo.js"
 
 const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
@@ -36,6 +37,7 @@ const MyApiLive = HttpApiBuilder.api(MyApi).pipe(
   Layer.provide(ProjectsApiLive),
   Layer.provide(AuthApiLive),
   Layer.provide(WebAppRoutes),
+  Layer.provide(GraphqlLive),
   Layer.provide(CustomApis.pipe(
     Layer.provide(BusinessRuleService.Default),
     Layer.provide(RequestDispatcher.Default)
