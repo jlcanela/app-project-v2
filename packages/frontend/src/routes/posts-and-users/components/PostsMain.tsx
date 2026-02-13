@@ -1,4 +1,4 @@
-import { useAtomValue } from '@effect-atom/atom-react'
+import { Result, useAtomValue } from '@effect-atom/atom-react'
 import {
   Avatar,
   Box,
@@ -12,7 +12,8 @@ import {
 } from '@mantine/core'
 
 import { graphql } from '@/graphql'
-import {  selectedPostsAtom, selectedUserAtom } from './store'
+import { selectedPostsAtom, selectedUserAtom } from './store'
+import { on } from 'node:cluster'
 
 export const GetPosts = graphql(`
   query GetPosts($where: PostsFilters) {
@@ -56,43 +57,56 @@ export function PostsMain({ selectedUserId, onCreatePost }: PostsMainProps) {
       >
         <Group justify="space-between">
           <Title order={3}>
-            {selectedUserId
-              ? `Posts by ${selectedUser?.name}`
-              : 'All Posts'}
+            {selectedUserId ?
+              Result.match(selectedUser, {
+                onInitial: () => 'Posts',
+                onFailure: () => 'Posts',
+                onSuccess: ({ value }) => `Posts by ${value?.name}`
+              }) : 'All Posts'
+            }
           </Title>
           <Button onClick={onCreatePost}>Create Post</Button>
         </Group>
       </Box>
       <ScrollArea p="md" style={{ flex: 1 }}>
         <Stack>
-          {selectedPosts.map((post) => (          
-            <Card key={post.id} shadow="sm" padding="lg" radius="md" withBorder>
-              <Group justify="space-between" mb="xs">
-                <Group>
-                  <Avatar color="blue" radius="xl">
-                    {post.author?.name[0]}
-                  </Avatar>
-                  <Text fw={500}>{post.author?.name}</Text>
-                </Group>
-                <Button
-                  variant="subtle"
-                  color="red"
-                  size="xs"
-                  onClick={() => handleDeletePost(post.id)}
-                >
-                  Delete
-                </Button>
-              </Group>
-              <Text size="sm" c="dimmed">
-                {post.content}
+          {Result.match(selectedPosts, {
+            onInitial: () => (
+              <Text c="dimmed" ta="center" mt="xl">
+                Loading...
               </Text>
-            </Card>
-          ))}
-          {selectedPosts.length === 0 && (
-            <Text c="dimmed" ta="center" mt="xl">
+            ),
+            onFailure: () => (
+              <Text c="dimmed" ta="center" mt="xl">
+                Error loading posts.
+              </Text>
+            ),
+            onSuccess: ({ value }) => value.length === 0 ? (<Text c="dimmed" ta="center" mt="xl">
               No posts found.
-            </Text>
-          )}                   
+            </Text>) : value.map((post) => (
+              <Card key={post.id} shadow="sm" padding="lg" radius="md" withBorder>
+                <Group justify="space-between" mb="xs">
+                  <Group>
+                    <Avatar color="blue" radius="xl">
+                      {post.author?.name[0]}
+                    </Avatar>
+                    <Text fw={500}>{post.author?.name}</Text>
+                  </Group>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => handleDeletePost(post.id)}
+                  >
+                    Delete
+                  </Button>
+                </Group>
+                <Text size="sm" c="dimmed">
+                  {post.content}
+                </Text>
+              </Card>
+            ))
+          })}
         </Stack>
       </ScrollArea>
     </Box>
