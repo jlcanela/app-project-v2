@@ -468,6 +468,28 @@ export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UsersSelectItem', id: number, name: string }> };
 
+export type CreateUserMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+}>;
+
+
+export type CreateUserMutation = { __typename?: 'Mutation', insertIntoUsersSingle?: { __typename?: 'UsersItem', id: number, name: string } | null };
+
+export type CreatePostMutationVariables = Exact<{
+  content: Scalars['String']['input'];
+  authorId: Scalars['Int']['input'];
+}>;
+
+
+export type CreatePostMutation = { __typename?: 'Mutation', insertIntoPostsSingle?: { __typename?: 'PostsItem', id: number, content: string, authorId: number } | null };
+
+export type DeletePostMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type DeletePostMutation = { __typename?: 'Mutation', deleteFromPosts: Array<{ __typename?: 'PostsItem', id: number, content: string, authorId: number }> };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -507,3 +529,29 @@ export const GetUsersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
+export const CreateUserDocument = new TypedDocumentString(`
+    mutation CreateUser($name: String!) {
+  insertIntoUsersSingle(values: {name: $name}) {
+    id
+    name
+  }
+}
+    `) as unknown as TypedDocumentString<CreateUserMutation, CreateUserMutationVariables>;
+export const CreatePostDocument = new TypedDocumentString(`
+    mutation CreatePost($content: String!, $authorId: Int!) {
+  insertIntoPostsSingle(values: {content: $content, authorId: $authorId}) {
+    id
+    content
+    authorId
+  }
+}
+    `) as unknown as TypedDocumentString<CreatePostMutation, CreatePostMutationVariables>;
+export const DeletePostDocument = new TypedDocumentString(`
+    mutation DeletePost($id: Int!) {
+  deleteFromPosts(where: {id: {eq: $id}}) {
+    id
+    content
+    authorId
+  }
+}
+    `) as unknown as TypedDocumentString<DeletePostMutation, DeletePostMutationVariables>;

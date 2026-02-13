@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useAtom } from '@effect-atom/atom-react'
+import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
-import { postsAtom, usersAtom } from './store'
+import { createPostAtom, usersAtom } from './store'
 
 interface AddPostModalProps {
   opened: boolean
@@ -14,8 +14,8 @@ export function AddPostModal({
   onClose,
   defaultAuthorId,
 }: AddPostModalProps) {
-  const [users] = useAtom(usersAtom)
-  const [, setPosts] = useAtom(postsAtom)
+    const createPost = useAtomSet(createPostAtom)
+  const users = useAtomValue(usersAtom)
 
   const [newPostContent, setNewPostContent] = useState('')
   const [newPostAuthorId, setNewPostAuthorId] = useState<string | null>(null)
@@ -31,21 +31,18 @@ export function AddPostModal({
     if (!newPostContent.trim() || !newPostAuthorId) {
       return
     }
-    const author = users.find((u) => u.id === parseInt(newPostAuthorId, 10))
-    const newPost = {
-      id: Date.now(),
+    createPost({
       content: newPostContent,
       authorId: parseInt(newPostAuthorId, 10),
-      author: { name: author?.name || 'Unknown' },
-    }
-    setPosts((prev) => [newPost, ...prev])
+    })
     onClose()
   }
 
   return (
     <Modal opened={opened} onClose={onClose} title="Create Post">
       <Stack>
-        <Select
+        {
+          Result.builder(users).onSuccess((users) => <Select
           label="Author"
           placeholder="Select author"
           data={users.map((u) => ({
@@ -54,7 +51,8 @@ export function AddPostModal({
           }))}
           value={newPostAuthorId}
           onChange={setNewPostAuthorId}
-        />
+        />).render()
+        }
         <TextInput
           label="Content"
           placeholder="What's on your mind?"
