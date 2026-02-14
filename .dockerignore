@@ -1,8 +1,10 @@
 **/node_modules/
 .git
 .gitignore
-Dockerfile
+**/Dockerfile/
 .dockerignore
 npm-debug.log
 pnpm-debug.log
 .env
+**/coverage/
+**/test_http/

@@ -12,8 +12,6 @@ export const Route = createFileRoute('/posts-and-users/')({
   component: RouteComponent,
 })
 
-
-
 function RouteComponent() {
   const [selectedUserId, setSelectedUserId] = useAtom(selectedUserIdAtom)
   

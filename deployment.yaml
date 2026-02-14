@@ -16,11 +16,11 @@ spec:
     spec:
       # Secret with GitHub Container Registry credentials
       # (created as type=kubernetes.io/dockerconfigjson)
-      #imagePullSecrets:
-      #  - name: ghcr-creds
+      imagePullSecrets:
+        - name: ghcr-creds
       containers:
         - name: rule-studio
-          image: ghcr.io/jlcanela/rule-studio:latest@sha256:034f0e4ab74a8b349376eea82223766e5fd861614e055f7e16cdda00b96eacef
+          image: ghcr.io/jlcanela/rule-studio-arm64:1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

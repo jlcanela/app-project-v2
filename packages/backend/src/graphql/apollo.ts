@@ -53,8 +53,8 @@ export const ApolloServiceLive = Layer.scoped(
             }) as Promise<HTTPGraphQLResponse>,
             catch: () => new DummyError({ status: 500, reason: "apolloServer execute failed" })
         })
-        return {
-            execute: Effect.fn("ApolloServiceLive")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
+
+        const execute = Effect.fn("ApolloServiceLive")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
                 const response = yield* executeApollo(httpGraphQLRequest)
                 if (response.status !== undefined && response.status !== 200) {
                     return yield* Effect.fail(new DummyError({ status: response.status ?? 500, reason: "invalid apollo response" }))
@@ -65,24 +65,30 @@ export const ApolloServiceLive = Layer.scoped(
 
                 return JSON.parse(response.body.string)
             })
+        return {
+            execute:  (httpGraphQLRequest: HTTPGraphQLRequest) => execute(httpGraphQLRequest).pipe(
+                Effect.tapError((e) => Effect.log(e))
+            )
         }
-    })
+    }).pipe(
+        Effect.tapError((e) => Effect.log(e))
+    )
 )
 
 export const GraphqlLive = HttpApiBuilder.group(graphqlApi, "group", (handlers) =>
     handlers.handle("graphql", (req) => Effect.gen(function* () {
         const body = yield* req.request.json.pipe(Effect.catchAll(() => Effect.fail(new DummyError({ status: 500, reason: "invalid input" }))))
-
+        
         const headers = new HeaderMap();
         for (const [key, value] of Object.entries(req.request.headers)) {
             if (value !== undefined) headers.set(key, value as string);
         }
-
+        
         const httpGraphQLRequest = {
             body,
             headers,
             method: req.request.method,
-            search: new URL(req.request.url).search,
+            search: new URL(req.request.url, "http://localhost:3000").search,
         }
 
         const service = yield* ApolloService

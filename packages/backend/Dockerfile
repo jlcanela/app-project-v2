@@ -2,65 +2,47 @@
 # Use Node.js 22 Alpine as a base image. Node.js 25 is not yet released;
 # 22 is the current Long-Term Support (LTS) version.
 # Alpine is a lightweight Linux distribution, ideal for production images.
-FROM node:22-alpine AS base
-WORKDIR /app
-# Install pnpm globally
-RUN npm install -g pnpm
+FROM node:22-alpine AS builder
+WORKDIR /repo
 
-# ---- Dependencies ----
-# This stage is for installing dependencies. It's a separate stage to
-# leverage Docker's layer caching. It will only be re-run if package
-# definitions or lockfiles change.
-FROM base AS deps
-# Copy workspace configuration and root package definitions
-COPY .npmrc ./ 
-COPY pnpm-lock.yaml ./ 
-COPY pnpm-workspace.yaml ./
-COPY package.json pnpm-lock.yaml ./
+# Enable corepack (bundled with recent Node)
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy package.json for all workspace packages to resolve dependencies.
-# This is more efficient than copying the entire source code at this stage.
-COPY packages/backend/package.json ./packages/backend/
-COPY packages/domain/package.json ./packages/domain/
-COPY packages/frontend/dist ./packages/frontend/dist 
-
-# Install all dependencies (including dev dependencies needed for building)
-RUN pnpm install --frozen-lockfile
-
-# ---- Builder ----
-# This stage builds the TypeScript source code into JavaScript.
-FROM base AS builder
-# Copy dependencies from the 'deps' stage
-COPY --from=deps /app/node_modules ./node_modules
-# Copy workspace configuration and package definitions again
 COPY .npmrc ./ 
 COPY pnpm-lock.yaml ./
 COPY pnpm-workspace.yaml ./
-COPY package.json ./
-
-COPY packages/backend/ ./packages/backend/
-COPY packages/domain/ ./packages/domain/
-COPY packages/frontend/dist ./packages/frontend/dist
+# Copy only package.json files to cache dependency installation
+COPY packages/backend/package.json ./packages/backend/
+COPY packages/domain/package.json ./packages/domain/
+COPY packages/frontend/package.json ./packages/frontend/
+COPY package.json .
 
 # Install all deps (build time)
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+
+COPY packages/backend ./packages/backend
+COPY packages/domain ./packages/domain
 
 # Build backend
 RUN pnpm --filter @app/backend build
 
-# Create a deployable folder with only prod deps for backend
-RUN pnpm --filter @app/backend --prod deploy /app/deploy/backend
+# Produce a pruned deploy dir for just backend (code + prod deps)
+FROM builder AS backend-deploy
+WORKDIR /repo
+RUN pnpm --filter @app/backend --prod deploy ./backend-dist
 
 # ---- Production ----
 FROM node:22-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=builder /app/deploy/backend/dist/index.mjs ./index.mjs 
-COPY --from=builder /app/deploy/backend/rules ./rules 
-COPY --from=builder /app/deploy/backend/package.json ./package.json
-COPY --from=builder /app/deploy/backend/node_modules ./node_modules
-
+COPY --from=backend-deploy /repo/backend-dist/dist/index.mjs .
+COPY --from=backend-deploy /repo/backend-dist/node_modules ./node_modules
+COPY packages/backend/rules ./rules 
+COPY packages/backend/local.db .
+COPY packages/backend/package.json .
 COPY packages/frontend/dist ./frontend
 COPY packages/opa/project/bundle.tar.gz ./opa/bundle.tar.gz
 
