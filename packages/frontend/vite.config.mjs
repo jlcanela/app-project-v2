@@ -27,6 +27,12 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      // OTLP HTTP proxy (dev only)
+      '/v1': {
+        target: 'http://localhost:4318',
+        changeOrigin: true,
+        //rewrite: (path) => path.replace(/^\/v1/, ''),
+      },
     },
   },
 });

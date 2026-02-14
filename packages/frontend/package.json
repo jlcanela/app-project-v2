@@ -26,6 +26,8 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@mantine/core": "8.3.14",
     "@mantine/hooks": "8.3.14",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
+    "@opentelemetry/sdk-trace-web": "^2.5.1",
     "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-router": "^1.158.4",
     "@tanstack/react-router-devtools": "^1.158.4",

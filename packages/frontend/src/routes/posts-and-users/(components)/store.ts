@@ -1,6 +1,12 @@
 
 import { Atom, Result } from '@effect-atom/atom-react'
-import { executeGraphQL } from '@/graphql/execute'
+import { executeGraphQL, GraphQLClientService } from '@/graphql/execute'
+// import * as Otlp from "@effect/opentelemetry/Otlp"
+import { type Configuration, layer as webSdkLayer } from "@effect/opentelemetry/WebSdk"
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-web"
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
+ 
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
 import { graphql } from '@/graphql/gql'
 import { Effect, Layer } from 'effect'
 import { type CreatePostMutationVariables } from '@/graphql/graphql'
@@ -55,7 +61,20 @@ mutation DeletePost($id: Int!) {
 }
 `)
 
-const runtime = Atom.runtime(Layer.empty)
+const baseUrl = "http://localhost:5173/v1/traces";
+
+const SpansExporterLive = webSdkLayer(() : Configuration => {
+  return {
+    resource: {
+      serviceName: "rule-studio-frontend"
+    },
+    spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({
+      url: baseUrl,
+    }))
+  }
+})
+
+const runtime = Atom.runtime(GraphQLClientService.Default.pipe(Layer.provide(FetchHttpClient.layer), Layer.provide(SpansExporterLive)))
 
 export const selectedUserIdAtom = Atom.make<number | null>(null)
 
