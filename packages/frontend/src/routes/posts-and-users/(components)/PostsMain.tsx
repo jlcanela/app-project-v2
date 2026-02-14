@@ -13,10 +13,10 @@ import {
 
 import { graphql } from '@/graphql'
 import { deletePostAtom, selectedPostsAtom, selectedUserAtom } from './store'
+import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql'
 
-export const GetPosts = graphql(`
-  query GetPosts($where: PostsFilters) {
-  posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {
+export const PostItem = graphql(/* GraphQL */ `
+  fragment PostItem on PostsSelectItem {
     id
     content
     authorId
@@ -24,7 +24,15 @@ export const GetPosts = graphql(`
       name
     }
   }
-}`)
+`)
+
+export const SelectedUserItem = graphql(/* GraphQL */ `
+  fragment SelectedUserItem on UsersSelectItem {
+    id
+    name
+  }
+`)
+
 
 interface PostsMainProps {
   selectedUserId: number | null
@@ -32,8 +40,8 @@ interface PostsMainProps {
 }
 
 export function PostsMain({ selectedUserId, onCreatePost }: PostsMainProps) {
-  const selectedPosts = useAtomValue(selectedPostsAtom)
-  const selectedUser = useAtomValue(selectedUserAtom)
+  const selectedPosts = useAtomValue(selectedPostsAtom) as Result.Result<PostItemFragment[]>
+  const selectedUser = useAtomValue(selectedUserAtom) as Result.Result<SelectedUserItemFragment>
   const deletePost = useAtomSet(deletePostAtom)
 
   const handleDeletePost = (id: number) => {

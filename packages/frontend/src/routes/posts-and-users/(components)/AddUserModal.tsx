@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useAtomSet } from '@effect-atom/atom-react'
+import { Atom, useAtom, useAtomSet } from '@effect-atom/atom-react'
 import { Button, Group, Modal, Stack, TextInput } from '@mantine/core'
 import { createUserAtom } from './store'
 
@@ -8,9 +7,11 @@ interface AddUserModalProps {
   onClose: () => void
 }
 
+const newUserNameAtom = Atom.make('')
+
 export function AddUserModal({ opened, onClose }: AddUserModalProps) {
   const createUser = useAtomSet(createUserAtom)
-  const [newUserName, setNewUserName] = useState('')
+  const [newUserName, setNewUserName] = useAtom(newUserNameAtom)
 
   const handleAddUser = () => {
     if (!newUserName.trim()) {

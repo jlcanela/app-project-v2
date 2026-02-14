@@ -3,13 +3,12 @@ import { Box, Button, Group, NavLink, ScrollArea, Stack, Title } from '@mantine/
 import { usersAtom } from './store'
 
 import { graphql } from '@/graphql'
+import { UserItemFragment } from '@/graphql/graphql'
 
-export const GetUsers = graphql(`
-  query GetUsers {
-    users(orderBy: { name: { direction: asc, priority: 1 } }) {
-      id
-      name
-    }
+export const UserItem = graphql(/* GraphQL */ `
+  fragment UserItem on UsersSelectItem {
+    id
+    name
   }
 `)
 
@@ -24,7 +23,7 @@ export function UsersSidebar({
   setSelectedUserId,
   onAddUser,
 }: UsersSidebarProps) {
-  const users = useAtomValue(usersAtom)
+  const users = useAtomValue(usersAtom) as Result.Result<UserItemFragment[]>
 
   return (
     <Box

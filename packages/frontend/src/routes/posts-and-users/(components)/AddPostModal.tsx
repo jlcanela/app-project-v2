@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
-import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
+import { useEffect } from 'react'
+import { Atom, Result, useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
 import { createPostAtom, usersAtom } from './store'
+import { graphql } from '@/graphql'
+import { AuthorUserItemFragment } from '@/graphql/graphql'
 
 interface AddPostModalProps {
   opened: boolean
@@ -9,17 +11,27 @@ interface AddPostModalProps {
   defaultAuthorId: number | null
 }
 
+export const AuthorUserItem = graphql(`
+  fragment AuthorUserItem on UsersSelectItem {
+    id
+    name
+  }
+`)
+
+const postContentAtom = Atom.make('')
+const newPostAuthorIdAtom = Atom.make<string | null>(null)
+
 export function AddPostModal({
   opened,
   onClose,
   defaultAuthorId,
 }: AddPostModalProps) {
     const createPost = useAtomSet(createPostAtom)
-  const users = useAtomValue(usersAtom)
+  const users = useAtomValue(usersAtom) as Result.Result<AuthorUserItemFragment[]>
 
-  const [newPostContent, setNewPostContent] = useState('')
-  const [newPostAuthorId, setNewPostAuthorId] = useState<string | null>(null)
-
+  const [newPostContent, setNewPostContent] = useAtom(postContentAtom)
+  const [newPostAuthorId, setNewPostAuthorId] = useAtom(newPostAuthorIdAtom)
+  
   useEffect(() => {
     if (opened) {
       setNewPostAuthorId(defaultAuthorId ? defaultAuthorId.toString() : null)

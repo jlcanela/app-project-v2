@@ -456,17 +456,31 @@ export type UsersUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AuthorUserItemFragment = { __typename?: 'UsersSelectItem', id: number, name: string } & { ' $fragmentName'?: 'AuthorUserItemFragment' };
+
+export type PostItemFragment = { __typename?: 'PostsSelectItem', id: number, content: string, authorId: number, author?: { __typename?: 'PostsAuthorRelation', name: string } | null } & { ' $fragmentName'?: 'PostItemFragment' };
+
+export type SelectedUserItemFragment = { __typename?: 'UsersSelectItem', id: number, name: string } & { ' $fragmentName'?: 'SelectedUserItemFragment' };
+
+export type UserItemFragment = { __typename?: 'UsersSelectItem', id: number, name: string } & { ' $fragmentName'?: 'UserItemFragment' };
+
+export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUsersQuery = { __typename?: 'Query', users: Array<(
+    { __typename?: 'UsersSelectItem', id: number }
+    & { ' $fragmentRefs'?: { 'UserItemFragment': UserItemFragment;'SelectedUserItemFragment': SelectedUserItemFragment;'AuthorUserItemFragment': AuthorUserItemFragment } }
+  )> };
+
 export type GetPostsQueryVariables = Exact<{
   where?: InputMaybe<PostsFilters>;
 }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'PostsSelectItem', id: number, content: string, authorId: number, author?: { __typename?: 'PostsAuthorRelation', name: string } | null }> };
-
-export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UsersSelectItem', id: number, name: string }> };
+export type GetPostsQuery = { __typename?: 'Query', posts: Array<(
+    { __typename?: 'PostsSelectItem', id: number, authorId: number }
+    & { ' $fragmentRefs'?: { 'PostItemFragment': PostItemFragment } }
+  )> };
 
 export type CreateUserMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -508,27 +522,71 @@ export class TypedDocumentString<TResult, TVariables>
     return this.value;
   }
 }
-
-export const GetPostsDocument = new TypedDocumentString(`
-    query GetPosts($where: PostsFilters) {
-  posts(where: $where, orderBy: {id: {direction: desc, priority: 1}}) {
-    id
-    content
-    authorId
-    author {
-      name
-    }
+export const AuthorUserItemFragmentDoc = new TypedDocumentString(`
+    fragment AuthorUserItem on UsersSelectItem {
+  id
+  name
+}
+    `, {"fragmentName":"AuthorUserItem"}) as unknown as TypedDocumentString<AuthorUserItemFragment, unknown>;
+export const PostItemFragmentDoc = new TypedDocumentString(`
+    fragment PostItem on PostsSelectItem {
+  id
+  content
+  authorId
+  author {
+    name
   }
 }
-    `) as unknown as TypedDocumentString<GetPostsQuery, GetPostsQueryVariables>;
+    `, {"fragmentName":"PostItem"}) as unknown as TypedDocumentString<PostItemFragment, unknown>;
+export const SelectedUserItemFragmentDoc = new TypedDocumentString(`
+    fragment SelectedUserItem on UsersSelectItem {
+  id
+  name
+}
+    `, {"fragmentName":"SelectedUserItem"}) as unknown as TypedDocumentString<SelectedUserItemFragment, unknown>;
+export const UserItemFragmentDoc = new TypedDocumentString(`
+    fragment UserItem on UsersSelectItem {
+  id
+  name
+}
+    `, {"fragmentName":"UserItem"}) as unknown as TypedDocumentString<UserItemFragment, unknown>;
 export const GetUsersDocument = new TypedDocumentString(`
     query GetUsers {
   users(orderBy: {name: {direction: asc, priority: 1}}) {
     id
-    name
+    ...UserItem
+    ...SelectedUserItem
+    ...AuthorUserItem
   }
 }
-    `) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
+    fragment AuthorUserItem on UsersSelectItem {
+  id
+  name
+}
+fragment SelectedUserItem on UsersSelectItem {
+  id
+  name
+}
+fragment UserItem on UsersSelectItem {
+  id
+  name
+}`) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
+export const GetPostsDocument = new TypedDocumentString(`
+    query GetPosts($where: PostsFilters) {
+  posts(where: $where, orderBy: {id: {direction: desc, priority: 1}}) {
+    id
+    authorId
+    ...PostItem
+  }
+}
+    fragment PostItem on PostsSelectItem {
+  id
+  content
+  authorId
+  author {
+    name
+  }
+}`) as unknown as TypedDocumentString<GetPostsQuery, GetPostsQueryVariables>;
 export const CreateUserDocument = new TypedDocumentString(`
     mutation CreateUser($name: String!) {
   insertIntoUsersSingle(values: {name: $name}) {

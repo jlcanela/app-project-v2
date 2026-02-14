@@ -15,17 +15,23 @@ import * as types from './graphql';
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  query GetPosts($where: PostsFilters) {\n  posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n}": typeof types.GetPostsDocument,
-    "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      name\n    }\n  }\n": typeof types.GetUsersDocument,
-    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      content\n      authorId\n      author {\n        name\n      }\n    }\n  }": typeof types.GetPostsDocument,
+    "\n  fragment AuthorUserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.AuthorUserItemFragmentDoc,
+    "\n  fragment PostItem on PostsSelectItem {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n": typeof types.PostItemFragmentDoc,
+    "\n  fragment SelectedUserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.SelectedUserItemFragmentDoc,
+    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.UserItemFragmentDoc,
+    "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n": typeof types.GetUsersDocument,
+    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }": typeof types.GetPostsDocument,
     "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": typeof types.CreateUserDocument,
     "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.CreatePostDocument,
     "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.DeletePostDocument,
 };
 const documents: Documents = {
-    "\n  query GetPosts($where: PostsFilters) {\n  posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n}": types.GetPostsDocument,
-    "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      name\n    }\n  }\n": types.GetUsersDocument,
-    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      content\n      authorId\n      author {\n        name\n      }\n    }\n  }": types.GetPostsDocument,
+    "\n  fragment AuthorUserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.AuthorUserItemFragmentDoc,
+    "\n  fragment PostItem on PostsSelectItem {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n": types.PostItemFragmentDoc,
+    "\n  fragment SelectedUserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.SelectedUserItemFragmentDoc,
+    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.UserItemFragmentDoc,
+    "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n": types.GetUsersDocument,
+    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }": types.GetPostsDocument,
     "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": types.CreateUserDocument,
     "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": types.CreatePostDocument,
     "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": types.DeletePostDocument,
@@ -34,15 +40,27 @@ const documents: Documents = {
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetPosts($where: PostsFilters) {\n  posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n}"): typeof import('./graphql').GetPostsDocument;
+export function graphql(source: "\n  fragment AuthorUserItem on UsersSelectItem {\n    id\n    name\n  }\n"): typeof import('./graphql').AuthorUserItemFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      name\n    }\n  }\n"): typeof import('./graphql').GetUsersDocument;
+export function graphql(source: "\n  fragment PostItem on PostsSelectItem {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n"): typeof import('./graphql').PostItemFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      content\n      authorId\n      author {\n        name\n      }\n    }\n  }"): typeof import('./graphql').GetPostsDocument;
+export function graphql(source: "\n  fragment SelectedUserItem on UsersSelectItem {\n    id\n    name\n  }\n"): typeof import('./graphql').SelectedUserItemFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n"): typeof import('./graphql').UserItemFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n"): typeof import('./graphql').GetUsersDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }"): typeof import('./graphql').GetPostsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

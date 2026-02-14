@@ -3,12 +3,15 @@ import { Atom, Result } from '@effect-atom/atom-react'
 import { executeGraphQL } from '@/graphql/execute'
 import { graphql } from '@/graphql/gql'
 import { Effect, Layer } from 'effect'
+import { type CreatePostMutationVariables } from '@/graphql/graphql'
 
 const GetUsersQuery = graphql(`
   query GetUsers {
     users(orderBy: { name: { direction: asc, priority: 1 } }) {
       id
-      name
+      ...UserItem
+      ...SelectedUserItem
+      ...AuthorUserItem
     }
   }
 `)
@@ -17,11 +20,8 @@ const GetPostsQuery = graphql(`
   query GetPosts($where: PostsFilters) {
     posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {
       id
-      content
       authorId
-      author {
-        name
-      }
+      ...PostItem
     }
   }`)
 
@@ -98,8 +98,8 @@ export const createUserAtom = runtime.fn(createUser,
    { reactivityKeys: { users: ["*"] } }
 )
 
-export const createPost = Effect.fn(function* (o: {content: string, authorId: number}) {
-  return yield* executeGraphQL(CreatePostMutation, o)
+export const createPost = Effect.fn(function* (variables: CreatePostMutationVariables) {
+  return yield* executeGraphQL(CreatePostMutation, variables)
 })
 
 export const createPostAtom = runtime.fn(createPost,
