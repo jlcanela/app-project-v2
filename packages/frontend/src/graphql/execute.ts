@@ -24,6 +24,8 @@ export class GraphQLClientService extends Effect.Service<GraphQLClientService>()
         query: TypedDocumentString<TResult, TVariables>,
         variables?: TVariables
       ) => Effect.gen(function* () {
+        const operationName = query.toString().match(/(query|mutation|subscription)\s+(\w+)/)?.[2]
+        yield* Effect.annotateCurrentSpan("graphql.operationName", operationName ?? "anonymous")
         const req = yield* client.post(
         "/graphql/", 
         {
@@ -35,7 +37,9 @@ export class GraphQLClientService extends Effect.Service<GraphQLClientService>()
         }
       )
       return (yield* req.json) as ExecutionResult<TResult>
-      })
+      }).pipe(
+        Effect.withSpan("GraphQLClientService.execute")
+      )
     }
   }),
   dependencies: [FetchHttpClient.layer]

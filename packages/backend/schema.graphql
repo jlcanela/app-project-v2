@@ -178,11 +178,7 @@ input RuleTypesInsertInput {
   ruleTypeId: Int
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 
@@ -190,11 +186,7 @@ input RuleTypesUpdateInput {
   ruleTypeId: Int
   name: String
   description: String
-
-  """JSON"""
   schemaIn: String
-
-  """JSON"""
   schemaOut: String
 }
 
@@ -337,32 +329,21 @@ input RuleTypesDescriptionfiltersOr {
 }
 
 input RuleTypesSchemaInFilters {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -370,64 +351,42 @@ input RuleTypesSchemaInFilters {
 }
 
 input RuleTypesSchemaInfiltersOr {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
 }
 
 input RuleTypesSchemaOutFilters {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -435,32 +394,21 @@ input RuleTypesSchemaOutFilters {
 }
 
 input RuleTypesSchemaOutfiltersOr {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -623,11 +571,7 @@ type RuleTypesSelectItem {
   ruleTypeId: Int!
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 
@@ -635,11 +579,7 @@ type RuleTypesItem {
   ruleTypeId: Int!
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 

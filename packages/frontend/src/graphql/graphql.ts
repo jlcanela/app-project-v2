@@ -25,18 +25,27 @@ export type InnerOrder = {
 export type Mutation = {
   __typename?: 'Mutation';
   deleteFromPosts: Array<PostsItem>;
+  deleteFromRuleTypes: Array<RuleTypesItem>;
   deleteFromUsers: Array<UsersItem>;
   insertIntoPosts: Array<PostsItem>;
   insertIntoPostsSingle?: Maybe<PostsItem>;
+  insertIntoRuleTypes: Array<RuleTypesItem>;
+  insertIntoRuleTypesSingle?: Maybe<RuleTypesItem>;
   insertIntoUsers: Array<UsersItem>;
   insertIntoUsersSingle?: Maybe<UsersItem>;
   updatePosts: Array<PostsItem>;
+  updateRuleTypes: Array<RuleTypesItem>;
   updateUsers: Array<UsersItem>;
 };
 
 
 export type MutationDeleteFromPostsArgs = {
   where?: InputMaybe<PostsFilters>;
+};
+
+
+export type MutationDeleteFromRuleTypesArgs = {
+  where?: InputMaybe<RuleTypesFilters>;
 };
 
 
@@ -55,6 +64,16 @@ export type MutationInsertIntoPostsSingleArgs = {
 };
 
 
+export type MutationInsertIntoRuleTypesArgs = {
+  values: Array<RuleTypesInsertInput>;
+};
+
+
+export type MutationInsertIntoRuleTypesSingleArgs = {
+  values: RuleTypesInsertInput;
+};
+
+
 export type MutationInsertIntoUsersArgs = {
   values: Array<UsersInsertInput>;
 };
@@ -68,6 +87,12 @@ export type MutationInsertIntoUsersSingleArgs = {
 export type MutationUpdatePostsArgs = {
   set: PostsUpdateInput;
   where?: InputMaybe<PostsFilters>;
+};
+
+
+export type MutationUpdateRuleTypesArgs = {
+  set: RuleTypesUpdateInput;
+  where?: InputMaybe<RuleTypesFilters>;
 };
 
 
@@ -278,6 +303,8 @@ export type Query = {
   __typename?: 'Query';
   posts: Array<PostsSelectItem>;
   postsSingle?: Maybe<PostsSelectItem>;
+  ruleTypes: Array<RuleTypesSelectItem>;
+  ruleTypesSingle?: Maybe<RuleTypesSelectItem>;
   users: Array<UsersSelectItem>;
   usersSingle?: Maybe<UsersSelectItem>;
 };
@@ -298,6 +325,21 @@ export type QueryPostsSingleArgs = {
 };
 
 
+export type QueryRuleTypesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<RuleTypesOrderBy>;
+  where?: InputMaybe<RuleTypesFilters>;
+};
+
+
+export type QueryRuleTypesSingleArgs = {
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<RuleTypesOrderBy>;
+  where?: InputMaybe<RuleTypesFilters>;
+};
+
+
 export type QueryUsersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -310,6 +352,292 @@ export type QueryUsersSingleArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<UsersOrderBy>;
   where?: InputMaybe<UsersFilters>;
+};
+
+export type RuleTypesDescriptionFilters = {
+  OR?: InputMaybe<Array<RuleTypesDescriptionfiltersOr>>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesDescriptionfiltersOr = {
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesFilters = {
+  OR?: InputMaybe<Array<RuleTypesFiltersOr>>;
+  description?: InputMaybe<RuleTypesDescriptionFilters>;
+  name?: InputMaybe<RuleTypesNameFilters>;
+  ruleTypeId?: InputMaybe<RuleTypesRuleTypeIdFilters>;
+  schemaIn?: InputMaybe<RuleTypesSchemaInFilters>;
+  schemaOut?: InputMaybe<RuleTypesSchemaOutFilters>;
+};
+
+export type RuleTypesFiltersOr = {
+  description?: InputMaybe<RuleTypesDescriptionFilters>;
+  name?: InputMaybe<RuleTypesNameFilters>;
+  ruleTypeId?: InputMaybe<RuleTypesRuleTypeIdFilters>;
+  schemaIn?: InputMaybe<RuleTypesSchemaInFilters>;
+  schemaOut?: InputMaybe<RuleTypesSchemaOutFilters>;
+};
+
+export type RuleTypesInsertInput = {
+  description: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  ruleTypeId?: InputMaybe<Scalars['Int']['input']>;
+  /** JSON */
+  schemaIn: Scalars['String']['input'];
+  /** JSON */
+  schemaOut: Scalars['String']['input'];
+};
+
+export type RuleTypesItem = {
+  __typename?: 'RuleTypesItem';
+  description: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  ruleTypeId: Scalars['Int']['output'];
+  /** JSON */
+  schemaIn: Scalars['String']['output'];
+  /** JSON */
+  schemaOut: Scalars['String']['output'];
+};
+
+export type RuleTypesNameFilters = {
+  OR?: InputMaybe<Array<RuleTypesNamefiltersOr>>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesNamefiltersOr = {
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesOrderBy = {
+  description?: InputMaybe<InnerOrder>;
+  name?: InputMaybe<InnerOrder>;
+  ruleTypeId?: InputMaybe<InnerOrder>;
+  schemaIn?: InputMaybe<InnerOrder>;
+  schemaOut?: InputMaybe<InnerOrder>;
+};
+
+export type RuleTypesRuleTypeIdFilters = {
+  OR?: InputMaybe<Array<RuleTypesRuleTypeIdfiltersOr>>;
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesRuleTypeIdfiltersOr = {
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  ne?: InputMaybe<Scalars['Int']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['Int']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesSchemaInFilters = {
+  OR?: InputMaybe<Array<RuleTypesSchemaInfiltersOr>>;
+  /** JSON */
+  eq?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lte?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesSchemaInfiltersOr = {
+  /** JSON */
+  eq?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lte?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesSchemaOutFilters = {
+  OR?: InputMaybe<Array<RuleTypesSchemaOutfiltersOr>>;
+  /** JSON */
+  eq?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lte?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesSchemaOutfiltersOr = {
+  /** JSON */
+  eq?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lt?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  lte?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<JSON> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RuleTypesSelectItem = {
+  __typename?: 'RuleTypesSelectItem';
+  description: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  ruleTypeId: Scalars['Int']['output'];
+  /** JSON */
+  schemaIn: Scalars['String']['output'];
+  /** JSON */
+  schemaOut: Scalars['String']['output'];
+};
+
+export type RuleTypesUpdateInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  ruleTypeId?: InputMaybe<Scalars['Int']['input']>;
+  /** JSON */
+  schemaIn?: InputMaybe<Scalars['String']['input']>;
+  /** JSON */
+  schemaOut?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UsersFilters = {
@@ -504,6 +832,18 @@ export type DeletePostMutationVariables = Exact<{
 
 export type DeletePostMutation = { __typename?: 'Mutation', deleteFromPosts: Array<{ __typename?: 'PostsItem', id: number, content: string, authorId: number }> };
 
+export type RuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null } & { ' $fragmentName'?: 'RuleTypeItemFragment' };
+
+export type RuleTypeGeneralItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, description: string } & { ' $fragmentName'?: 'RuleTypeGeneralItemFragment' };
+
+export type RulesTypeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RulesTypeQuery = { __typename?: 'Query', ruleTypes: Array<(
+    { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, schemaIn: string, schemaOut: string }
+    & { ' $fragmentRefs'?: { 'RuleTypeItemFragment': RuleTypeItemFragment;'RuleTypeGeneralItemFragment': RuleTypeGeneralItemFragment } }
+  )> };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -550,6 +890,19 @@ export const UserItemFragmentDoc = new TypedDocumentString(`
   name
 }
     `, {"fragmentName":"UserItem"}) as unknown as TypedDocumentString<UserItemFragment, unknown>;
+export const RuleTypeItemFragmentDoc = new TypedDocumentString(`
+    fragment RuleTypeItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+}
+    `, {"fragmentName":"RuleTypeItem"}) as unknown as TypedDocumentString<RuleTypeItemFragment, unknown>;
+export const RuleTypeGeneralItemFragmentDoc = new TypedDocumentString(`
+    fragment RuleTypeGeneralItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+  description
+}
+    `, {"fragmentName":"RuleTypeGeneralItem"}) as unknown as TypedDocumentString<RuleTypeGeneralItemFragment, unknown>;
 export const GetUsersDocument = new TypedDocumentString(`
     query GetUsers {
   users(orderBy: {name: {direction: asc, priority: 1}}) {
@@ -613,3 +966,22 @@ export const DeletePostDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeletePostMutation, DeletePostMutationVariables>;
+export const RulesTypeDocument = new TypedDocumentString(`
+    query RulesType {
+  ruleTypes(orderBy: {ruleTypeId: {direction: asc, priority: 1}}) {
+    ruleTypeId
+    schemaIn
+    schemaOut
+    ...RuleTypeItem
+    ...RuleTypeGeneralItem
+  }
+}
+    fragment RuleTypeItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+}
+fragment RuleTypeGeneralItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+  description
+}`) as unknown as TypedDocumentString<RulesTypeQuery, RulesTypeQueryVariables>;

@@ -17,7 +17,7 @@ import {
   Title,
 } from '@mantine/core';
 
-export const Route = createFileRoute('/rules/types')({
+export const Route = createFileRoute('/rules/types2')({
   component: RuleTypesPage,
 });
 

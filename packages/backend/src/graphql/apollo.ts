@@ -3,7 +3,8 @@ import { buildSchema } from 'drizzle-graphql';
 import { drizzle } from 'drizzle-orm/libsql';
 import { ApolloServer, HeaderMap, HTTPGraphQLRequest } from '@apollo/server';
 import type { HTTPGraphQLResponse } from '@apollo/server'
-
+import { printSchema } from "graphql";
+import { writeFileSync } from "node:fs";
 import * as dbSchema from '../db/schema.js';
 import { HttpApi, HttpApiBuilder, HttpApiEndpoint, HttpApiGroup, HttpRouter, HttpServer, HttpServerRequest, HttpServerResponse } from '@effect/platform';
 import { Context, Effect, Layer, Schema } from 'effect';
@@ -39,6 +40,32 @@ export const ApolloServiceLive = Layer.scoped(
         });
         const db = drizzle(client, { schema: dbSchema, logger: true });
         const { schema } = buildSchema(db);
+
+        // const rt: typeof dbSchema.ruleTypes.$inferInsert = {
+        //     name: 'Another rule type',
+        //     description: 'some description',
+        //     schemaIn: JSON.stringify([{
+        //         "path": "a",
+        //         "label": "a",
+        //         "type": "string",
+        //         "required": true,
+        //         "description": "a"
+        //     }]),
+        //     schemaOut: JSON.stringify([
+        //         {
+        //             "id": "b",
+        //             "label": "b",
+        //             "type": "string",
+        //             "description": "b",
+        //             "primary": true
+        //         }
+        //     ]),
+        // };
+
+        // yield* Effect.tryPromise(() => db.insert(dbSchema.ruleTypes).values(rt))
+        // const data = yield* Effect.tryPromise(() => db.select().from(dbSchema.ruleTypes))
+        // writeFileSync("schema.graphql", printSchema(schema))
+
         const apolloServer = new ApolloServer({ schema });
 
         yield* Effect.acquireRelease(
@@ -54,19 +81,20 @@ export const ApolloServiceLive = Layer.scoped(
             catch: () => new DummyError({ status: 500, reason: "apolloServer execute failed" })
         })
 
-        const execute = Effect.fn("ApolloServiceLive")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
-                const response = yield* executeApollo(httpGraphQLRequest)
-                if (response.status !== undefined && response.status !== 200) {
-                    return yield* Effect.fail(new DummyError({ status: response.status ?? 500, reason: "invalid apollo response" }))
-                }
-                if (response.body.kind !== "complete") {
-                    return yield* Effect.fail(new DummyError({ status: 500, reason: "invalid apollo response type" }))
-                }
+        const execute = Effect.fn("Graphql.execute")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
+            const response = yield* executeApollo(httpGraphQLRequest)
+            if (response.status !== undefined && response.status !== 200) {
+                return yield* Effect.fail(new DummyError({ status: response.status ?? 500, reason: "invalid apollo response" }))
+            }
+            if (response.body.kind !== "complete") {
+                return yield* Effect.fail(new DummyError({ status: 500, reason: "invalid apollo response type" }))
+            }
 
-                return JSON.parse(response.body.string)
-            })
+            console.log(new Date().toISOString())
+            return JSON.parse(response.body.string)
+        })
         return {
-            execute:  (httpGraphQLRequest: HTTPGraphQLRequest) => execute(httpGraphQLRequest).pipe(
+            execute: (httpGraphQLRequest: HTTPGraphQLRequest) => execute(httpGraphQLRequest).pipe(
                 Effect.tapError((e) => Effect.log(e))
             )
         }
@@ -78,12 +106,12 @@ export const ApolloServiceLive = Layer.scoped(
 export const GraphqlLive = HttpApiBuilder.group(graphqlApi, "group", (handlers) =>
     handlers.handle("graphql", (req) => Effect.gen(function* () {
         const body = yield* req.request.json.pipe(Effect.catchAll(() => Effect.fail(new DummyError({ status: 500, reason: "invalid input" }))))
-        
+
         const headers = new HeaderMap();
         for (const [key, value] of Object.entries(req.request.headers)) {
             if (value !== undefined) headers.set(key, value as string);
         }
-        
+
         const httpGraphQLRequest = {
             body,
             headers,

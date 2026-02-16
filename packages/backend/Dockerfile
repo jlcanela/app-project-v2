@@ -20,7 +20,13 @@ COPY packages/frontend/package.json ./packages/frontend/
 COPY package.json .
 
 # Install all deps (build time)
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+# 1) Fetch dans le store (ne dépend que du lockfile)
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm fetch
+
+# 2) Install à partir du store (offline + plus rapide)
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --offline --frozen-lockfile
 
 COPY packages/backend ./packages/backend
 COPY packages/domain ./packages/domain

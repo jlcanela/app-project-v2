@@ -1,91 +1,115 @@
 services:
-  postgres:
-    image:  postgres:18-bookworm
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: apv2
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d apv2"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql
-    networks:
-      - apv2-network
-    restart: unless-stopped
-
-  adminer:
-    image: adminer:5.2.1
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-    ports:
-      - "8080:8080"
-    networks:
-      - apv2-network
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "8090:80"
-    networks:
-      - apv2-network
-    #restart: unless-stopped
-    depends_on:
-      - postgres
-
-  cosmos:
-    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
-    restart: unless-stopped
-    environment:
-      # Required for running in a container
-      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 10
-      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
-    #command: >
-    #  --protocol https
-    ports:
-      # Gateway port for SDKs (default 8081 inside container)
-      - "8081:8081"
-      # Data Explorer / HTTPS UI (match your WithHttpsEndpoint targetPort)
-      - "1234:1234"
-    #volumes:
-      # Optional but recommended: persist data & certs
-      #- ./cosmos-data:/data
-      #- ./cosmos-certs:/certs
-
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.75.0
     command:
+      - "--collector.otlp.http.cors.allowed-origins=http://localhost:5173"
       - "--collector.otlp.http.cors.allowed-headers=*"
       - "--collector.otlp.http.tls.enabled=false"
+    container_name: jaeger
     ports:
-      - "6831:6831/udp"
-      - "6832:6832/udp"
-      - "5778:5778"
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
-      - "14250:14250"
-      - "14268:14268"
-      - "14269:14269"
-      - "9411:9411"
+      - "16686:16686"   # UI
+      - "6831:6831/udp" # UDP Thrift compact
+      - "6832:6832/udp" # UDP Thrift binary
+      - "14268:14268"   # HTTP Thrift
+      - "14250:14250"   # gRPC (OTLP/collector)
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - QUERY_BASE_PATH=/
-    networks:
-      - apv2-network
-    #restart: unless-stopped
+#      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+#      - LOG_LEVEL=debug
+    restart: unless-stopped
 
-networks:
-  apv2-network:
-    driver: bridge
+# services:
+#   postgres:
+#     image:  postgres:18-bookworm
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: apv2
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres -d apv2"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql
+#     networks:
+#       - apv2-network
+#     restart: unless-stopped
 
-volumes:
-  postgres_data:
-    driver: local
+#   adminer:
+#     image: adminer:5.2.1
+#     environment:
+#       ADMINER_DEFAULT_SERVER: postgres
+#     ports:
+#       - "8080:8080"
+#     networks:
+#       - apv2-network
+
+#   pgadmin:
+#     image: dpage/pgadmin4
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#       PGADMIN_DEFAULT_PASSWORD: admin
+#     ports:
+#       - "8090:80"
+#     networks:
+#       - apv2-network
+#     #restart: unless-stopped
+#     depends_on:
+#       - postgres
+
+#   cosmos:
+#     image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+#     restart: unless-stopped
+#     environment:
+#       # Required for running in a container
+#       AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 10
+#       AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+#     #command: >
+#     #  --protocol https
+#     ports:
+#       # Gateway port for SDKs (default 8081 inside container)
+#       - "8081:8081"
+#       # Data Explorer / HTTPS UI (match your WithHttpsEndpoint targetPort)
+#       - "1234:1234"
+#     #volumes:
+#       # Optional but recommended: persist data & certs
+#       #- ./cosmos-data:/data
+#       #- ./cosmos-certs:/certs
+
+#   jaeger:
+#     image: jaegertracing/all-in-one:latest
+#     command:
+#       - "--collector.otlp.http.cors.allowed-headers=*"
+#       - "--collector.otlp.http.tls.enabled=false"
+#     ports:
+#       - "6831:6831/udp"
+#       - "6832:6832/udp"
+#       - "5778:5778"
+#       - "16686:16686"
+#       - "4317:4317"
+#       - "4318:4318"
+#       - "14250:14250"
+#       - "14268:14268"
+#       - "14269:14269"
+#       - "9411:9411"
+#     environment:
+#       - COLLECTOR_OTLP_ENABLED=true
+#       - QUERY_BASE_PATH=/
+#     networks:
+#       - apv2-network
+#     #restart: unless-stopped
+
+# networks:
+#   apv2-network:
+#     driver: bridge
+
+# volumes:
+#   postgres_data:
+#     driver: local
+

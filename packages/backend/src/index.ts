@@ -2,7 +2,7 @@ import {
   HttpApiBuilder,
   HttpApiSwagger,
   HttpServer
-} from "@effect/platform"
+} from "@effect/platform" 
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
 import { ConfigProvider, Effect, Layer, Schema } from "effect"
 import { createServer } from "node:http"
@@ -23,7 +23,7 @@ const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:431
 const Observability = Otlp.layer({
   baseUrl,
   resource: {
-    serviceName: "my-service"
+    serviceName: "rule-studio-backend"
   },
 }).pipe(Layer.provide(FetchHttpClient.layer))
 
