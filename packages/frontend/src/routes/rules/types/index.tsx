@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { AppShell, Box, Container } from '@mantine/core'
+import { Box } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useAtom } from '@effect-atom/atom-react'
 import { selectedRuleTypeIdAtom } from './(components)/atoms'
 import { RuleTypesSidebar } from './(components)/RuleTypesSidebar'
-import { RuleTypeDetail } from './(components)/RuleTypeDetail'
+// import { RuleTypeDetail } from './(components)/RuleTypeDetail'
 // import { AddPostModal } from './(components)/AddPostModal'
 // import { AddRuleTypeModal } from './(components)/AddRuleTypeModal'
 // import { PostsMain } from './(components)/PostsMain'
@@ -60,9 +60,11 @@ function RouteComponent() {
   const [selectedRuleTypeId, setSelectedRuleTypeId] = useAtom(selectedRuleTypeIdAtom)
 
   // Modals
-  const [openedRuleTypeModal, { open: openRuleTypeModal, close: closeRuleTypeModal }] =
-    useDisclosure(false)
-  const [openedPostModal, { open: openPostModal, close: closePostModal }] =
+  //  const [openedRuleTypeModal, { open: openRuleTypeModal, close: closeRuleTypeModal }] =
+  //  useDisclosure(false)
+  // const [openedPostModal, { open: openPostModal, close: closePostModal }] =
+  //  useDisclosure(false)
+  const [,{ open: openRuleTypeModal }] =
     useDisclosure(false)
 
   return (

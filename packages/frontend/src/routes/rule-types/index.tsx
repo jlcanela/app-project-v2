@@ -17,7 +17,7 @@ import { useForm } from '@mantine/form';
 // Adapt this to your router
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SchemaFieldsEditor } from './(components)/JsonSchemaEditor';
-import { Governance, RuleField, RuleFieldType, RuleTypeFormValues } from './(components)/types';
+import { RuleField, RuleFieldType, RuleTypeFormValues } from './(components)/types';
 // import { GovernanceSection } from './(components)/GovernanceSection';
 import { GeneralSection } from './(components)/SimplifiedGeneralSection';
 
@@ -49,17 +49,6 @@ type RuleTypeDto = {
 };
 
 // ---------- helpers ----------
-
-const emptyGovernance: Governance = {
-  version: '',
-  breakingChange: false,
-  changeNotes: '',
-  effectiveFrom: null,
-  notifiedTeams: [],
-  communicationSummary: '',
-};
-
-
 
 // parse backend JSON into table-friendly fields
 function parseSchemaIn(json: unknown): RuleField[] {
@@ -140,17 +129,12 @@ export const RuleTypePage: React.FC = () => {
   const form = useForm<RuleTypeFormValues>({
     mode: 'uncontrolled',
     initialValues: {
-      businessDecision: '',
+      name: '',
       description: '',
-      callingSystems: [],
-      inputContractDescription: '',
-      outputContractDescription: '',
       schemaInFields: [],
       schemaOutFields: [],
-      governance: emptyGovernance,
     },
     validate: {
-      businessDecision: (value) => (!value ? 'Business decision is required' : null),
       description: (value) => (!value ? 'Description is required' : null),
       schemaInFields: (value) =>
         value.length === 0 ? 'At least one input field is required' : null,
@@ -193,14 +177,9 @@ export const RuleTypePage: React.FC = () => {
         if (!cancelled) {
           form.setValues({
             ruleTypeId: data.ruleTypeId,
-            businessDecision: data.description, // or split description/businessDecision if you have both
             description: data.description,
-            callingSystems: [],
-            inputContractDescription: '',
-            outputContractDescription: '',
             schemaInFields: parseSchemaIn(schemaInJson),
             schemaOutFields: parseSchemaOut(schemaOutJson),
-            governance: emptyGovernance,
           });
         }
       } catch (e) {

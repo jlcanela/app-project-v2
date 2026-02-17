@@ -832,7 +832,7 @@ export type DeletePostMutationVariables = Exact<{
 
 export type DeletePostMutation = { __typename?: 'Mutation', deleteFromPosts: Array<{ __typename?: 'PostsItem', id: number, content: string, authorId: number }> };
 
-export type RuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null } & { ' $fragmentName'?: 'RuleTypeItemFragment' };
+export type RuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, schemaIn: string, schemaOut: string } & { ' $fragmentName'?: 'RuleTypeItemFragment' };
 
 export type RuleTypeGeneralItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, description: string } & { ' $fragmentName'?: 'RuleTypeGeneralItemFragment' };
 
@@ -894,6 +894,8 @@ export const RuleTypeItemFragmentDoc = new TypedDocumentString(`
     fragment RuleTypeItem on RuleTypesSelectItem {
   ruleTypeId
   name
+  schemaIn
+  schemaOut
 }
     `, {"fragmentName":"RuleTypeItem"}) as unknown as TypedDocumentString<RuleTypeItemFragment, unknown>;
 export const RuleTypeGeneralItemFragmentDoc = new TypedDocumentString(`
@@ -979,6 +981,8 @@ export const RulesTypeDocument = new TypedDocumentString(`
     fragment RuleTypeItem on RuleTypesSelectItem {
   ruleTypeId
   name
+  schemaIn
+  schemaOut
 }
 fragment RuleTypeGeneralItem on RuleTypesSelectItem {
   ruleTypeId

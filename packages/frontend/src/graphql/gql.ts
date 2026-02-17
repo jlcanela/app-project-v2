@@ -24,7 +24,7 @@ type Documents = {
     "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": typeof types.CreateUserDocument,
     "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.CreatePostDocument,
     "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.DeletePostDocument,
-    "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n  }\n": typeof types.RuleTypeItemFragmentDoc,
+    "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    schemaIn\n    schemaOut\n  }\n": typeof types.RuleTypeItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": typeof types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": typeof types.RulesTypeDocument,
 };
@@ -38,7 +38,7 @@ const documents: Documents = {
     "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": types.CreateUserDocument,
     "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": types.CreatePostDocument,
     "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": types.DeletePostDocument,
-    "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n  }\n": types.RuleTypeItemFragmentDoc,
+    "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    schemaIn\n    schemaOut\n  }\n": types.RuleTypeItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": types.RulesTypeDocument,
 };
@@ -82,7 +82,7 @@ export function graphql(source: "\n\nmutation DeletePost($id: Int!) {\n  deleteF
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n  }\n"): typeof import('./graphql').RuleTypeItemFragmentDoc;
+export function graphql(source: "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    schemaIn\n    schemaOut\n  }\n"): typeof import('./graphql').RuleTypeItemFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

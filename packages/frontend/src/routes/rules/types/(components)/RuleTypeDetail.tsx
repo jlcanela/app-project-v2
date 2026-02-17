@@ -1,5 +1,5 @@
 // src/pages/rule-types/RuleTypePage.tsx
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   AppShell,
   Container,
@@ -9,126 +9,123 @@ import {
   Group,
   Button,
   Divider,
-  LoadingOverlay,
+  // LoadingOverlay,
 } from '@mantine/core';
-
-import { useForm } from '@mantine/form';
 
 // Adapt this to your router
 import { useNavigate } from '@tanstack/react-router';
 import { SchemaFieldsEditor } from './JsonSchemaEditor';
-import { Governance, RuleField, RuleFieldType, RuleTypeFormValues } from '@/routes/rule-types/(components)/types';
 // import { GovernanceSection } from './(components)/GovernanceSection';
 import { GeneralSection } from './SimplifiedGeneralSection';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
 import { selectedRuleTypeAtom } from './atoms';
-import { RuleTypeItemFragment } from '@/graphql/graphql';
+import { RuleTypeGeneralItemFragment } from '@/graphql/graphql';
 
 // import { GeneralSection } from './(components)/SimplifiedGeneralSection';
 // Backend / JDM schema types (adapt to your actual types)
-type InputSchemaField = {
-  path: string;
-  label: string;
-  type: RuleFieldType | string;
-  required?: boolean;
-  allowedValues?: string[];
-  description?: string;
-};
+// type InputSchemaField = {
+//   path: string;
+//   label: string;
+//   type: RuleFieldType | string;
+//   required?: boolean;
+//   allowedValues?: string[];
+//   description?: string;
+// };
 
-type OutputSchemaField = {
-  id: string;
-  label: string;
-  type: RuleFieldType | string;
-  allowedValues?: string[];
-  description?: string;
-  primary?: boolean;
-};
+// type OutputSchemaField = {
+//   id: string;
+//   label: string;
+//   type: RuleFieldType | string;
+//   allowedValues?: string[];
+//   description?: string;
+//   primary?: boolean;
+// };
 
-type RuleTypeDto = {
-  ruleTypeId: number;
-  name: string;
-  description: string;
-  schemaIn: string;
-  schemaOut: string;
-  // You can extend with more fields if your backend has them
-};
+// type RuleTypeDto = {
+//   ruleTypeId: number;
+//   name: string;
+//   description: string;
+//   schemaIn: string;
+//   schemaOut: string;
+//   // You can extend with more fields if your backend has them
+// };
 
 // ---------- helpers ----------
 
-const emptyGovernance: Governance = {
-  version: '',
-  breakingChange: false,
-  changeNotes: '',
-  effectiveFrom: null,
-  notifiedTeams: [],
-  communicationSummary: '',
-};
+// const emptyGovernance: Governance = {
+//   version: '',
+//   breakingChange: false,
+//   changeNotes: '',
+//   effectiveFrom: null,
+//   notifiedTeams: [],
+//   communicationSummary: '',
+// };
 
 
 
-// parse backend JSON into table-friendly fields
-function parseSchemaIn(json: unknown): RuleField[] {
-  if (!json || typeof json !== 'object') {
-    return [];
-  }
-  const arr = Array.isArray(json) ? json : [];
-  return arr.map((item, index) => {
-    const f = item as InputSchemaField;
-    return {
-      id: `in-${index}-${Math.random().toString(36).slice(2)}`,
-      pathOrId: f.path ?? '',
-      label: f.label ?? '',
-      type: (f.type as RuleFieldType) ?? 'string',
-      required: !!f.required,
-      allowedValues: f.allowedValues ?? [],
-      description: f.description ?? '',
-    };
-  });
-}
+// // parse backend JSON into table-friendly fields
+// function parseSchemaIn(json: unknown): RuleField[] {
+//   if (!json || typeof json !== 'object') {
+//     return [];
+//   }
+//   const arr = Array.isArray(json) ? json : [];
+//   return arr.map((item, index) => {
+//     const f = item as InputSchemaField;
+//     return {
+//       id: `in-${index}-${Math.random().toString(36).slice(2)}`,
+//       pathOrId: f.path ?? '',
+//       label: f.label ?? '',
+//       type: (f.type as RuleFieldType) ?? 'string',
+//       required: !!f.required,
+//       allowedValues: f.allowedValues ?? [],
+//       description: f.description ?? '',
+//     };
+//   });
+// }
 
-function parseSchemaOut(json: unknown): RuleField[] {
-  if (!json || typeof json !== 'object') {
-    return [];
-  }
-  const arr = Array.isArray(json) ? json : [];
-  return arr.map((item, index) => {
-    const f = item as OutputSchemaField;
-    return {
-      id: `out-${index}-${Math.random().toString(36).slice(2)}`,
-      pathOrId: f.id ?? '',
-      label: f.label ?? '',
-      type: (f.type as RuleFieldType) ?? 'string',
-      required: true,
-      allowedValues: f.allowedValues ?? [],
-      description: f.description ?? '',
-      primaryOutcome: !!f.primary,
-    };
-  });
-}
+// function parseSchemaOut(json: unknown): RuleField[] {
+//   if (!json || typeof json !== 'object') {
+//     return [];
+//   }
+//   const arr = Array.isArray(json) ? json : [];
+//   return arr.map((item, index) => {
+//     const f = item as OutputSchemaField;
+//     return {
+//       id: `out-${index}-${Math.random().toString(36).slice(2)}`,
+//       pathOrId: f.id ?? '',
+//       label: f.label ?? '',
+//       type: (f.type as RuleFieldType) ?? 'string',
+//       required: true,
+//       allowedValues: f.allowedValues ?? [],
+//       description: f.description ?? '',
+//       primaryOutcome: !!f.primary,
+//     };
+//   });
+// }
 
-// build backend JSON from table fields
-function buildSchemaIn(fields: RuleField[]): InputSchemaField[] {
-  console.log("buildSchemaIn", fields)
-  return fields.map((f) => ({
-    path: f.pathOrId,
-    label: f.label,
-    type: f.type,
-    required: f.required,
-    allowedValues: f.allowedValues.length ? f.allowedValues : undefined,
-    description: f.description || undefined,
-  }));
-}
+// // build backend JSON from table fields
+// function buildSchemaIn(fields: RuleField[]): InputSchemaField[] {
+//   console.log("buildSchemaIn", fields)
+//   return fields.map((f) => ({
+//     path: f.pathOrId,
+//     label: f.label,
+//     type: f.type,
+//     required: f.required,
+//     allowedValues: f.allowedValues.length ? f.allowedValues : undefined,
+//     description: f.description || undefined,
+//   }));
+// }
 
-function buildSchemaOut(fields: RuleField[]): OutputSchemaField[] {
-  return fields.map((f) => ({
-    id: f.pathOrId,
-    label: f.label,
-    type: f.type,
-    allowedValues: f.allowedValues.length ? f.allowedValues : undefined,
-    description: f.description || undefined,
-    primary: f.primaryOutcome || undefined,
-  }));
-}
+// function buildSchemaOut(fields: RuleField[]): OutputSchemaField[] {
+//   return fields.map((f) => ({
+//     id: f.pathOrId,
+//     label: f.label,
+//     type: f.type,
+//     allowedValues: f.allowedValues.length ? f.allowedValues : undefined,
+//     description: f.description || undefined,
+//     primary: f.primaryOutcome || undefined,
+//   }));
+// }
 
 // ---------- sections ----------
 
@@ -139,173 +136,175 @@ export const RuleTypeDetail: React.FC = () => {
   //const isNew = params.ruleTypeId === 'new';
   const isNew = true;
 
-  const defaultRuleType = {
-    name: '',
-    description: '',
-    schemaInFields: [],
-    schemaOutFields: [],
-    //governance: emptyGovernance,
-  }
+  // const defaultRuleType = {
+  //   name: '',
+  //   description: '',
+  //   schemaIn: [],
+  //   schemaOut: [],
+  //   //governance: emptyGovernance,
+  // }
 
   const ruleTypeResult = useAtomValue(selectedRuleTypeAtom)
-  const ruleType1 = Result.getOrElse(ruleTypeResult, () => defaultRuleType)
 
-  const ruleType = ruleType1 ? {
-    schemaIn: JSON.parse(ruleType1?.schemaIn ?? []),
-    schemaOut: JSON.parse(ruleType1?.schemaOut ?? [])
-  } : ruleTypeResult
+  //console.log(schemaIn, schemaOut)
+  //  const schemaIn =  JSON.parse(ruleTypeResult?.schemaIn ?? [])
 
-  const [loading, setLoading] = useState(!isNew);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  // const ruleType = Object.assign(defaultRuleType, ruleType1, {
+  //   schemaIn: JSON.parse(ruleType1?.schemaIn ?? []),
+  //   schemaOut: JSON.parse(ruleType1?.schemaOut ?? [])
+  // }) as RuleTypeGeneralItemFragment // : ruleTypeResult
 
-  const form = useForm<RuleTypeFormValues>({
-    mode: 'uncontrolled',
-    initialValues: ruleType,
-    validate: {
-      name: (value) => (!value ? 'Business decision is required' : null),
-      description: (value) => (!value ? 'Description is required' : null),
-      schemaInFields: (value) =>
-        value.length === 0 ? 'At least one input field is required' : null,
-      schemaOutFields: (value) =>
-        value.length === 0 ? 'At least one output field is required' : null,
-    },
-  });
+  // const [loading, setLoading] = useState(!isNew);
+  // const [saving, setSaving] = useState(false);
+  // const [deleting, setDeleting] = useState(false);
+
+  // const form = useForm<RuleTypeFormValues>({
+  //   mode: 'uncontrolled',
+  //   initialValues: ruleType,
+  //   validate: {
+  //     name: (value) => (!value ? 'Business decision is required' : null),
+  //     description: (value) => (!value ? 'Description is required' : null),
+  //     schemaInFields: (value) =>
+  //       value.length === 0 ? 'At least one input field is required' : null,
+  //     schemaOutFields: (value) =>
+  //       value.length === 0 ? 'At least one output field is required' : null,
+  //   },
+  // });
 
   //  console.log(form.values))
   // load existing rule type
-  useEffect(() => {
-    if (isNew) {
-      return;
-    }
-    let cancelled = false;
+  // useEffect(() => {
+  //   if (isNew) {
+  //     return;
+  //   }
+  //   let cancelled = false;
 
-    const load = async () => {
-      setLoading(true);
-      try {
-        // const res = await fetch(`/api/rule-types/${params.ruleTypeId}`);
-        const res = await fetch(`/api/rule-type}`);
-        if (!res.ok) {
-          throw new Error('Failed to load rule type');
-        }
-        //const data = (await res.json()) as RuleTypeDto;
-        const data = ruleType
+  //   const load = async () => {
+  //     setLoading(true);
+  //     try {
+  //       // const res = await fetch(`/api/rule-types/${params.ruleTypeId}`);
+  //       const res = await fetch(`/api/rule-type}`);
+  //       if (!res.ok) {
+  //         throw new Error('Failed to load rule type');
+  //       }
+  //       //const data = (await res.json()) as RuleTypeDto;
+  //       const data = ruleType
 
-        let schemaInJson: unknown = [];
-        let schemaOutJson: unknown = [];
+  //       let schemaInJson: unknown = [];
+  //       let schemaOutJson: unknown = [];
 
-        try {
-          schemaInJson = JSON.parse(data.schemaIn || '[]');
-        } catch {
-          schemaInJson = [];
-        }
-        try {
-          schemaOutJson = JSON.parse(data.schemaOut || '[]');
-        } catch {
-          schemaOutJson = [];
-        }
+  //       try {
+  //         schemaInJson = JSON.parse(data.schemaIn || '[]');
+  //       } catch {
+  //         schemaInJson = [];
+  //       }
+  //       try {
+  //         schemaOutJson = JSON.parse(data.schemaOut || '[]');
+  //       } catch {
+  //         schemaOutJson = [];
+  //       }
 
-        if (!cancelled) {
-          form.setValues({
-            ruleTypeId: data.ruleTypeId,
-            name: data.name, // or split description/businessDecision if you have both
-            description: data.description,
-            //callingSystems: [],
-            //inputContractDescription: '',
-            //outputContractDescription: '',
-            schemaInFields: parseSchemaIn(schemaInJson),
-            schemaOutFields: parseSchemaOut(schemaOutJson),
-            //governance: emptyGovernance,
-          });
-        }
-      } catch (e) {
-        if (!cancelled) {
-          // eslint-disable-next-line no-alert
-          alert('Error loading rule type');
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
+  //       if (!cancelled) {
+  //         form.setValues({
+  //           ruleTypeId: data.ruleTypeId,
+  //           name: data.name, // or split description/businessDecision if you have both
+  //           description: data.description,
+  //           //callingSystems: [],
+  //           //inputContractDescription: '',
+  //           //outputContractDescription: '',
+  //           schemaInFields: parseSchemaIn(schemaInJson),
+  //           schemaOutFields: parseSchemaOut(schemaOutJson),
+  //           //governance: emptyGovernance,
+  //         });
+  //       }
+  //     } catch (e) {
+  //       if (!cancelled) {
+  //         // eslint-disable-next-line no-alert
+  //         alert('Error loading rule type');
+  //       }
+  //     } finally {
+  //       if (!cancelled) {
+  //         setLoading(false);
+  //       }
+  //     }
+  //   };
 
-    load();
+  //   load();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [isNew, 1 /*params.ruleTypeId*/, form]);
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [isNew, 1 /*params.ruleTypeId*/, form]);
 
-  const handleSubmit = form.onSubmit(async (values) => {
-    setSaving(true);
-    try {
-      console.log(values)
-      const payload: Partial<RuleTypeDto> & {
-        schemaIn: string;
-        schemaOut: string;
-      } = {
-        description: values.description,
-        schemaIn: JSON.stringify(buildSchemaIn(values.schemaInFields)),
-        schemaOut: JSON.stringify(buildSchemaOut(values.schemaOutFields)),
-      };
+  // const handleSubmit = form.onSubmit(async (values) => {
+  //   setSaving(true);
+  //   try {
+  //     console.log(values)
+  //     const payload: Partial<RuleTypeDto> & {
+  //       schemaIn: string;
+  //       schemaOut: string;
+  //     } = {
+  //       description: values.description,
+  //       schemaIn: JSON.stringify(buildSchemaIn(values.schemaInFields)),
+  //       schemaOut: JSON.stringify(buildSchemaOut(values.schemaOutFields)),
+  //     };
 
-      const res = await fetch(
-        isNew ? '/api/rule-types' : `/api/rule-types/${values.ruleTypeId}`,
-        {
-          method: isNew ? 'POST' : 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        },
-      );
+  //     const res = await fetch(
+  //       isNew ? '/api/rule-types' : `/api/rule-types/${values.ruleTypeId}`,
+  //       {
+  //         method: isNew ? 'POST' : 'PUT',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify(payload),
+  //       },
+  //     );
 
-      if (!res.ok) {
-        throw new Error('Failed to save');
-      }
+  //     if (!res.ok) {
+  //       throw new Error('Failed to save');
+  //     }
 
-      // eslint-disable-next-line no-alert
-      alert('Rule type saved');
-      navigate({ to: '/rule-types' }); // adjust route
-    } catch (e) {
-      // eslint-disable-next-line no-alert
-      alert('Error saving rule type');
-    } finally {
-      setSaving(false);
-    }
-  });
+  //     // eslint-disable-next-line no-alert
+  //     alert('Rule type saved');
+  //     navigate({ to: '/rule-types' }); // adjust route
+  //   } catch (e) {
+  //     // eslint-disable-next-line no-alert
+  //     alert('Error saving rule type');
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // });
 
-  const handleDelete = async () => {
-    if (!form.values.ruleTypeId) {
-      return;
-    }
-    // eslint-disable-next-line no-alert
-    if (!window.confirm('Delete this rule type? This cannot be undone.')) {
-      return;
-    }
+  // const handleDelete = async () => {
+  //   if (!form.values.ruleTypeId) {
+  //     return;
+  //   }
+  //   // eslint-disable-next-line no-alert
+  //   if (!window.confirm('Delete this rule type? This cannot be undone.')) {
+  //     return;
+  //   }
 
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/rule-types/${form.values.ruleTypeId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        throw new Error('Failed to delete');
-      }
-      // eslint-disable-next-line no-alert
-      alert('Rule type deleted');
-      navigate({ to: '/rule-types' });
-    } catch (e) {
-      // eslint-disable-next-line no-alert
-      alert('Error deleting rule type');
-    } finally {
-      setDeleting(false);
-    }
-  };
+  //   setDeleting(true);
+  //   try {
+  //     const res = await fetch(`/api/rule-types/${form.values.ruleTypeId}`, {
+  //       method: 'DELETE',
+  //     });
+  //     if (!res.ok) {
+  //       throw new Error('Failed to delete');
+  //     }
+  //     // eslint-disable-next-line no-alert
+  //     alert('Rule type deleted');
+  //     navigate({ to: '/rule-types' });
+  //   } catch (e) {
+  //     // eslint-disable-next-line no-alert
+  //     alert('Error deleting rule type');
+  //   } finally {
+  //     setDeleting(false);
+  //   }
+  // };
 
   return (
     <AppShell /*header={null}*/>
       <Container size="lg" py="md" style={{ position: 'relative' }}>
-        <LoadingOverlay visible={loading || saving || deleting} />
+        {/*         <LoadingOverlay visible={loading || saving || deleting} /> */}
         <Stack>
           <Group justify="space-between" mb="xs">
             <div>
@@ -317,57 +316,69 @@ export const RuleTypeDetail: React.FC = () => {
               </Text>
             </div>
           </Group>
+          {Result.match(ruleTypeResult, {
+            onInitial: () => (
+              <Text c="dimmed" ta="center" mt="xl">
+                Loading...
+              </Text>),
+            onSuccess: (success) => (
+              <form /*onSubmit={handleSubmit}*/>
+                <Stack gap="md">
+                  <GeneralSection ruleType={success.value as unknown as RuleTypeGeneralItemFragment} isEdit={!isNew} />
+                  
+                  <SchemaFieldsEditor
+                    kind="in"
+                    title="Input schema (schemaIn)"
+                    fields={JSON.parse(success.value?.schemaIn ?? '[]')}
+                    onChange={() => { }}
+                  //onChange={(fields) => form.setFieldValue('schemaIn', fields)}
+                  />
 
-          <form onSubmit={handleSubmit}>
-            <Stack gap="md">
-              <GeneralSection form={form} isEdit={!isNew} />
+                   <SchemaFieldsEditor
+                    kind="out"
+                    title="Output schema (schemaOut)"
+                    onChange={() => { }}
+                    fields={JSON.parse(success.value?.schemaOut ?? '[]')}
+                  //onChange={(fields) => form.setFieldValue('schemaOut', fields)}
+                  /> 
 
-              <SchemaFieldsEditor
-                kind="in"
-                title="Input schema (schemaIn)"
-                fields={ruleType?.schemaIn}
-                onChange={(fields) => form.setFieldValue('schemaIn', fields)}
-              />
 
-              <SchemaFieldsEditor
-                kind="out"
-                title="Output schema (schemaOut)"
-                fields={ruleType?.schemaOut}
-                onChange={(fields) => form.setFieldValue('schemaOut', fields)}
-              />
+                  <Divider />
 
-              {/*               <GovernanceSection form={form} /> */}
-
-              <Divider />
-
-              <Group justify="space-between" mt="md">
-                <Text size="sm" c="dimmed">
-                  {/* You can inject last-updated metadata here */}
-                </Text>
-                <Group>
-                  {!isNew && (
-                    <Button
-                      color="red"
-                      variant="light"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                  <Button
-                    variant="default"
-                    type="button"
-                    onClick={() => navigate({ to: '/rule-types' })}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    Save
-                  </Button>
-                </Group>
-              </Group>
-            </Stack>
-          </form>
+                  <Group justify="space-between" mt="md">
+                    <Text size="sm" c="dimmed">
+                      {/* You can inject last-updated metadata here */}
+                    </Text>
+                    <Group>
+                      {!isNew && (
+                        <Button
+                          color="red"
+                          variant="light"
+                        //onClick={handleDelete}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                      <Button
+                        variant="default"
+                        type="button"
+                        onClick={() => navigate({ to: '/rule-types' })}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">
+                        Save
+                      </Button>
+                    </Group>
+                  </Group>
+                </Stack>
+              </form>
+            ),
+            onFailure: () => (
+              <Text c="dimmed" ta="center" mt="xl">
+                Error loading rule type.
+              </Text>)
+          })}
         </Stack>
       </Container>
     </AppShell>

@@ -4,16 +4,17 @@ import {
   TextInput,
   Textarea,
 } from '@mantine/core';
-import { UseFormReturnType } from '@mantine/form';
-import { RuleTypeFormValues } from "@/routes/rule-types/(components)/types";
-import { Result, useAtomValue } from '@effect-atom/atom-react';
-import { selectedRuleTypeAtom } from './atoms';
+// import { UseFormReturnType } from '@mantine/form';
+// import { RuleTypeFormValues } from "@/routes/rule-types/(components)/types";
+// import { Result, useAtomValue } from '@effect-atom/atom-react';
+// import { selectedRuleTypeAtom } from './atoms';
 import { graphql } from '@/graphql';
 import { RuleTypeGeneralItemFragment } from '@/graphql/graphql';
 
 
 type RuleTypeGeneralSectionProps = {
-  form: UseFormReturnType<RuleTypeFormValues>;
+  //form: UseFormReturnType<RuleTypeFormValues>;
+  ruleType: RuleTypeGeneralItemFragment;
   isEdit: boolean;
 };
 
@@ -25,15 +26,15 @@ export const RuleTypeGeneralItem = graphql(/* GraphQL */ `
   }
 `)
 
-export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ form, isEdit }) => {
-    const ruleTypeResult = useAtomValue(selectedRuleTypeAtom) as Result.Result<RuleTypeGeneralItemFragment>
-    const ruleType = Result.getOrElse(ruleTypeResult,() => ({
-        name: '',
-        description: '',
-        schemaInFields: [],
-        schemaOutFields: [],
-        //governance: emptyGovernance,
-        }))
+export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ ruleType, isEdit }) => {
+    //const ruleTypeResult = useAtomValue(selectedRuleTypeAtom) as Result.Result<RuleTypeGeneralItemFragment>
+    // const ruleType = Result.getOrElse(ruleTypeResult,() => ({
+    //     // name: '',
+    //     // description: '',
+    //     // schemaInFields: [],
+    //     // schemaOutFields: [],
+    //     // //governance: emptyGovernance,
+    //     // }))
 
   return (
     <Paper withBorder radius="md" p="md">
@@ -42,7 +43,7 @@ export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ form, is
           <TextInput
             label="Rule type ID"
             readOnly
-            {...form.getInputProps('ruleTypeId')}
+            value={ruleType?.ruleTypeId?.toString() ?? ''}
           />
         )}
         <TextInput
@@ -50,7 +51,6 @@ export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ form, is
           description='E.g. "Project Evaluation Rule Type"'
           withAsterisk
           value={ruleType?.name ?? ''}
-          {...form.getInputProps('businessDecision')}
         />
         <Textarea
           label="Description"
@@ -58,7 +58,6 @@ export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ form, is
           autosize
           withAsterisk
           value={ruleType?.description ?? ''}
-          {...form.getInputProps('description')}
         />
       </Stack>
     </Paper>

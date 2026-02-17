@@ -8,7 +8,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
  
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
 import { graphql } from '@/graphql/gql'
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, Option } from 'effect'
 // import { type CreatePostMutationVariables } from '@/graphql/graphql'
 
 const GetRuleTypesQuery = graphql(`
@@ -93,23 +93,37 @@ export const selectedRuleTypeIdAtom = Atom.make<number | null>(null)
 
 export const ruleTypesAtom = runtime.atom(executeGraphQL(GetRuleTypesQuery).pipe(
   Effect.map((result) => result.data?.ruleTypes ?? []),
+  Effect.tap(Effect.log)
 )).pipe(Atom.withReactivity({ users: ["*"] }))
 
+/*
+
+export const usersAtom = runtime.atom(executeGraphQL(GetUsersQuery).pipe(
+  Effect.map((result) => result.data?.users ?? []),
+)).pipe(Atom.withReactivity({ users: ["*"] }))
+
+export const selectedUserIdAtom = Atom.make<number | null>(null)
+
+export const selectedUserAtom = Atom.make((get) => {
+  const usersResult = get(usersAtom);
+  const selectedId = get(selectedUserIdAtom);
+  return Result.map(usersResult, (users) => Option.fromNullable(users.find((u) => u.id === selectedId)))
+});
+*/
 // export const postsAtom = runtime.atom(executeGraphQL(GetPostsQuery, { where: null }).pipe(
 //   Effect.map((result) => result.data?.posts ?? [])
 // )).pipe(Atom.withReactivity({ posts: ["*"] }))
 
-
 export const selectedRuleTypeAtom = Atom.make((get) => {
   const ruleTypesResult = get(ruleTypesAtom);
   const selectedId = get(selectedRuleTypeIdAtom);
-
-  if (selectedId === null) {
-    return Result.success(undefined)
-  }
-
-  return Result.map(ruleTypesResult, (ruleTypes) => ruleTypes.find((r) => r.ruleTypeId === selectedId))
-});
+  const result = Result.map(ruleTypesResult, (ruleTypes) => ruleTypes.find((rt) => rt.ruleTypeId === selectedId))
+  return result
+})
+  //(ruleTypes) =>
+//  console.log("@@@", ruleTypesResult)
+//  return Result.map(ruleTypesResult, (ruleTypes) => Option.fromNullable(ruleTypes.find((r) => r.ruleTypeId === selectedId)))
+//});
 
 // export const selectedPostsAtom = Atom.make((get) => {
 //   const postsResult = get(postsAtom);

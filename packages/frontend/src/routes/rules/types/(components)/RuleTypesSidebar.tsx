@@ -10,6 +10,8 @@ export const RuleTypeItem = graphql(/* GraphQL */ `
   fragment RuleTypeItem on RuleTypesSelectItem {
     ruleTypeId
     name
+    schemaIn
+    schemaOut
   }
 `)
 
