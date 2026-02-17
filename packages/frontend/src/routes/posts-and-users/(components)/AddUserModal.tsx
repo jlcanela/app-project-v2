@@ -2,8 +2,9 @@ import { Atom, useAtom, useAtomSet } from '@effect-atom/atom-react'
 import { Button, Group, Modal, Stack, TextInput } from '@mantine/core'
 import { createUserAtom } from './store'
 
-interface AddUserModalProps {
+export interface AddUserModalProps {
   opened: boolean
+  onCreateUser: (name: string) => void,
   onClose: () => void
 }
 

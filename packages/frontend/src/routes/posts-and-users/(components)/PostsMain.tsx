@@ -1,4 +1,4 @@
-import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
+import { Result } from '@effect-atom/atom-react'
 import {
   Avatar,
   Box,
@@ -12,8 +12,8 @@ import {
 } from '@mantine/core'
 
 import { graphql } from '@/graphql'
-import { deletePostAtom, selectedPostsAtom, selectedUserAtom } from './store'
 import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql'
+import { Option } from 'effect'
 
 export const PostItem = graphql(/* GraphQL */ `
   fragment PostItem on PostsSelectItem {
@@ -34,18 +34,17 @@ export const SelectedUserItem = graphql(/* GraphQL */ `
 `)
 
 
-interface PostsMainProps {
-  selectedUserId: number | null
-  onCreatePost: () => void
+export interface PostsMainProps {
+  onCreatePost: () => void,
+  onDeletePost: (id: number) => void,
+  selectedPosts: Result.Result<PostItemFragment[], string>,
+  selectedUser: Result.Result<Option.Option<SelectedUserItemFragment>, string>
 }
 
-export function PostsMain({ selectedUserId, onCreatePost }: PostsMainProps) {
-  const selectedPosts = useAtomValue(selectedPostsAtom) as Result.Result<PostItemFragment[]>
-  const selectedUser = useAtomValue(selectedUserAtom) as Result.Result<SelectedUserItemFragment>
-  const deletePost = useAtomSet(deletePostAtom)
+export function PostsMain({ selectedUser, selectedPosts, onCreatePost, onDeletePost }: PostsMainProps) {
 
   const handleDeletePost = (id: number) => {
-    deletePost(id)
+    onDeletePost(id)
   }
 
   return (
@@ -66,13 +65,13 @@ export function PostsMain({ selectedUserId, onCreatePost }: PostsMainProps) {
       >
         <Group justify="space-between">
           <Title order={3}>
-            {selectedUserId ?
-              Result.match(selectedUser, {
+            {Result.match(selectedUser, {
                 onInitial: () => 'Posts',
                 onFailure: () => 'Posts',
-                onSuccess: ({ value }) => `Posts by ${value?.name}`
-              }) : 'All Posts'
-            }
+                onSuccess: ({ value }) =>  Option.match(value, {
+                  onNone: () => 'Posts',
+                  onSome: (value) =>`Posts by ${value?.name}`
+            })})}
           </Title>
           <Button onClick={onCreatePost}>Create Post</Button>
         </Group>

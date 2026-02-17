@@ -1,6 +1,5 @@
-import { Result, useAtomValue } from '@effect-atom/atom-react'
+import { Result } from '@effect-atom/atom-react'
 import { Box, Button, Group, NavLink, ScrollArea, Stack, Title } from '@mantine/core'
-import { usersAtom } from './store'
 
 import { graphql } from '@/graphql'
 import { UserItemFragment } from '@/graphql/graphql'
@@ -12,19 +11,19 @@ export const UserItem = graphql(/* GraphQL */ `
   }
 `)
 
-interface UsersSidebarProps {
+export interface UsersSidebarProps {
   selectedUserId: number | null
   setSelectedUserId: (id: number | null) => void
-  onAddUser: () => void
+  onAddUser: () => void,
+  users: Result.Result<UserItemFragment[], string>
 }
 
 export function UsersSidebar({
   selectedUserId,
   setSelectedUserId,
   onAddUser,
+  users,
 }: UsersSidebarProps) {
-  const users = useAtomValue(usersAtom) as Result.Result<UserItemFragment[]>
-
   return (
     <Box
       w={300}

@@ -1,15 +1,9 @@
 import { useEffect } from 'react'
-import { Atom, Result, useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
-import { createPostAtom, usersAtom } from './store'
+
 import { graphql } from '@/graphql'
 import { AuthorUserItemFragment } from '@/graphql/graphql'
-
-interface AddPostModalProps {
-  opened: boolean
-  onClose: () => void
-  defaultAuthorId: number | null
-}
+import { Atom, useAtom } from '@effect-atom/atom-react'
 
 export const AuthorUserItem = graphql(`
   fragment AuthorUserItem on UsersSelectItem {
@@ -18,20 +12,27 @@ export const AuthorUserItem = graphql(`
   }
 `)
 
-const postContentAtom = Atom.make('')
+export interface AddPostModalProps {
+  opened: boolean
+  onClose: () => void
+  defaultAuthorId: number | null
+  users: AuthorUserItemFragment[]
+  onCreatePost: (values: { content: string; authorId: number }) => void
+}
+
+const newPostContentAtom = Atom.make('')
 const newPostAuthorIdAtom = Atom.make<string | null>(null)
 
 export function AddPostModal({
   opened,
   onClose,
   defaultAuthorId,
+  users,
+  onCreatePost,
 }: AddPostModalProps) {
-    const createPost = useAtomSet(createPostAtom)
-  const users = useAtomValue(usersAtom) as Result.Result<AuthorUserItemFragment[]>
-
-  const [newPostContent, setNewPostContent] = useAtom(postContentAtom)
+  const [newPostContent, setNewPostContent] = useAtom(newPostContentAtom)
   const [newPostAuthorId, setNewPostAuthorId] = useAtom(newPostAuthorIdAtom)
-  
+
   useEffect(() => {
     if (opened) {
       setNewPostAuthorId(defaultAuthorId ? defaultAuthorId.toString() : null)
@@ -43,7 +44,7 @@ export function AddPostModal({
     if (!newPostContent.trim() || !newPostAuthorId) {
       return
     }
-    createPost({
+    onCreatePost({
       content: newPostContent,
       authorId: parseInt(newPostAuthorId, 10),
     })
@@ -53,8 +54,7 @@ export function AddPostModal({
   return (
     <Modal opened={opened} onClose={onClose} title="Create Post">
       <Stack>
-        {
-          Result.builder(users).onSuccess((users) => <Select
+        <Select
           label="Author"
           placeholder="Select author"
           data={users.map((u) => ({
@@ -63,8 +63,7 @@ export function AddPostModal({
           }))}
           value={newPostAuthorId}
           onChange={setNewPostAuthorId}
-        />).render()
-        }
+        />
         <TextInput
           label="Content"
           placeholder="What's on your mind?"

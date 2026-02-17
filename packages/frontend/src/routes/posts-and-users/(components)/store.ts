@@ -8,7 +8,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
  
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
 import { graphql } from '@/graphql/gql'
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, Option } from 'effect'
 import { type CreatePostMutationVariables } from '@/graphql/graphql'
 
 const GetUsersQuery = graphql(`
@@ -90,12 +90,7 @@ export const postsAtom = runtime.atom(executeGraphQL(GetPostsQuery, { where: nul
 export const selectedUserAtom = Atom.make((get) => {
   const usersResult = get(usersAtom);
   const selectedId = get(selectedUserIdAtom);
-
-  if (selectedId === null) {
-    return Result.success(undefined)
-  }
-
-  return Result.map(usersResult, (users) => users.find((u) => u.id === selectedId))
+  return Result.map(usersResult, (users) => Option.fromNullable(users.find((u) => u.id === selectedId)))
 });
 
 export const selectedPostsAtom = Atom.make((get) => {
