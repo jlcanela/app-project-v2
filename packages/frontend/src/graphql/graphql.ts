@@ -1004,9 +1004,22 @@ export type DeletePostMutation = { __typename?: 'Mutation', deleteFromPosts: Arr
 
 export type UserItemFragment = { __typename?: 'UsersSelectItem', id: number, name: string } & { ' $fragmentName'?: 'UserItemFragment' };
 
-export type RuleItemFragment = { __typename?: 'RuleInstancesSelectItem', ruleId: number, name?: string | null } & { ' $fragmentName'?: 'RuleItemFragment' };
+export type SelectRuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null } & { ' $fragmentName'?: 'SelectRuleTypeItemFragment' };
 
-export type RuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, schemaIn: string, schemaOut: string } & { ' $fragmentName'?: 'RuleTypeItemFragment' };
+export type RuleInstancesItemQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RuleInstancesItemQuery = { __typename?: 'Query', ruleInstances: Array<{ __typename?: 'RuleInstancesSelectItem', ruleId: number, name?: string | null }> };
+
+export type CreateRuleMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+}>;
+
+
+export type CreateRuleMutation = { __typename?: 'Mutation', insertIntoRuleInstancesSingle?: { __typename?: 'RuleInstancesItem', ruleId: number, name?: string | null, description: string } | null };
+
+export type RuleItemFragment = { __typename?: 'RuleInstancesSelectItem', ruleId: number, name?: string | null, description: string } & { ' $fragmentName'?: 'RuleItemFragment' };
 
 export type RuleTypeGeneralItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, description: string } & { ' $fragmentName'?: 'RuleTypeGeneralItemFragment' };
 
@@ -1017,6 +1030,8 @@ export type RulesTypeQuery = { __typename?: 'Query', ruleTypes: Array<(
     { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, schemaIn: string, schemaOut: string }
     & { ' $fragmentRefs'?: { 'RuleTypeItemFragment': RuleTypeItemFragment;'RuleTypeGeneralItemFragment': RuleTypeGeneralItemFragment } }
   )> };
+
+export type RuleTypeItemFragment = { __typename?: 'RuleTypesSelectItem', ruleTypeId: number, name?: string | null, schemaIn: string, schemaOut: string } & { ' $fragmentName'?: 'RuleTypeItemFragment' };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -1064,12 +1079,26 @@ export const UserItemFragmentDoc = new TypedDocumentString(`
   name
 }
     `, {"fragmentName":"UserItem"}) as unknown as TypedDocumentString<UserItemFragment, unknown>;
+export const SelectRuleTypeItemFragmentDoc = new TypedDocumentString(`
+    fragment SelectRuleTypeItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+}
+    `, {"fragmentName":"SelectRuleTypeItem"}) as unknown as TypedDocumentString<SelectRuleTypeItemFragment, unknown>;
 export const RuleItemFragmentDoc = new TypedDocumentString(`
     fragment RuleItem on RuleInstancesSelectItem {
   ruleId
   name
+  description
 }
     `, {"fragmentName":"RuleItem"}) as unknown as TypedDocumentString<RuleItemFragment, unknown>;
+export const RuleTypeGeneralItemFragmentDoc = new TypedDocumentString(`
+    fragment RuleTypeGeneralItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+  description
+}
+    `, {"fragmentName":"RuleTypeGeneralItem"}) as unknown as TypedDocumentString<RuleTypeGeneralItemFragment, unknown>;
 export const RuleTypeItemFragmentDoc = new TypedDocumentString(`
     fragment RuleTypeItem on RuleTypesSelectItem {
   ruleTypeId
@@ -1078,13 +1107,6 @@ export const RuleTypeItemFragmentDoc = new TypedDocumentString(`
   schemaOut
 }
     `, {"fragmentName":"RuleTypeItem"}) as unknown as TypedDocumentString<RuleTypeItemFragment, unknown>;
-export const RuleTypeGeneralItemFragmentDoc = new TypedDocumentString(`
-    fragment RuleTypeGeneralItem on RuleTypesSelectItem {
-  ruleTypeId
-  name
-  description
-}
-    `, {"fragmentName":"RuleTypeGeneralItem"}) as unknown as TypedDocumentString<RuleTypeGeneralItemFragment, unknown>;
 export const GetUsersDocument = new TypedDocumentString(`
     query GetUsers {
   users(orderBy: {name: {direction: asc, priority: 1}}) {
@@ -1148,6 +1170,23 @@ export const DeletePostDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeletePostMutation, DeletePostMutationVariables>;
+export const RuleInstancesItemDocument = new TypedDocumentString(`
+    query RuleInstancesItem {
+  ruleInstances(orderBy: {ruleId: {direction: asc, priority: 1}}) {
+    ruleId
+    name
+  }
+}
+    `) as unknown as TypedDocumentString<RuleInstancesItemQuery, RuleInstancesItemQueryVariables>;
+export const CreateRuleDocument = new TypedDocumentString(`
+    mutation CreateRule($name: String!, $description: String!) {
+  insertIntoRuleInstancesSingle(values: {name: $name, description: $description}) {
+    ruleId
+    name
+    description
+  }
+}
+    `) as unknown as TypedDocumentString<CreateRuleMutation, CreateRuleMutationVariables>;
 export const RulesTypeDocument = new TypedDocumentString(`
     query RulesType {
   ruleTypes(orderBy: {ruleTypeId: {direction: asc, priority: 1}}) {
@@ -1158,14 +1197,14 @@ export const RulesTypeDocument = new TypedDocumentString(`
     ...RuleTypeGeneralItem
   }
 }
-    fragment RuleTypeItem on RuleTypesSelectItem {
+    fragment RuleTypeGeneralItem on RuleTypesSelectItem {
+  ruleTypeId
+  name
+  description
+}
+fragment RuleTypeItem on RuleTypesSelectItem {
   ruleTypeId
   name
   schemaIn
   schemaOut
-}
-fragment RuleTypeGeneralItem on RuleTypesSelectItem {
-  ruleTypeId
-  name
-  description
 }`) as unknown as TypedDocumentString<RulesTypeQuery, RulesTypeQueryVariables>;

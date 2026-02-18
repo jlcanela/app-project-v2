@@ -1,13 +1,9 @@
 import { Atom, Result } from '@effect-atom/atom-react';
-// import * as Otlp from "@effect/opentelemetry/Otlp"
-import { layer as webSdkLayer, type Configuration } from '@effect/opentelemetry/WebSdk';
-import * as FetchHttpClient from '@effect/platform/FetchHttpClient';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
-import { Effect, Layer, Option } from 'effect';
-import { executeGraphQL, GraphQLClientService } from '@/graphql/execute';
+import { Effect, Option } from 'effect';
+import { executeGraphQL } from '@/graphql/execute';
 import { graphql } from '@/graphql/gql';
 import { type CreatePostMutationVariables } from '@/graphql/graphql';
+import { runtime } from '@/lib/atoms';
 
 const GetUsersQuery = graphql(`
   query GetUsers {
@@ -59,30 +55,6 @@ const DeletePostMutation = graphql(`
   }
 `);
 
-const baseUrl = 'http://localhost:5173/v1/traces';
-
-const SpansExporterLive = webSdkLayer((): Configuration => {
-  return {
-    resource: {
-      serviceName: 'rule-studio-frontend',
-    },
-    spanProcessor: new BatchSpanProcessor(
-      new OTLPTraceExporter({
-        url: baseUrl,
-      })
-    ),
-  };
-});
-
-const runtime = Atom.runtime(
-  GraphQLClientService.Default.pipe(
-    Layer.provide(FetchHttpClient.layer),
-    Layer.provide(SpansExporterLive)
-  )
-);
-
-export const selectedUserIdAtom = Atom.make<number | null>(null);
-
 export const usersAtom = runtime
   .atom(executeGraphQL(GetUsersQuery).pipe(Effect.map((result) => result.data?.users ?? [])))
   .pipe(Atom.withReactivity({ users: ['*'] }));
@@ -94,6 +66,8 @@ export const postsAtom = runtime
     )
   )
   .pipe(Atom.withReactivity({ posts: ['*'] }));
+
+export const selectedUserIdAtom = Atom.make<number | null>(null);
 
 export const selectedUserAtom = Atom.make((get) => {
   const usersResult = get(usersAtom);

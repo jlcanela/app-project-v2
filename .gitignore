@@ -2,8 +2,9 @@ node_modules/
 storybook-static/
 dist/
 .env
-.eslintcache
+.eslintcache/
 .DS_Store
+.tanstack
 .vscode/
 coverage/
 npm-debug.log*

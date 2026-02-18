@@ -21,10 +21,20 @@ const baseProps: PostsMainProps = {
   onCreatePost: () => {},
   onDeletePost: () => {},
   selectedPosts: defaultPosts,
-  selectedUser: defaultUser,
+  selectedUser: Result.success(Option.none()),
 };
 
 export const AllPosts = () => <PostsMain {...baseProps} />;
+
+export const SelectedUserPosts = () => (
+  <PostsMain
+    {...baseProps}
+    selectedUser={defaultUser}
+    selectedPosts={Result.success([
+      { id: 1, content: 'Hello world!', authorId: 1, author: { name: 'Alice' } },
+    ])}
+  />
+);
 
 export const Loading = () => <PostsMain {...baseProps} selectedPosts={Result.initial(true)} />;
 

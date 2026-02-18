@@ -24,10 +24,6 @@ import {
 } from './(components)/atoms';
 import { PostsMain } from './(components)/PostsMain';
 
-export const Route = createFileRoute('/posts-and-users/')({
-  component: RouteComponent,
-});
-
 export const UserItem = graphql(/* GraphQL */ `
   fragment UserItem on UsersSelectItem {
     id
@@ -35,7 +31,7 @@ export const UserItem = graphql(/* GraphQL */ `
   }
 `);
 
-function RouteComponent() {
+const RouteComponent = () => {
   const [selectedUserId, setSelectedUserId] = useAtom(selectedUserIdAtom);
   const selectedUser = useAtomValue(selectedUserAtom) as unknown as Result.Result<
     Option.Option<SelectedUserItemFragment>
@@ -83,4 +79,8 @@ function RouteComponent() {
       />
     </Box>
   );
-}
+};
+
+export const Route = createFileRoute('/posts-and-users/')({
+  component: RouteComponent,
+});

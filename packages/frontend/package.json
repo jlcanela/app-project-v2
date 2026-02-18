@@ -16,13 +16,16 @@
     "prettier:write": "prettier --write \"**/*.{ts,tsx}\" \"!src/routeTree.gen.ts\"",
     "vitest": "vitest run",
     "vitest:watch": "vitest",
+    "pretty-test": "pnpm run prettier:write && pnpm test",
     "test": "pnpm run typecheck && pnpm run prettier && pnpm run lint && pnpm run vitest",
     "test:ci": "pnpm run test",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "@effect-atom/atom-react": "^0.5.0",
+    "@gorules/jdm-editor": "^1.51.2",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@mantine/core": "8.3.14",
     "@mantine/dates": "^8.3.14",
