@@ -90,7 +90,6 @@ function SimulatorPage() {
       setTimeout(() => setResult(mockOutput), 300);
     } catch (e) {
       console.error('Invalid JSON Input:', e);
-      //alert('Invalid JSON Input')
     }
   };
 

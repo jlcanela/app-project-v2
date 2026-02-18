@@ -174,15 +174,171 @@ enum OrderDirection {
   desc
 }
 
+input RuleInstancesInsertInput {
+  ruleId: Int
+  name: String
+  description: String!
+}
+
+input RuleInstancesUpdateInput {
+  ruleId: Int
+  name: String
+  description: String
+}
+
+input RuleInstancesFilters {
+  ruleId: RuleInstancesRuleIdFilters
+  name: RuleInstancesNameFilters
+  description: RuleInstancesDescriptionFilters
+  OR: [RuleInstancesFiltersOr!]
+}
+
+input RuleInstancesRuleIdFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [RuleInstancesRuleIdfiltersOr!]
+}
+
+input RuleInstancesRuleIdfiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input RuleInstancesNameFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [RuleInstancesNamefiltersOr!]
+}
+
+input RuleInstancesNamefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input RuleInstancesDescriptionFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [RuleInstancesDescriptionfiltersOr!]
+}
+
+input RuleInstancesDescriptionfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input RuleInstancesFiltersOr {
+  ruleId: RuleInstancesRuleIdFilters
+  name: RuleInstancesNameFilters
+  description: RuleInstancesDescriptionFilters
+}
+
+input RuleInstancesOrderBy {
+  ruleId: InnerOrder
+  name: InnerOrder
+  description: InnerOrder
+}
+
 input RuleTypesInsertInput {
   ruleTypeId: Int
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 
@@ -190,11 +346,7 @@ input RuleTypesUpdateInput {
   ruleTypeId: Int
   name: String
   description: String
-
-  """JSON"""
   schemaIn: String
-
-  """JSON"""
   schemaOut: String
 }
 
@@ -337,32 +489,21 @@ input RuleTypesDescriptionfiltersOr {
 }
 
 input RuleTypesSchemaInFilters {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -370,64 +511,42 @@ input RuleTypesSchemaInFilters {
 }
 
 input RuleTypesSchemaInfiltersOr {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
 }
 
 input RuleTypesSchemaOutFilters {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -435,32 +554,21 @@ input RuleTypesSchemaOutFilters {
 }
 
 input RuleTypesSchemaOutfiltersOr {
-  """JSON"""
   eq: String
-
-  """JSON"""
   ne: String
-
-  """JSON"""
   lt: String
-
-  """JSON"""
   lte: String
-
-  """JSON"""
   gt: String
-
-  """JSON"""
   gte: String
   like: String
   notLike: String
   ilike: String
   notIlike: String
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   inArray: [String!]
 
-  """Array<JSON>"""
+  """Array<undefined>"""
   notInArray: [String!]
   isNull: Boolean
   isNotNull: Boolean
@@ -619,15 +727,23 @@ type PostsItem {
   authorId: Int!
 }
 
+type RuleInstancesSelectItem {
+  ruleId: Int!
+  name: String
+  description: String!
+}
+
+type RuleInstancesItem {
+  ruleId: Int!
+  name: String
+  description: String!
+}
+
 type RuleTypesSelectItem {
   ruleTypeId: Int!
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 
@@ -635,11 +751,7 @@ type RuleTypesItem {
   ruleTypeId: Int!
   name: String
   description: String!
-
-  """JSON"""
   schemaIn: String!
-
-  """JSON"""
   schemaOut: String!
 }
 
@@ -669,6 +781,8 @@ type UsersItem {
 type Query {
   posts(offset: Int, limit: Int, orderBy: PostsOrderBy, where: PostsFilters): [PostsSelectItem!]!
   postsSingle(offset: Int, orderBy: PostsOrderBy, where: PostsFilters): PostsSelectItem
+  ruleInstances(offset: Int, limit: Int, orderBy: RuleInstancesOrderBy, where: RuleInstancesFilters): [RuleInstancesSelectItem!]!
+  ruleInstancesSingle(offset: Int, orderBy: RuleInstancesOrderBy, where: RuleInstancesFilters): RuleInstancesSelectItem
   ruleTypes(offset: Int, limit: Int, orderBy: RuleTypesOrderBy, where: RuleTypesFilters): [RuleTypesSelectItem!]!
   ruleTypesSingle(offset: Int, orderBy: RuleTypesOrderBy, where: RuleTypesFilters): RuleTypesSelectItem
   users(offset: Int, limit: Int, orderBy: UsersOrderBy, where: UsersFilters): [UsersSelectItem!]!
@@ -680,6 +794,10 @@ type Mutation {
   insertIntoPostsSingle(values: PostsInsertInput!): PostsItem
   updatePosts(set: PostsUpdateInput!, where: PostsFilters): [PostsItem!]!
   deleteFromPosts(where: PostsFilters): [PostsItem!]!
+  insertIntoRuleInstances(values: [RuleInstancesInsertInput!]!): [RuleInstancesItem!]!
+  insertIntoRuleInstancesSingle(values: RuleInstancesInsertInput!): RuleInstancesItem
+  updateRuleInstances(set: RuleInstancesUpdateInput!, where: RuleInstancesFilters): [RuleInstancesItem!]!
+  deleteFromRuleInstances(where: RuleInstancesFilters): [RuleInstancesItem!]!
   insertIntoRuleTypes(values: [RuleTypesInsertInput!]!): [RuleTypesItem!]!
   insertIntoRuleTypesSingle(values: RuleTypesInsertInput!): RuleTypesItem
   updateRuleTypes(set: RuleTypesUpdateInput!, where: RuleTypesFilters): [RuleTypesItem!]!

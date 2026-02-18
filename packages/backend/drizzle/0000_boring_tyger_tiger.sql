@@ -4,6 +4,12 @@ CREATE TABLE `posts` (
 	`author_id` integer NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `rule_instances` (
+	`ruleId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`name` text DEFAULT '',
+	`description` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `rule_types` (
 	`ruleTypeId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text DEFAULT '',

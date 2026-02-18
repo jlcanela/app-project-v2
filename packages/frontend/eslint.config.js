@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 export default defineConfig(
   tseslint.configs.recommended,
   ...mantine,
-  { ignores: ['**/*.{mjs,cjs,js,d.ts,d.mts}'] },
+  { ignores: ['**/*.{mjs,cjs,js,d.ts,d.mts}', 'codegen.ts', '.storybook/**/*'] },
   {
     files: ['**/*.story.tsx'],
     rules: { 'no-console': 'off' },
@@ -15,7 +15,7 @@ export default defineConfig(
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: process.cwd(),
-        project: ['./tsconfig.json'],
+        project: './tsconfig.eslint.json',
       },
     },
   }

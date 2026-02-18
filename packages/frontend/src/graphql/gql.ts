@@ -18,12 +18,13 @@ type Documents = {
     "\n  fragment AuthorUserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.AuthorUserItemFragmentDoc,
     "\n  fragment PostItem on PostsSelectItem {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n": typeof types.PostItemFragmentDoc,
     "\n  fragment SelectedUserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.SelectedUserItemFragmentDoc,
-    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.UserItemFragmentDoc,
     "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n": typeof types.GetUsersDocument,
-    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }": typeof types.GetPostsDocument,
-    "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": typeof types.CreateUserDocument,
-    "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.CreatePostDocument,
-    "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": typeof types.DeletePostDocument,
+    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }\n": typeof types.GetPostsDocument,
+    "\n  mutation CreateUser($name: String!) {\n    insertIntoUsersSingle(values: { name: $name }) {\n      id\n      name\n    }\n  }\n": typeof types.CreateUserDocument,
+    "\n  mutation CreatePost($content: String!, $authorId: Int!) {\n    insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n      id\n      content\n      authorId\n    }\n  }\n": typeof types.CreatePostDocument,
+    "\n  mutation DeletePost($id: Int!) {\n    deleteFromPosts(where: { id: { eq: $id } }) {\n      id\n      content\n      authorId\n    }\n  }\n": typeof types.DeletePostDocument,
+    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.UserItemFragmentDoc,
+    "\n  fragment RuleItem on RuleInstancesSelectItem {\n    ruleId\n    name\n  }\n": typeof types.RuleItemFragmentDoc,
     "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    schemaIn\n    schemaOut\n  }\n": typeof types.RuleTypeItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": typeof types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": typeof types.RulesTypeDocument,
@@ -32,12 +33,13 @@ const documents: Documents = {
     "\n  fragment AuthorUserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.AuthorUserItemFragmentDoc,
     "\n  fragment PostItem on PostsSelectItem {\n    id\n    content\n    authorId\n    author {\n      name\n    }\n  }\n": types.PostItemFragmentDoc,
     "\n  fragment SelectedUserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.SelectedUserItemFragmentDoc,
-    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.UserItemFragmentDoc,
     "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n": types.GetUsersDocument,
-    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }": types.GetPostsDocument,
-    "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n": types.CreateUserDocument,
-    "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n": types.CreatePostDocument,
-    "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n": types.DeletePostDocument,
+    "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }\n": types.GetPostsDocument,
+    "\n  mutation CreateUser($name: String!) {\n    insertIntoUsersSingle(values: { name: $name }) {\n      id\n      name\n    }\n  }\n": types.CreateUserDocument,
+    "\n  mutation CreatePost($content: String!, $authorId: Int!) {\n    insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n      id\n      content\n      authorId\n    }\n  }\n": types.CreatePostDocument,
+    "\n  mutation DeletePost($id: Int!) {\n    deleteFromPosts(where: { id: { eq: $id } }) {\n      id\n      content\n      authorId\n    }\n  }\n": types.DeletePostDocument,
+    "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.UserItemFragmentDoc,
+    "\n  fragment RuleItem on RuleInstancesSelectItem {\n    ruleId\n    name\n  }\n": types.RuleItemFragmentDoc,
     "\n  fragment RuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    schemaIn\n    schemaOut\n  }\n": types.RuleTypeItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": types.RulesTypeDocument,
@@ -58,27 +60,31 @@ export function graphql(source: "\n  fragment SelectedUserItem on UsersSelectIte
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n"): typeof import('./graphql').UserItemFragmentDoc;
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function graphql(source: "\n  query GetUsers {\n    users(orderBy: { name: { direction: asc, priority: 1 } }) {\n      id\n      ...UserItem\n      ...SelectedUserItem\n      ...AuthorUserItem\n    }\n  }\n"): typeof import('./graphql').GetUsersDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }"): typeof import('./graphql').GetPostsDocument;
+export function graphql(source: "\n  query GetPosts($where: PostsFilters) {\n    posts(where: $where, orderBy: { id: { direction: desc, priority: 1 } }) {\n      id\n      authorId\n      ...PostItem\n    }\n  }\n"): typeof import('./graphql').GetPostsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\nmutation CreateUser($name: String!) {\n  insertIntoUsersSingle(values: { name: $name }) {\n    id\n    name\n  }\n}\n"): typeof import('./graphql').CreateUserDocument;
+export function graphql(source: "\n  mutation CreateUser($name: String!) {\n    insertIntoUsersSingle(values: { name: $name }) {\n      id\n      name\n    }\n  }\n"): typeof import('./graphql').CreateUserDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\nmutation CreatePost($content: String!, $authorId: Int!) {\n  insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n    id\n    content\n    authorId\n  }\n}\n"): typeof import('./graphql').CreatePostDocument;
+export function graphql(source: "\n  mutation CreatePost($content: String!, $authorId: Int!) {\n    insertIntoPostsSingle(values: { content: $content, authorId: $authorId }) {\n      id\n      content\n      authorId\n    }\n  }\n"): typeof import('./graphql').CreatePostDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\nmutation DeletePost($id: Int!) {\n  deleteFromPosts(where: { id: { eq: $id } }) {\n    id\n    content\n    authorId\n  }\n}\n"): typeof import('./graphql').DeletePostDocument;
+export function graphql(source: "\n  mutation DeletePost($id: Int!) {\n    deleteFromPosts(where: { id: { eq: $id } }) {\n      id\n      content\n      authorId\n    }\n  }\n"): typeof import('./graphql').DeletePostDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n"): typeof import('./graphql').UserItemFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment RuleItem on RuleInstancesSelectItem {\n    ruleId\n    name\n  }\n"): typeof import('./graphql').RuleItemFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

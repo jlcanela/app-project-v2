@@ -2,6 +2,7 @@ node_modules/
 storybook-static/
 dist/
 .env
+.eslintcache
 .DS_Store
 .vscode/
 coverage/

@@ -52,6 +52,17 @@ export const ruleTypes = sqliteTable('rule_types', {
   schemaOut: text('schema_out').notNull(),
 });
 
+export const ruleInstances = sqliteTable('rule_instances', {
+  ruleId: makeId('ruleId'),
+  name: text('name').default(""),
+  description: text('description').notNull(),
+
+  // Schemas for the GoRules editor (JSON as TEXT with TS typing)
+  //schemaIn: text('schema_in').notNull(),
+  //schemaOut: text('schema_out').notNull(),
+});
+
+
 // // Rules (actual JDM content per type)
 // export const rules = sqliteTable('rules', {
 //   ruleId: makeId,

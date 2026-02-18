@@ -40,7 +40,6 @@ function Dashboard() {
 
   return (
     <Box pos="relative">
-
       <Container size="xl" py="md">
         <Group justify="space-between" mb="lg">
           <div>
@@ -156,9 +155,7 @@ function Dashboard() {
             FAKE
           </Text>
         </Overlay>
-
       </Container>
     </Box>
-
   );
 }

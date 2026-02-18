@@ -41,30 +41,32 @@ export const ApolloServiceLive = Layer.scoped(
         const db = drizzle(client, { schema: dbSchema, logger: true });
         const { schema } = buildSchema(db);
 
-        // const rt: typeof dbSchema.ruleTypes.$inferInsert = {
-        //     name: 'Another rule type',
-        //     description: 'some description',
-        //     schemaIn: JSON.stringify([{
-        //         "path": "a",
-        //         "label": "a",
-        //         "type": "string",
-        //         "required": true,
-        //         "description": "a"
-        //     }]),
-        //     schemaOut: JSON.stringify([
-        //         {
-        //             "id": "b",
-        //             "label": "b",
-        //             "type": "string",
-        //             "description": "b",
-        //             "primary": true
-        //         }
-        //     ]),
-        // };
+        if (process.env.INSERT_DB_DATA === "true") {
 
-        // yield* Effect.tryPromise(() => db.insert(dbSchema.ruleTypes).values(rt))
-        // const data = yield* Effect.tryPromise(() => db.select().from(dbSchema.ruleTypes))
-        // writeFileSync("schema.graphql", printSchema(schema))
+            const rt: typeof dbSchema.ruleTypes.$inferInsert = {
+                name: 'Another rule type',
+                description: 'some description',
+                schemaIn: JSON.stringify([{
+                    "path": "a",
+                    "label": "a",
+                    "type": "string",
+                    "required": true,
+                    "description": "a"
+                }]),
+                schemaOut: JSON.stringify([
+                    {
+                        "id": "b",
+                        "label": "b",
+                        "type": "string",
+                        "description": "b",
+                        "primary": true
+                    }
+                ]),
+            };
+
+            yield* Effect.tryPromise(() => db.insert(dbSchema.ruleTypes).values(rt))
+            writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
+        }
 
         const apolloServer = new ApolloServer({ schema });
 
@@ -84,6 +86,10 @@ export const ApolloServiceLive = Layer.scoped(
         const execute = Effect.fn("Graphql.execute")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
             const response = yield* executeApollo(httpGraphQLRequest)
             if (response.status !== undefined && response.status !== 200) {
+                yield* Effect.log(response)
+                if (response.body) {
+                    yield* Effect.annotateCurrentSpan("response.body", response.body)
+                }
                 return yield* Effect.fail(new DummyError({ status: response.status ?? 500, reason: "invalid apollo response" }))
             }
             if (response.body.kind !== "complete") {

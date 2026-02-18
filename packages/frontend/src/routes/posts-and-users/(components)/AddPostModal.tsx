@@ -1,27 +1,26 @@
-import { useEffect } from 'react'
-import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
-
-import { graphql } from '@/graphql'
-import { AuthorUserItemFragment } from '@/graphql/graphql'
-import { Atom, useAtom } from '@effect-atom/atom-react'
+import { useEffect } from 'react';
+import { Atom, useAtom } from '@effect-atom/atom-react';
+import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
+import { graphql } from '@/graphql';
+import { AuthorUserItemFragment } from '@/graphql/graphql';
 
 export const AuthorUserItem = graphql(`
   fragment AuthorUserItem on UsersSelectItem {
     id
     name
   }
-`)
+`);
 
 export interface AddPostModalProps {
-  opened: boolean
-  onClose: () => void
-  defaultAuthorId: number | null
-  users: AuthorUserItemFragment[]
-  onCreatePost: (values: { content: string; authorId: number }) => void
+  opened: boolean;
+  onClose: () => void;
+  defaultAuthorId: number | null;
+  users: AuthorUserItemFragment[];
+  onCreatePost: (values: { content: string; authorId: number }) => void;
 }
 
-const newPostContentAtom = Atom.make('')
-const newPostAuthorIdAtom = Atom.make<string | null>(null)
+const newPostContentAtom = Atom.make('');
+const newPostAuthorIdAtom = Atom.make<string | null>(null);
 
 export function AddPostModal({
   opened,
@@ -30,26 +29,26 @@ export function AddPostModal({
   users,
   onCreatePost,
 }: AddPostModalProps) {
-  const [newPostContent, setNewPostContent] = useAtom(newPostContentAtom)
-  const [newPostAuthorId, setNewPostAuthorId] = useAtom(newPostAuthorIdAtom)
+  const [newPostContent, setNewPostContent] = useAtom(newPostContentAtom);
+  const [newPostAuthorId, setNewPostAuthorId] = useAtom(newPostAuthorIdAtom);
 
   useEffect(() => {
     if (opened) {
-      setNewPostAuthorId(defaultAuthorId ? defaultAuthorId.toString() : null)
-      setNewPostContent('')
+      setNewPostAuthorId(defaultAuthorId ? defaultAuthorId.toString() : null);
+      setNewPostContent('');
     }
-  }, [opened, defaultAuthorId])
+  }, [opened, defaultAuthorId]);
 
   const handleAddPost = () => {
     if (!newPostContent.trim() || !newPostAuthorId) {
-      return
+      return;
     }
     onCreatePost({
       content: newPostContent,
       authorId: parseInt(newPostAuthorId, 10),
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
   return (
     <Modal opened={opened} onClose={onClose} title="Create Post">
@@ -79,5 +78,5 @@ export function AddPostModal({
         </Group>
       </Stack>
     </Modal>
-  )
+  );
 }

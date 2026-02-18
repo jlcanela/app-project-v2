@@ -1,0 +1,5 @@
+src/routeTree.gen.ts
+src/graphql/fragment-masking.ts
+src/graphql/gql.ts
+src/graphql/graphql.ts
+src/graphql/index.ts

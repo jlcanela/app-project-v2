@@ -1,16 +1,10 @@
-import {
-  Stack,
-  Paper,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Paper, Stack, Textarea, TextInput } from '@mantine/core';
 // import { UseFormReturnType } from '@mantine/form';
 // import { RuleTypeFormValues } from "@/routes/rule-types/(components)/types";
 // import { Result, useAtomValue } from '@effect-atom/atom-react';
 // import { selectedRuleTypeAtom } from './atoms';
 import { graphql } from '@/graphql';
 import { RuleTypeGeneralItemFragment } from '@/graphql/graphql';
-
 
 type RuleTypeGeneralSectionProps = {
   //form: UseFormReturnType<RuleTypeFormValues>;
@@ -24,27 +18,14 @@ export const RuleTypeGeneralItem = graphql(/* GraphQL */ `
     name
     description
   }
-`)
+`);
 
 export const GeneralSection: React.FC<RuleTypeGeneralSectionProps> = ({ ruleType, isEdit }) => {
-    //const ruleTypeResult = useAtomValue(selectedRuleTypeAtom) as Result.Result<RuleTypeGeneralItemFragment>
-    // const ruleType = Result.getOrElse(ruleTypeResult,() => ({
-    //     // name: '',
-    //     // description: '',
-    //     // schemaInFields: [],
-    //     // schemaOutFields: [],
-    //     // //governance: emptyGovernance,
-    //     // }))
-
   return (
     <Paper withBorder radius="md" p="md">
       <Stack>
         {isEdit && (
-          <TextInput
-            label="Rule type ID"
-            readOnly
-            value={ruleType?.ruleTypeId?.toString() ?? ''}
-          />
+          <TextInput label="Rule type ID" readOnly value={ruleType?.ruleTypeId?.toString() ?? ''} />
         )}
         <TextInput
           label="Name"

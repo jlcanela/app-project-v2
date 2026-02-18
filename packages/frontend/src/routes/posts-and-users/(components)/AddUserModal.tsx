@@ -1,27 +1,25 @@
-import { Atom, useAtom, useAtomSet } from '@effect-atom/atom-react'
-import { Button, Group, Modal, Stack, TextInput } from '@mantine/core'
-import { createUserAtom } from './store'
+import { Atom, useAtom } from '@effect-atom/atom-react';
+import { Button, Group, Modal, Stack, TextInput } from '@mantine/core';
 
 export interface AddUserModalProps {
-  opened: boolean
-  onCreateUser: (name: string) => void,
-  onClose: () => void
+  opened: boolean;
+  onCreateUser: (name: string) => void;
+  onClose: () => void;
 }
 
-const newUserNameAtom = Atom.make('')
+const newUserNameAtom = Atom.make('');
 
-export function AddUserModal({ opened, onClose }: AddUserModalProps) {
-  const createUser = useAtomSet(createUserAtom)
-  const [newUserName, setNewUserName] = useAtom(newUserNameAtom)
+export function AddUserModal({ opened, onClose, onCreateUser }: AddUserModalProps) {
+  const [newUserName, setNewUserName] = useAtom(newUserNameAtom);
 
   const handleAddUser = () => {
     if (!newUserName.trim()) {
-      return
+      return;
     }
-    createUser(newUserName)
-    setNewUserName('')
-    onClose()
-  }
+    onCreateUser(newUserName);
+    setNewUserName('');
+    onClose();
+  };
 
   return (
     <Modal opened={opened} onClose={onClose} title="Add User">
@@ -41,5 +39,5 @@ export function AddUserModal({ opened, onClose }: AddUserModalProps) {
         </Group>
       </Stack>
     </Modal>
-  )
+  );
 }

@@ -1,19 +1,8 @@
-import { Result } from '@effect-atom/atom-react'
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Group,
-  ScrollArea,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core'
-
-import { graphql } from '@/graphql'
-import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql'
-import { Option } from 'effect'
+import { Result } from '@effect-atom/atom-react';
+import { Option } from 'effect';
+import { Avatar, Box, Button, Card, Group, ScrollArea, Stack, Text, Title } from '@mantine/core';
+import { graphql } from '@/graphql';
+import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql';
 
 export const PostItem = graphql(/* GraphQL */ `
   fragment PostItem on PostsSelectItem {
@@ -24,28 +13,31 @@ export const PostItem = graphql(/* GraphQL */ `
       name
     }
   }
-`)
+`);
 
 export const SelectedUserItem = graphql(/* GraphQL */ `
   fragment SelectedUserItem on UsersSelectItem {
     id
     name
   }
-`)
-
+`);
 
 export interface PostsMainProps {
-  onCreatePost: () => void,
-  onDeletePost: (id: number) => void,
-  selectedPosts: Result.Result<PostItemFragment[], string>,
-  selectedUser: Result.Result<Option.Option<SelectedUserItemFragment>, string>
+  onCreatePost: () => void;
+  onDeletePost: (id: number) => void;
+  selectedPosts: Result.Result<PostItemFragment[], string>;
+  selectedUser: Result.Result<Option.Option<SelectedUserItemFragment>, string>;
 }
 
-export function PostsMain({ selectedUser, selectedPosts, onCreatePost, onDeletePost }: PostsMainProps) {
-
+export function PostsMain({
+  selectedUser,
+  selectedPosts,
+  onCreatePost,
+  onDeletePost,
+}: PostsMainProps) {
   const handleDeletePost = (id: number) => {
-    onDeletePost(id)
-  }
+    onDeletePost(id);
+  };
 
   return (
     <Box
@@ -66,12 +58,14 @@ export function PostsMain({ selectedUser, selectedPosts, onCreatePost, onDeleteP
         <Group justify="space-between">
           <Title order={3}>
             {Result.match(selectedUser, {
-                onInitial: () => 'Posts',
-                onFailure: () => 'Posts',
-                onSuccess: ({ value }) =>  Option.match(value, {
-                  onNone: () => 'Posts',
-                  onSome: (value) =>`Posts by ${value?.name}`
-            })})}
+              onInitial: () => 'Posts',
+              onFailure: () => 'Posts',
+              onSuccess: ({ value }) =>
+                Option.match(value, {
+                  onNone: () => 'All Posts',
+                  onSome: (value) => `Posts by ${value?.name}`,
+                }),
+            })}
           </Title>
           <Button onClick={onCreatePost}>Create Post</Button>
         </Group>
@@ -89,34 +83,39 @@ export function PostsMain({ selectedUser, selectedPosts, onCreatePost, onDeleteP
                 Error loading posts.
               </Text>
             ),
-            onSuccess: ({ value }) => value.length === 0 ? (<Text c="dimmed" ta="center" mt="xl">
-              No posts found.
-            </Text>) : value.map((post) => (
-              <Card key={post.id} shadow="sm" padding="lg" radius="md" withBorder>
-                <Group justify="space-between" mb="xs">
-                  <Group>
-                    <Avatar color="blue" radius="xl">
-                      {post.author?.name[0]}
-                    </Avatar>
-                    <Text fw={500}>{post.author?.name}</Text>
-                  </Group>
-                  <Button
-                    variant="subtle"
-                    color="red"
-                    size="xs"
-                    onClick={() => handleDeletePost(post.id)}
-                  >
-                    Delete
-                  </Button>
-                </Group>
-                <Text size="sm" c="dimmed">
-                  {post.content}
+            onSuccess: ({ value }) =>
+              value.length === 0 ? (
+                <Text c="dimmed" ta="center" mt="xl">
+                  No posts found.
                 </Text>
-              </Card>
-            ))
+              ) : (
+                value.map((post) => (
+                  <Card key={post.id} shadow="sm" padding="lg" radius="md" withBorder>
+                    <Group justify="space-between" mb="xs">
+                      <Group>
+                        <Avatar color="blue" radius="xl">
+                          {post.author?.name[0]}
+                        </Avatar>
+                        <Text fw={500}>{post.author?.name}</Text>
+                      </Group>
+                      <Button
+                        variant="subtle"
+                        color="red"
+                        size="xs"
+                        onClick={() => handleDeletePost(post.id)}
+                      >
+                        Delete
+                      </Button>
+                    </Group>
+                    <Text size="sm" c="dimmed">
+                      {post.content}
+                    </Text>
+                  </Card>
+                ))
+              ),
           })}
         </Stack>
       </ScrollArea>
     </Box>
-  )
+  );
 }

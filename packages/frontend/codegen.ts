@@ -2,12 +2,12 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: 'src/graphql/schema.graphql',          // or 'http://localhost:4000/graphql'
+  schema: 'src/graphql/schema.graphql', // or 'http://localhost:4000/graphql'
   documents: ['src/graphql/operations/**/*.graphql', 'src/**/*.tsx', 'src/**/*.ts'],
   generates: {
     'src/graphql/': {
       preset: 'client',
-        config: {
+      config: {
         documentMode: 'string',
       },
       // plugins: [
@@ -27,16 +27,16 @@ const config: CodegenConfig = {
 
 export default config;
 
-  /**
-   * Ensure the custom document type is declared alongside the generated ops.
-   * You can also move this to a separate file if you prefer.
-   */
+/**
+ * Ensure the custom document type is declared alongside the generated ops.
+ * You can also move this to a separate file if you prefer.
+ */
 //  config: {
-    // If you don’t already define it, you can add this manually in `graphql.gen.ts`:
-    // export type TypedDocumentString<TResult, TVariables> = string & {
-    //   __apiType?: {
-    //     result: TResult;
-    //     variables: TVariables;
-    //   };
-    // };
+// If you don’t already define it, you can add this manually in `graphql.gen.ts`:
+// export type TypedDocumentString<TResult, TVariables> = string & {
+//   __apiType?: {
+//     result: TResult;
+//     variables: TVariables;
+//   };
+// };
 //  },

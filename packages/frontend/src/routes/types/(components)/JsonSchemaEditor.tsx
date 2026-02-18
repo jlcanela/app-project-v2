@@ -1,24 +1,30 @@
 // src/pages/rule-types/RuleTypePage.tsx
 import React, { useMemo, useState } from 'react';
 import {
-  Paper,
-  Text,
-  TextInput,
-  Textarea,
-  Group,
-  Button,
+  IconChevronDown,
+  IconChevronUp,
+  IconCode,
+  IconDownload,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
+import {
   ActionIcon,
-  Table,
-  Select,
+  Button,
   Checkbox,
-  TagsInput,
+  Collapse,
+  Group,
   JsonInput,
   Modal,
-  Collapse,
-
+  Paper,
+  Select,
+  Table,
+  TagsInput,
+  Text,
+  Textarea,
+  TextInput,
 } from '@mantine/core';
 
-import { IconPlus, IconTrash, IconCode, IconDownload, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 // Adapt this to your router
 
 type RuleFieldType = 'string' | 'number' | 'boolean' | 'date' | 'object' | 'array';
@@ -40,7 +46,6 @@ type SchemaFieldsEditorProps = {
   onChange: (fields: RuleField[]) => void;
   title: string;
 };
-
 
 const createEmptyField = (kind: 'in' | 'out'): RuleField => ({
   id: `${kind}-${Math.random().toString(36).slice(2)}`,
@@ -116,7 +121,6 @@ function buildSchemaIn(fields: RuleField[]): InputSchemaField[] {
   if (fields === undefined) {
     return [];
   }
-    console.log("buildSchemaIn", fields)
   return fields.map((f) => ({
     path: f.path,
     label: f.label,
@@ -141,7 +145,12 @@ function buildSchemaOut(fields: RuleField[]): OutputSchemaField[] {
   }));
 }
 
-export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({ kind, fields, onChange, title }) => {
+export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
+  kind,
+  fields,
+  onChange,
+  title,
+}) => {
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteValue, setPasteValue] = useState('');
   const [rawOpen, setRawOpen] = useState(false);
@@ -174,7 +183,7 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({ kind, fi
 
   const rawJson = useMemo(
     () => JSON.stringify(kind === 'in' ? buildSchemaIn(fields) : buildSchemaOut(fields), null, 2),
-    [fields, kind],
+    [fields, kind]
   );
 
   const downloadJson = () => {
@@ -186,8 +195,6 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({ kind, fi
     a.click();
     URL.revokeObjectURL(url);
   };
-
-  console.log("SchemaFieldsEditor", fields);
 
   return (
     <Paper withBorder radius="md" p="md">
@@ -201,11 +208,7 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({ kind, fi
           >
             Paste JSON
           </Button>
-          <Button
-            variant="subtle"
-            leftSection={<IconDownload size={16} />}
-            onClick={downloadJson}
-          >
+          <Button variant="subtle" leftSection={<IconDownload size={16} />} onClick={downloadJson}>
             Download JSON
           </Button>
           <Button
@@ -231,86 +234,86 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({ kind, fi
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
-        { fields && (<Table.Tbody>
-          {fields.map((field) => (
-            <Table.Tr key={field.id}>
-              <Table.Td style={{ minWidth: 180 }}>
-                <TextInput
-                  placeholder={kind === 'in' ? 'customer.tier' : 'discount'}
-                  value={field.path}
-                  onChange={(e) => handleFieldChange(field.id, 'path', e.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td style={{ minWidth: 160 }}>
-                <TextInput
-                  placeholder="Label"
-                  value={field.label}
-                  onChange={(e) => handleFieldChange(field.id, 'label', e.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td style={{ minWidth: 140 }}>
-                <Select
-                  data={['string', 'number', 'boolean', 'date', 'object', 'array']}
-                  value={field.type}
-                  onChange={(value) => handleFieldChange(field.id, 'type', value ?? 'string')}
-                />
-              </Table.Td>
-              {kind === 'in' && (
-                <Table.Td>
-                  <Checkbox
-                    checked={field.required}
-                    onChange={(e) => handleFieldChange(field.id, 'required', e.currentTarget.checked)}
+        {fields && (
+          <Table.Tbody>
+            {fields.map((field) => (
+              <Table.Tr key={field.id}>
+                <Table.Td style={{ minWidth: 180 }}>
+                  <TextInput
+                    placeholder={kind === 'in' ? 'customer.tier' : 'discount'}
+                    value={field.path}
+                    onChange={(e) => handleFieldChange(field.id, 'path', e.currentTarget.value)}
                   />
                 </Table.Td>
-              )}
-              <Table.Td style={{ minWidth: 200 }}>
-                <TagsInput
-                  placeholder="Optional enum values"
-                  value={field.allowedValues}
-                  onChange={(values) => handleFieldChange(field.id, 'allowedValues', values)}
-                />
-              </Table.Td>
-              <Table.Td style={{ minWidth: 220 }}>
-                <Textarea
-                  autosize
-                  minRows={1}
-                  maxRows={3}
-                  placeholder="Business meaning"
-                  value={field.description}
-                  onChange={(e) =>
-                    handleFieldChange(field.id, 'description', e.currentTarget.value)
-                  }
-                />
-              </Table.Td>
-              {kind === 'out' && (
-                <Table.Td>
-                  <Checkbox
-                    checked={field.primaryOutcome}
+                <Table.Td style={{ minWidth: 160 }}>
+                  <TextInput
+                    placeholder="Label"
+                    value={field.label}
+                    onChange={(e) => handleFieldChange(field.id, 'label', e.currentTarget.value)}
+                  />
+                </Table.Td>
+                <Table.Td style={{ minWidth: 140 }}>
+                  <Select
+                    data={['string', 'number', 'boolean', 'date', 'object', 'array']}
+                    value={field.type}
+                    onChange={(value) => handleFieldChange(field.id, 'type', value ?? 'string')}
+                  />
+                </Table.Td>
+                {kind === 'in' && (
+                  <Table.Td>
+                    <Checkbox
+                      checked={field.required}
+                      onChange={(e) =>
+                        handleFieldChange(field.id, 'required', e.currentTarget.checked)
+                      }
+                    />
+                  </Table.Td>
+                )}
+                <Table.Td style={{ minWidth: 200 }}>
+                  <TagsInput
+                    placeholder="Optional enum values"
+                    value={field.allowedValues}
+                    onChange={(values) => handleFieldChange(field.id, 'allowedValues', values)}
+                  />
+                </Table.Td>
+                <Table.Td style={{ minWidth: 220 }}>
+                  <Textarea
+                    autosize
+                    minRows={1}
+                    maxRows={3}
+                    placeholder="Business meaning"
+                    value={field.description}
                     onChange={(e) =>
-                      handleFieldChange(field.id, 'primaryOutcome', e.currentTarget.checked)
+                      handleFieldChange(field.id, 'description', e.currentTarget.value)
                     }
                   />
                 </Table.Td>
-              )}
-              <Table.Td width={40}>
-                <ActionIcon color="red" variant="light" onClick={() => handleDelete(field.id)}>
-                  <IconTrash size={16} />
-                </ActionIcon>
+                {kind === 'out' && (
+                  <Table.Td>
+                    <Checkbox
+                      checked={field.primaryOutcome}
+                      onChange={(e) =>
+                        handleFieldChange(field.id, 'primaryOutcome', e.currentTarget.checked)
+                      }
+                    />
+                  </Table.Td>
+                )}
+                <Table.Td width={40}>
+                  <ActionIcon color="red" variant="light" onClick={() => handleDelete(field.id)}>
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+            <Table.Tr>
+              <Table.Td colSpan={kind === 'in' ? 7 : 7}>
+                <Button variant="light" leftSection={<IconPlus size={16} />} onClick={handleAdd}>
+                  Add field
+                </Button>
               </Table.Td>
             </Table.Tr>
-          ))}
-          <Table.Tr>
-            <Table.Td colSpan={kind === 'in' ? 7 : 7}>
-              <Button
-                variant="light"
-                leftSection={<IconPlus size={16} />}
-                onClick={handleAdd}
-              >
-                Add field
-              </Button>
-            </Table.Td>
-          </Table.Tr>
-        </Table.Tbody>)}
+          </Table.Tbody>
+        )}
       </Table>
 
       <Collapse in={rawOpen}>

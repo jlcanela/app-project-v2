@@ -39,7 +39,9 @@ export function Header({ opened, toggle }: HeaderProps) {
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title order={3}>Rule Studio</Title>
         <HeaderLink to="/">Home</HeaderLink>
-        <HeaderLink to="/rules/types">Rule Types</HeaderLink>
+        <HeaderLink to="/types">Rule Types</HeaderLink>
+        <HeaderLink to="/rules/types">Rule Types (orig)</HeaderLink>
+        <HeaderLink to="/rules">Rules</HeaderLink>
         <HeaderLink to="/posts-and-users">Posts & Users</HeaderLink>
         <HeaderLink to="/about">About</HeaderLink>
       </Group>
