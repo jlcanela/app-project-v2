@@ -1,9 +1,7 @@
-// import { RuleInstancesItem } from '@/graphql/graphql'
 import '@gorules/jdm-editor/dist/style.css';
 
 import { useRef, useState } from 'react';
 import { PlayCircleOutlined } from '@ant-design/icons';
-import { Atom, useAtom } from '@effect-atom/atom-react';
 import {
   DecisionGraph,
   DecisionGraphRef,
@@ -22,7 +20,7 @@ export const RuleDetailItem = graphql(/* GraphQL */ `
   }
 `);
 
-interface RuleDetailProps {
+export interface RuleDetailProps {
   rule: RuleDetailItemFragment;
 }
 export const RuleDetail = ({ rule }: RuleDetailProps) => {
@@ -31,12 +29,10 @@ export const RuleDetail = ({ rule }: RuleDetailProps) => {
   const [graphTrace, setGraphTrace] = useState<Simulation>();
   return (
     <JdmConfigProvider>
-
       <div style={{ width: '90%', height: '80%' }}>
         <Title>Rule Editor</Title>
         <Text>Caution: the Save feature is not implemented yet.</Text>
         <Paper>
-
           <DecisionGraph
             ref={graphRef}
             value={graph}
@@ -124,6 +120,5 @@ export const RuleDetail = ({ rule }: RuleDetailProps) => {
         </Paper>
       </div>
     </JdmConfigProvider>
-
   );
 };

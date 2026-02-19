@@ -35,7 +35,9 @@ export const selectedRuleAtom = Atom.make((get) => {
 
 const CreateRuleMutation = graphql(`
   mutation CreateRule($name: String!, $description: String!, $content: String!) {
-    insertIntoRuleInstancesSingle(values: { name: $name, description: $description, content: $content }) {
+    insertIntoRuleInstancesSingle(
+      values: { name: $name, description: $description, content: $content }
+    ) {
       ruleId
       name
       description

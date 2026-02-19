@@ -50,7 +50,11 @@ describe('AddRuleModal', () => {
     render(<AddRuleModal {...baseProps} onCreateRule={onCreateRule} onClose={onClose} />);
     await userEvent.type(screen.getByLabelText('Name'), 'New Rule');
     await userEvent.click(screen.getByText('Save'));
-    expect(onCreateRule).toHaveBeenCalledWith({ name: 'New Rule', description: '' });
+    expect(onCreateRule).toHaveBeenCalledWith({
+      name: 'New Rule',
+      description: '',
+      content: '{ nodes: [], edges: []}',
+    });
     // TODO add test about onClose being closed in index.ts
   });
 
