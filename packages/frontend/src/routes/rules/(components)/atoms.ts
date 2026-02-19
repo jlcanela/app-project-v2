@@ -12,13 +12,7 @@ const GetRulesQuery = graphql(`
     ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {
       ruleId
       name
-      #schemaIn
-      #schemaOut
-      #...RuleTypeItem
-      #...RuleTypeGeneralItem
-      #...UserItem
-      #...SelectedUserItem
-      #...AuthorUserItem
+      ...RuleDetailItem
     }
   }
 `);
@@ -40,11 +34,12 @@ export const selectedRuleAtom = Atom.make((get) => {
 });
 
 const CreateRuleMutation = graphql(`
-  mutation CreateRule($name: String!, $description: String!) {
-    insertIntoRuleInstancesSingle(values: { name: $name, description: $description }) {
+  mutation CreateRule($name: String!, $description: String!, $content: String!) {
+    insertIntoRuleInstancesSingle(values: { name: $name, description: $description, content: $content }) {
       ruleId
       name
       description
+      content
     }
   }
 `);

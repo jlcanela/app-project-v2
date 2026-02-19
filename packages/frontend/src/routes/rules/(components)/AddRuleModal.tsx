@@ -6,7 +6,7 @@ import { SelectRuleTypeItemFragment } from '@/graphql/graphql';
 export interface AddRuleModalProps {
   opened: boolean;
   ruleTypes: SelectRuleTypeItemFragment[];
-  onCreateRule: (values: { name: string; description: string }) => void;
+  onCreateRule: (values: { name: string; description: string, content: string }) => void;
   onClose: () => void;
 }
 
@@ -28,7 +28,7 @@ export function AddRuleModal({ opened, onClose, onCreateRule, ruleTypes }: AddRu
     if (!newRuleName.trim()) {
       return;
     }
-    onCreateRule({ name: newRuleName, description: newDescriptionName });
+    onCreateRule({ name: newRuleName, description: newDescriptionName, content: "{ nodes: [], edges: []}" });
     setNewRuleName('');
     setNewDescriptionName('');
     onClose();

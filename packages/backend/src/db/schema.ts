@@ -56,34 +56,20 @@ export const ruleInstances = sqliteTable('rule_instances', {
   ruleId: makeId('ruleId'),
   name: text('name').default(""),
   description: text('description').notNull(),
-
+  content: text('content').notNull(),
   // Schemas for the GoRules editor (JSON as TEXT with TS typing)
-  //schemaIn: text('schema_in').notNull(),
-  //schemaOut: text('schema_out').notNull(),
+
+  // Optional link to rule type
+  ruleTypeId: int('rule_type_id').references(() => ruleTypes.ruleTypeId),
 });
 
+export const ruleTypesRelations = relations(ruleTypes, ({ many }) => ({
+  instances: many(ruleInstances),
+}));
 
-// // Rules (actual JDM content per type)
-// export const rules = sqliteTable('rules', {
-//   ruleId: makeId,
-//   name: text('name').notNull(),
-
-//   // Raw JDM JSON produced by the GoRules React editor
-//   content: text('content', { mode: 'json' }).$type<unknown>().notNull(),
-
-//   // Optional link to rule type
-//   ruleTypeId: int('rule_type_id').references(() => ruleTypes.ruleTypeId),
-// });
-
-// // Tests for rules
-// export const testRules = sqliteTable('test_rules', {
-//   testRuleId: makeId,
-
-//   ruleId: int('rule_id')
-//     .notNull()
-//     .references(() => rules.ruleId, { onDelete: 'cascade' }),
-
-//   // Example input/output payloads
-//   input: text('input', { mode: 'json' }).$type<unknown>().notNull(),
-//   output: text('output', { mode: 'json' }).$type<unknown>().notNull(),
-// });
+export const ruleInstancesRelations = relations(ruleInstances, ({ one }) => ({
+  ruleType: one(ruleTypes, {
+    fields: [ruleInstances.ruleTypeId],
+    references: [ruleTypes.ruleTypeId],
+  }),
+}));

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rule-studio-deployment
+  namespace: rule-studio
   labels:
     app: rule-studio
 spec:
@@ -20,7 +21,7 @@ spec:
         - name: ghcr-creds
       containers:
         - name: rule-studio
-          image: ghcr.io/jlcanela/rule-studio-arm64:1.0.1
+          image: ghcr.io/jlcanela/rule-studio-arm64:1.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

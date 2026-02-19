@@ -7,7 +7,10 @@ CREATE TABLE `posts` (
 CREATE TABLE `rule_instances` (
 	`ruleId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text DEFAULT '',
-	`description` text NOT NULL
+	`description` text NOT NULL,
+	`content` text NOT NULL,
+	`rule_type_id` integer,
+	FOREIGN KEY (`rule_type_id`) REFERENCES `rule_types`(`ruleTypeId`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `rule_types` (

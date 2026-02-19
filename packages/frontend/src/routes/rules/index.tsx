@@ -5,7 +5,7 @@ import { Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Sidebar } from '@/components/Sidebar';
 import { graphql } from '@/graphql';
-import { RuleItemFragment } from '@/graphql/graphql';
+import { RuleDetailItemFragment, RuleItemFragment } from '@/graphql/graphql';
 import { AddRuleModal } from './(components)/AddRuleModal';
 import {
   createRuleAtom,
@@ -92,7 +92,7 @@ function RouteComponent() {
         onSuccess: (success) =>
           Option.match(success.value, {
             onNone: () => '',
-            onSome: () => <RuleDetail /*rule={value}*/ />,
+            onSome: (value) => <RuleDetail rule={value as unknown as RuleDetailItemFragment} />,
           }),
       })}
       {/* 

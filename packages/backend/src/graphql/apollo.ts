@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/libsql';
 import { ApolloServer, HeaderMap, HTTPGraphQLRequest } from '@apollo/server';
 import type { HTTPGraphQLResponse } from '@apollo/server'
 import { printSchema } from "graphql";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import * as dbSchema from '../db/schema.js';
 import { HttpApi, HttpApiBuilder, HttpApiEndpoint, HttpApiGroup, HttpRouter, HttpServer, HttpServerRequest, HttpServerResponse } from '@effect/platform';
 import { Context, Effect, Layer, Schema } from 'effect';
@@ -44,29 +44,69 @@ export const ApolloServiceLive = Layer.scoped(
         if (process.env.INSERT_DB_DATA === "true") {
 
             const rt: typeof dbSchema.ruleTypes.$inferInsert = {
-                name: 'Another rule type',
-                description: 'some description',
+                name: 'Project Validation',
+                description: 'Validate the project and issue the error if it fails',
                 schemaIn: JSON.stringify([{
-                    "path": "a",
-                    "label": "a",
+                    "path": "name",
+                    "label": "name",
                     "type": "string",
                     "required": true,
-                    "description": "a"
-                }]),
-                schemaOut: JSON.stringify([
-                    {
-                        "id": "b",
-                        "label": "b",
-                        "type": "string",
-                        "description": "b",
-                        "primary": true
-                    }
+                    "description": "name"
+                },
+                {
+                    "path": "budget",
+                    "label": "budget",
+                    "type": "integer",
+                    "required": true,
+                    "description": "budget"
+                },
+                {
+                    "path": "cost",
+                    "label": "cost",
+                    "type": "integer",
+                    "required": true,
+                    "description": "cost"
+                }
+                ]),
+                schemaOut: JSON.stringify([{
+                    "path": "issue.code",
+                    "label": "code",
+                    "type": "string",
+                    "required": true,
+                    "description": "Issue identifier such as BUDGET_LIMIT_EXCEEDED or MARGIN_TO_LOW"
+                },
+                {
+                    "path": "issue.value",
+                    "label": "value",
+                    "type": ["number", "string"],
+                    "required": true,
+                    "description": "Actual value that triggered the issue (e.g. project.budget or computed margin)"
+                },
+                {
+                    "path": "issue.parameter",
+                    "label": "parameter",
+                    "type": ["number", "string"],
+                    "required": true,
+                    "description": "Threshold or parameter used in the rule (e.g. 10000 or 0.10)"
+                }
                 ]),
             };
 
             yield* Effect.tryPromise(() => db.insert(dbSchema.ruleTypes).values(rt))
-            writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
+
+            const content = readFileSync('rules/project_validation_19.json').toString()
+
+            const rule: typeof dbSchema.ruleInstances.$inferInsert = {
+                name: 'Project Validation Rule',
+                description: 'Verify if the project is valid',
+                content,
+                ruleTypeId: rt.ruleTypeId
+            }
+            yield* Effect.tryPromise(() => db.insert(dbSchema.ruleInstances).values(rule))
+
         }
+        
+        writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
 
         const apolloServer = new ApolloServer({ schema });
 

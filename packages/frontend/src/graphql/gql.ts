@@ -25,8 +25,9 @@ type Documents = {
     "\n  mutation DeletePost($id: Int!) {\n    deleteFromPosts(where: { id: { eq: $id } }) {\n      id\n      content\n      authorId\n    }\n  }\n": typeof types.DeletePostDocument,
     "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": typeof types.UserItemFragmentDoc,
     "\n  fragment SelectRuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n  }\n": typeof types.SelectRuleTypeItemFragmentDoc,
-    "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      #schemaIn\n      #schemaOut\n      #...RuleTypeItem\n      #...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": typeof types.RuleInstancesItemDocument,
-    "\n  mutation CreateRule($name: String!, $description: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description }) {\n      ruleId\n      name\n      description\n    }\n  }\n": typeof types.CreateRuleDocument,
+    "\n  fragment RuleDetailItem on RuleInstancesSelectItem {\n    ruleId\n    content\n  }\n": typeof types.RuleDetailItemFragmentDoc,
+    "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      ...RuleDetailItem\n    }\n  }\n": typeof types.RuleInstancesItemDocument,
+    "\n  mutation CreateRule($name: String!, $description: String!, $content: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description, content: $content }) {\n      ruleId\n      name\n      description\n      content\n    }\n  }\n": typeof types.CreateRuleDocument,
     "\n  fragment RuleItem on RuleInstancesSelectItem {\n    ruleId\n    name\n    description\n  }\n": typeof types.RuleItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": typeof types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": typeof types.RulesTypeDocument,
@@ -43,8 +44,9 @@ const documents: Documents = {
     "\n  mutation DeletePost($id: Int!) {\n    deleteFromPosts(where: { id: { eq: $id } }) {\n      id\n      content\n      authorId\n    }\n  }\n": types.DeletePostDocument,
     "\n  fragment UserItem on UsersSelectItem {\n    id\n    name\n  }\n": types.UserItemFragmentDoc,
     "\n  fragment SelectRuleTypeItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n  }\n": types.SelectRuleTypeItemFragmentDoc,
-    "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      #schemaIn\n      #schemaOut\n      #...RuleTypeItem\n      #...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": types.RuleInstancesItemDocument,
-    "\n  mutation CreateRule($name: String!, $description: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description }) {\n      ruleId\n      name\n      description\n    }\n  }\n": types.CreateRuleDocument,
+    "\n  fragment RuleDetailItem on RuleInstancesSelectItem {\n    ruleId\n    content\n  }\n": types.RuleDetailItemFragmentDoc,
+    "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      ...RuleDetailItem\n    }\n  }\n": types.RuleInstancesItemDocument,
+    "\n  mutation CreateRule($name: String!, $description: String!, $content: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description, content: $content }) {\n      ruleId\n      name\n      description\n      content\n    }\n  }\n": types.CreateRuleDocument,
     "\n  fragment RuleItem on RuleInstancesSelectItem {\n    ruleId\n    name\n    description\n  }\n": types.RuleItemFragmentDoc,
     "\n  fragment RuleTypeGeneralItem on RuleTypesSelectItem {\n    ruleTypeId\n    name\n    description\n  }\n": types.RuleTypeGeneralItemFragmentDoc,
     "\n  query RulesType {\n    ruleTypes(orderBy: { ruleTypeId: { direction: asc, priority: 1 } }) {\n      ruleTypeId\n      schemaIn\n      schemaOut\n      ...RuleTypeItem\n      ...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n": types.RulesTypeDocument,
@@ -94,11 +96,15 @@ export function graphql(source: "\n  fragment SelectRuleTypeItem on RuleTypesSel
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      #schemaIn\n      #schemaOut\n      #...RuleTypeItem\n      #...RuleTypeGeneralItem\n      #...UserItem\n      #...SelectedUserItem\n      #...AuthorUserItem\n    }\n  }\n"): typeof import('./graphql').RuleInstancesItemDocument;
+export function graphql(source: "\n  fragment RuleDetailItem on RuleInstancesSelectItem {\n    ruleId\n    content\n  }\n"): typeof import('./graphql').RuleDetailItemFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation CreateRule($name: String!, $description: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description }) {\n      ruleId\n      name\n      description\n    }\n  }\n"): typeof import('./graphql').CreateRuleDocument;
+export function graphql(source: "\n  query RuleInstancesItem {\n    ruleInstances(orderBy: { ruleId: { direction: asc, priority: 1 } }) {\n      ruleId\n      name\n      ...RuleDetailItem\n    }\n  }\n"): typeof import('./graphql').RuleInstancesItemDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateRule($name: String!, $description: String!, $content: String!) {\n    insertIntoRuleInstancesSingle(values: { name: $name, description: $description, content: $content }) {\n      ruleId\n      name\n      description\n      content\n    }\n  }\n"): typeof import('./graphql').CreateRuleDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

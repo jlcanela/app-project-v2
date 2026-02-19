@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "21354f9b-72f3-42e9-bd22-d207c69dfd73",
+  "id": "24376dc4-a96b-4e36-a6cf-ab13e7763a1d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "posts": {
@@ -59,10 +59,38 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rule_type_id": {
+          "name": "rule_type_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "rule_instances_rule_type_id_rule_types_ruleTypeId_fk": {
+          "name": "rule_instances_rule_type_id_rule_types_ruleTypeId_fk",
+          "tableFrom": "rule_instances",
+          "tableTo": "rule_types",
+          "columnsFrom": [
+            "rule_type_id"
+          ],
+          "columnsTo": [
+            "ruleTypeId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
