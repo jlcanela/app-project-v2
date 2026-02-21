@@ -1,4 +1,4 @@
-import { HttpApiEndpoint, HttpApiBuilder, HttpApiError, HttpApiGroup } from "@effect/platform";
+import { HttpApiError } from "effect/unstable/httpapi";
 import { Effect, Schema } from "effect";
 import { PartyId } from "./parties.js";
 import * as jose from "jose";
@@ -21,7 +21,7 @@ export const genToken =  (payload: AuthParams) =>
 
         // const party = findPartyById(partyId);
         // if (party === undefined) {
-        //   throw new HttpApiError.NotFound(); //`Party with id ${partyId} not found`);
+        //   throw new HttpApiError.Unauthorized(); //`Party with id ${partyId} not found`);
         // }
 
         const encoder = new TextEncoder();
@@ -40,7 +40,7 @@ export const genToken =  (payload: AuthParams) =>
           .setExpirationTime("2h")
           .sign(secretKey);
 
-        return JWT.make({
+        return new JWT({
           accessToken: jwt,
         });
       },

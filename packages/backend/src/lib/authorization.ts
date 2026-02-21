@@ -1,80 +1,115 @@
-import { HttpApiError, HttpApiMiddleware, HttpApiSecurity, OpenApi } from "@effect/platform";
-import { Unauthorized } from "@effect/platform/HttpApiError";
-import { Context, Data, Effect, Layer, Redacted, Schema } from "effect";
-import { PartyId, Role } from "./parties.js";
-import * as jose from "jose";
-import { RoleType } from "./parties.js";
+import {
+  HttpApiError,
+  HttpApiMiddleware,
+  HttpApiSecurity,
+  OpenApi,
+} from "effect/unstable/httpapi"
+import { Unauthorized } from "effect/unstable/httpapi/HttpApiError"
+import {
+  Data,
+  Effect,
+  Layer,
+  Redacted,
+  Schema,
+  ServiceMap,
+} from "effect"
+import * as jose from "jose"
+import { HttpServerResponse } from "effect/unstable/http" 
+
+import { PartyId, Role } from "./parties.js"
+import type { RoleType } from "./parties.js"
 
 // eslint-disable-next-line no-use-before-define
-export class CurrentUser extends Schema.Class<CurrentUser>("")({
-  //readonly sessionId: string;
+export class CurrentUser extends Schema.Class<CurrentUser>("CurrentUser")(Schema.Struct({
   userId: PartyId,
   roles: Schema.Array(Role),
-  context: Schema.Record({ key: Schema.String, value: Schema.Any }),
-  // readonly permissions: Set<Permission>;
-}) { }
+  context: Schema.Record(Schema.String, Schema.Any),
+})) {}
 
-// Create a Context Tag for CurrentUser
-export class CurrentUserTag extends Context.Tag("CurrentUserTag")<
-  // eslint-disable-next-line no-use-before-define
-  CurrentUserTag,
-  CurrentUser
->() { }
+export class User extends ServiceMap.Service<User>()("User", {
+  make: Effect.fn(function* (currentUser: typeof CurrentUser.Type) {
+    yield* Effect.yieldNow
+    return { 
+      currentUser: () => new CurrentUser({ userId: 1, roles: [], context: {}})
+    } as const
+  })
 
-// export class AuthParams extends Schema.Class<AuthParams>("AuthParams")({
-//   id: PartyId,
-// }) {}
+}) {}
 
-// eslint-disable-next-line no-use-before-define
-export class Authorization extends HttpApiMiddleware.Tag<Authorization>()("Authorization", {
-  failure: Unauthorized,
-  provides: CurrentUserTag,
+// HttpApiMiddleware.Service<Id, Config>
+// Config: { provides, error }
+export class Authorization extends HttpApiMiddleware.Service<
+  Authorization,
+  { provides: User }
+>()("Authorization", {
+  error: Unauthorized,
   security: {
     myBearer: HttpApiSecurity.bearer.pipe(
-      // Add a description to the security definition
-      HttpApiSecurity.annotate(OpenApi.Description, "OAuth2 Bearer Token"),
+      HttpApiSecurity.annotate(
+        OpenApi.Description,
+        "OAuth2 Bearer Token",
+      ),
     ),
   },
-}) { }
+}) {}
 
 export class InvalidToken extends Data.TaggedError("InvalidToken")<{
   error?: unknown
-}> { }
+}> {}
+
+interface JwtPayload {
+  sub: string
+  roles: ReadonlyArray<RoleType>
+  [k: string]: unknown
+}
 
 export const AuthorizationLive = Layer.effect(
   Authorization,
   Effect.gen(function* () {
-    yield* Effect.log("creating Authorization middleware");
-    //const security = yield* Security;
-    // Return the security handlers for the middleware
+    yield* Effect.log("creating Authorization middleware")
+
     return {
-      // Define the handler for the Bearer token
-      // The Bearer token is redacted for security
-      myBearer: (bearerToken) =>
-        Effect.fn("Authorization.myBearer")(function* () {
+      myBearer: (httpEffect, { credential }) =>
+        Effect.gen(function* () {
           const payload = yield* Effect.tryPromise({
             try: async () => {
-              const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-              const { payload } = await jose.jwtVerify(Redacted.value(bearerToken), secret, {
-                issuer: "urn:example:issuer",
-                audience: "urn:example:audience",
-              });
+              const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+              const { payload } = await jose.jwtVerify(
+                Redacted.value(credential),
+                secret,
+                {
+                  issuer: "urn:example:issuer",
+                  audience: "urn:example:audience",
+                },
+              )
 
-              return payload
+              return payload as JwtPayload
             },
-            catch: (error) => new InvalidToken({ error })
+            catch: (error) => new InvalidToken({ error }),
           }).pipe(
-            // TODO: use encryption to protect potentially sensitive bearer token
-            Effect.tapErrorTag("InvalidToken", () => Effect.annotateCurrentSpan("invalidToken", Redacted.value(bearerToken))),
-            Effect.catchTag("InvalidToken", () => new HttpApiError.Unauthorized()
-          ))
+            Effect.tapErrorTag("InvalidToken", () =>
+              Effect.annotateCurrentSpan(
+                "invalidToken",
+                Redacted.value(credential),
+              ),
+            ),
+          )
 
-          return CurrentUser.make({
-            userId: PartyId.make(payload.sub as string),
-            roles: payload.roles as ReadonlyArray<RoleType>,
-            context: {},
-          });
-        })()
-    };
+          const userService = User.make(new CurrentUser({
+                  userId: PartyId.make(payload.sub),
+                  roles: payload.roles as Array<RoleType>,
+                  context: {},
+                }))
+
+          return yield* httpEffect.pipe(
+            Effect.provideService(User, yield* userService)
+          )
+        }).pipe(
+          Effect.catchTag("InvalidToken", () =>
+            Effect.fail(new HttpApiError.Unauthorized()),
+          ),
+        ),
+    }
   }),
-);
+)
+

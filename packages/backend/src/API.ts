@@ -1,16 +1,16 @@
 import {
-    FetchHttpClient,
     HttpApi,
     HttpApiBuilder,
     HttpApiEndpoint,
     HttpApiError,
     HttpApiGroup,
     HttpApiSchema,
-} from "@effect/platform"
+} from "effect/unstable/httpapi"
+import { FetchHttpClient } from "effect/unstable/http"
 import { Effect, Layer, Schema } from "effect"
 
 import { AuthParams, genToken, JWT } from "./lib/auth.js";
-import { Authorization, CurrentUserTag } from "./lib/authorization.js";
+import { Authorization, CurrentUser, User } from "./lib/authorization.js";
 
 import { OpenPolicyAgentApi } from "./lib/OpenPolicyAgentApi.js";
 import { ProjectId } from "./Domain/Project.js";

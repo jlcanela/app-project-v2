@@ -1,13 +1,15 @@
 import {
   HttpApiBuilder,
   HttpApiSwagger,
+} from "effect/unstable/httpapi"
+import {
   HttpServer
-} from "@effect/platform" 
+} from "effect/unstable/http" 
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
 import { ConfigProvider, Effect, Layer, Schema } from "effect"
 import { createServer } from "node:http"
-import * as Otlp from "@effect/opentelemetry/Otlp"
-import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
+import * as Otlp from "@effect/opentelemetry"
+import * as FetchHttpClient from "effect/unstable/http"
 import { AuthApiLive, MyApi, ProjectsApiLive, SearchApiLive } from "./API.js"
 import { Security } from "./lib/security.js"
 import { AuthorizationLive } from "./lib/authorization.js"
