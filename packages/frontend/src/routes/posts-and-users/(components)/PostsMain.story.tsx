@@ -1,5 +1,5 @@
-import { Result } from '@effect-atom/atom-react';
 import { Option } from 'effect';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql';
 import { PostsMain, type PostsMainProps } from './PostsMain';
 
@@ -8,12 +8,12 @@ export default {
   tags: ['autodocs'],
 };
 
-const defaultPosts = Result.success<PostItemFragment[], string>([
+const defaultPosts = AsyncResult.success<PostItemFragment[], string>([
   { id: 1, content: 'Hello world!', authorId: 1, author: { name: 'Alice' } },
   { id: 2, content: 'Effect is great', authorId: 2, author: { name: 'Bob' } },
 ]);
 
-const defaultUser = Result.success<Option.Option<SelectedUserItemFragment>>(
+const defaultUser = AsyncResult.success<Option.Option<SelectedUserItemFragment>>(
   Option.some({ id: 1, name: 'Alice' })
 );
 
@@ -21,7 +21,7 @@ const baseProps: PostsMainProps = {
   onCreatePost: () => {},
   onDeletePost: () => {},
   selectedPosts: defaultPosts,
-  selectedUser: Result.success(Option.none()),
+  selectedUser: AsyncResult.success(Option.none()),
 };
 
 export const AllPosts = () => <PostsMain {...baseProps} />;
@@ -30,16 +30,16 @@ export const SelectedUserPosts = () => (
   <PostsMain
     {...baseProps}
     selectedUser={defaultUser}
-    selectedPosts={Result.success([
+    selectedPosts={AsyncResult.success([
       { id: 1, content: 'Hello world!', authorId: 1, author: { name: 'Alice' } },
     ])}
   />
 );
 
-export const Loading = () => <PostsMain {...baseProps} selectedPosts={Result.initial(true)} />;
+export const Loading = () => <PostsMain {...baseProps} selectedPosts={AsyncResult.initial(true)} />;
 
 export const WithError = () => (
-  <PostsMain {...baseProps} selectedPosts={Result.fail('Failed to load posts')} />
+  <PostsMain {...baseProps} selectedPosts={AsyncResult.fail('Failed to load posts')} />
 );
 
-export const Empty = () => <PostsMain {...baseProps} selectedPosts={Result.success([])} />;
+export const Empty = () => <PostsMain {...baseProps} selectedPosts={AsyncResult.success([])} />;

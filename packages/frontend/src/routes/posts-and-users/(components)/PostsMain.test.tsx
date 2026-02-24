@@ -1,24 +1,24 @@
-import { Result } from '@effect-atom/atom-react';
 import { render, screen, userEvent } from '@test-utils';
 import { Option } from 'effect';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql';
 import { PostsMain, PostsMainProps } from './PostsMain';
 
-const defaultPosts = Result.success<PostItemFragment[], string>([
+const defaultPosts = AsyncResult.success<PostItemFragment[], string>([
   { id: 1, content: 'Hello world!', authorId: 1, author: { name: 'Alice' } },
   { id: 2, content: 'Effect is great', authorId: 2, author: { name: 'Bob' } },
 ]);
 
-const defaultUser = Result.success<Option.Option<SelectedUserItemFragment>>(
+const defaultUser = AsyncResult.success<Option.Option<SelectedUserItemFragment>, string>(
   Option.some({ id: 1, name: 'Alice' })
 );
-const noUser = Result.success(Option.none());
+const noUser = AsyncResult.success(Option.none());
 
 const baseProps: PostsMainProps = {
   onCreatePost: vi.fn(),
   onDeletePost: vi.fn(),
   selectedPosts: defaultPosts,
-  selectedUser: Result.success(Option.none()),
+  selectedUser: AsyncResult.success(Option.none()),
 };
 
 describe('PostsMain', () => {
@@ -60,17 +60,19 @@ describe('PostsMain', () => {
   });
 
   it('shows loading state', () => {
-    render(<PostsMain {...baseProps} selectedPosts={Result.initial(true)} selectedUser={noUser} />);
+    render(
+      <PostsMain {...baseProps} selectedPosts={AsyncResult.initial(true)} selectedUser={noUser} />
+    );
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('shows error state', () => {
-    render(<PostsMain {...baseProps} selectedPosts={Result.fail('Network error')} />);
+    render(<PostsMain {...baseProps} selectedPosts={AsyncResult.fail('Network error')} />);
     expect(screen.getByText('Error loading posts.')).toBeInTheDocument();
   });
 
   it('shows empty state when no posts', () => {
-    render(<PostsMain {...baseProps} selectedPosts={Result.success([])} />);
+    render(<PostsMain {...baseProps} selectedPosts={AsyncResult.success([])} />);
     expect(screen.getByText('No posts found.')).toBeInTheDocument();
   });
 });

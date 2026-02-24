@@ -2,7 +2,6 @@ import { CompoundCondition, FieldCondition, guard } from '@ucast/mongo2js';
 import { interpret } from '@ucast/js';
 import { describe, it, expect, vi } from 'vitest';
 import { fromOpaNode, OpaFieldNode } from './ucast.js';
-import { all } from 'effect/Equivalence';
 
 describe('Ucast tests', () => {
 

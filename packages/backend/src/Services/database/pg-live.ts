@@ -1,5 +1,5 @@
 import { PgClient } from "@effect/sql-pg"
-import { Config, Effect, identity, Layer, Redacted } from "effect"
+import { Config, Effect, Layer, Redacted } from "effect"
 import * as String from "effect/String";
 import { PostgresDockerContainer } from "../../Repository/PostgresDockerContainer.js";
 import { CustomTypesConfig } from "pg"
@@ -39,18 +39,17 @@ export const makePgLayer = (url: string) =>
     url: Redacted.make(url),
     ...pgConfig,
   }).pipe(
-    Layer.tap(() => Effect.logInfo("Database Connection Established")),
     Layer.orDie,
 )
 
-export const PgLive = Layer.unwrapEffect(
+export const PgLive = Layer.unwrap(
     Effect.gen(function*(){
         const url = yield* Config.string("DATABASE_URL")
         return makePgLayer(url)
     })
 )
 
-export const PgTest = Layer.unwrapEffect(
+export const PgTest = Layer.unwrap(
   Effect.gen(function* () {
     const container = yield* PostgresDockerContainer // service
     const url = container.getConnectionUri()

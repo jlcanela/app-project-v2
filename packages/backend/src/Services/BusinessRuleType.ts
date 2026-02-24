@@ -12,7 +12,7 @@ import { ProjectRequestStatus, ProjectValidStatus } from "../Domain/Project.js"
  */
 export class HttpTrigger extends Schema.TaggedClass<HttpTrigger>()("HttpTrigger", {
     type: Schema.Literal("http"),
-    method: Schema.Literal("POST", "GET", "PUT", "DELETE"),
+    method: Schema.Literals(["POST", "GET", "PUT", "DELETE"]),
     path: Schema.String,
     payloadSchema: Schema.Any
 }) {}
@@ -24,7 +24,7 @@ export class EventBusTrigger extends Schema.TaggedClass<EventBusTrigger>()("Even
     filter: Schema.optional(Schema.Any)
 }) {}
 
-export const TriggerDefinition = Schema.Union(HttpTrigger, EventBusTrigger)
+export const TriggerDefinition = Schema.Union([HttpTrigger, EventBusTrigger])
 export type TriggerDefinition = Schema.Schema.Type<typeof TriggerDefinition>
 
 /**
@@ -44,7 +44,7 @@ export class RequestOperation extends Schema.TaggedClass<RequestOperation>()("Re
     request: Schema.Any
 }) {}
 
-export const StepOperation = Schema.Union(RuleOperation, RequestOperation)
+export const StepOperation = Schema.Union([RuleOperation, RequestOperation])
 export type StepOperation = Schema.Schema.Type<typeof StepOperation>
 
 /**
@@ -181,13 +181,14 @@ export interface DumpLog extends Request.Request<number, never> {
 
 export const DumpLog = Request.tagged<DumpLog>("DumpLog")
 
-export const DumpLogResolver = RequestResolver.fromEffect(
-    (_: DumpLog) =>
-    Effect.gen(function* () {
-        yield* Effect.log(`[DumpLogResolver] executing ...`)
-        return 0
-    })
-)
+const lggr = Effect.fn(function* (_: Request.Entry<DumpLog>) {
+    yield* Effect.log(`[DumpLogResolver] executing ...`)
+    return 0
+})
+
+export const DumpLogResolver = RequestResolver.fromEffect(lggr)
+    //(_: DumpLog) =>
+
 
 export const dummyPipeline = new PipelineDefinition({
     id: "dummy-pipeline",

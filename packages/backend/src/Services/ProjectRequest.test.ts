@@ -5,6 +5,7 @@ import { ProjectRequestService } from "./ProjectRequestService.js";
 import { isProjectInvalidStatus, ProjectRequestForm, ProjectSummary } from "../Domain/Project.js";
 import { Effect, Layer } from "effect";
 import { ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
+import { BusinessRuleService } from "./BusinessRulesService.js";
 
 describe('ProjectRequest', () => {
 
@@ -14,8 +15,9 @@ describe('ProjectRequest', () => {
     cost: 4500
   }
 
-  const TestLayer = ProjectRequestService.Default.pipe(
-    Layer.provideMerge( ProjectRequestRepository.Test)
+  const TestLayer = ProjectRequestService.layer.pipe(
+    Layer.provideMerge( ProjectRequestRepository.Test),
+    Layer.provide(BusinessRuleService.layer)
   )
 
   it.effect('should create a project request with valid parameters', () => Effect.gen(function* () {
@@ -32,7 +34,8 @@ describe('ProjectRequest', () => {
 
     expect(projectRequest).toEqual(expectedProjectRequest)
   }).pipe(
-    Effect.provide(TestLayer))
+    Effect.provide(TestLayer)
+  )
   )
 
   it.effect(
@@ -79,7 +82,7 @@ describe('ProjectRequest', () => {
         const projectRequestService = yield* ProjectRequestService
         const projectRequest = yield* projectRequestService.create(form)
         const summary = yield* projectRequestService.validate(projectRequest.id)
-        expect(summary).toStrictEqual(ProjectSummary.make({
+        expect(summary).toStrictEqual(ProjectSummary.makeUnsafe({
           id: projectRequest.id,
           name: form.name,
           budget: form.budget,

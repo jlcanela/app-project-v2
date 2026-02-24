@@ -1,22 +1,12 @@
-import { FetchHttpClient, HttpBody, HttpClient } from '@effect/platform';
-import { Context, Effect } from 'effect';
+import { Effect, Layer, ServiceMap } from 'effect';
+import { FetchHttpClient, HttpBody, HttpClient } from 'effect/unstable/http';
 import type { ExecutionResult } from 'graphql';
 import { TypedDocumentString } from './graphql';
 
-export class GraphQLClient extends Context.Tag('GraphQLClient')<
-  GraphQLClient,
-  {
-    readonly execute: <TResult, TVariables>(
-      query: TypedDocumentString<TResult, TVariables>,
-      variables?: TVariables
-    ) => Effect.Effect<ExecutionResult<TResult>, Error>;
-  }
->() {}
-
-export class GraphQLClientService extends Effect.Service<GraphQLClientService>()(
+export class GraphQLClientService extends ServiceMap.Service<GraphQLClientService>()(
   'app/GraphQLClientService',
   {
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient;
 
       return {
@@ -43,13 +33,16 @@ export class GraphQLClientService extends Effect.Service<GraphQLClientService>()
           }).pipe(Effect.withSpan('GraphQLClientService.execute')),
       };
     }),
-    dependencies: [FetchHttpClient.layer],
   }
-) {}
+) {
+  static layer = Layer.effect(this, this.make).pipe(Layer.provide(FetchHttpClient.layer));
+}
 
-export function executeGraphQL<TResult, TVariables>(
+export const executeGraphQL = <TResult, TVariables>(
   query: TypedDocumentString<TResult, TVariables>,
   variables?: TVariables
-) {
-  return Effect.flatMap(GraphQLClientService, (client) => client.execute(query, variables));
-}
+) =>
+  Effect.gen(function* () {
+    const client = yield* GraphQLClientService;
+    return yield* client.execute(query, variables);
+  });

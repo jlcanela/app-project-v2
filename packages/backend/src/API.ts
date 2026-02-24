@@ -4,21 +4,19 @@ import {
     HttpApiEndpoint,
     HttpApiError,
     HttpApiGroup,
-    HttpApiSchema,
 } from "effect/unstable/httpapi"
-import { FetchHttpClient } from "effect/unstable/http"
 import { Effect, Layer, Schema } from "effect"
 
 import { AuthParams, genToken, JWT } from "./lib/auth.js";
-import { Authorization, CurrentUser, User } from "./lib/authorization.js";
+import { Authorization, User } from "./lib/authorization.js";
 
-import { OpenPolicyAgentApi } from "./lib/OpenPolicyAgentApi.js";
 import { ProjectId } from "./Domain/Project.js";
 
-const auth = HttpApiEndpoint.post("auth", "/")
-      .setPayload(AuthParams)
-      .addSuccess(JWT)
-      .addError(HttpApiError.Forbidden)
+const auth = HttpApiEndpoint.post("auth", "/", {
+    payload: AuthParams, 
+    success: JWT,
+    error: HttpApiError.Forbidden
+})
   
 export const AuthApi = HttpApiGroup.make("AuthApi")
     .add(auth)
@@ -29,56 +27,65 @@ const OffsetPagination = Schema.Struct({
     offset: Schema.NumberFromString
 })
 
-const ProjectListQuery = Schema.Struct({
+const ProjectListQuery = {
     search: Schema.optional(Schema.String),
     fields: Schema.optional(Schema.String),
     limit: Schema.optional(Schema.NumberFromString),
     offset: Schema.optional(Schema.NumberFromString),
     continuationToken: Schema.optional(Schema.String)
-})
+}
+const PLQ = Schema.Struct(ProjectListQuery) 
+
+
+type ProjectListQuery = typeof PLQ.Type
 
 // Path params
-const projectIdParam = HttpApiSchema.param("projectId", ProjectId)
+const projectIdParam = {
+    "projectId": ProjectId
+}
 //const deliverableIdParam = HttpApiSchema.param("deliverableId", DeliverableId)
 
 // Project Aggregate API Endpoints
 
 // GET /search
-export const search = HttpApiEndpoint.get("search")`/search`
-    .setUrlParams(ProjectListQuery)
-    .addSuccess(Schema.Array(Schema.Number))
-    .addError(Schema.String)
-    .addError(HttpApiError.InternalServerError)
-
-
+export const search = HttpApiEndpoint.get("search", "/search", {
+    params: ProjectListQuery,
+    success: Schema.Array(Schema.Number),
+    error: [Schema.String, HttpApiError.InternalServerError]
+})
 
 // GET /projects?limit=&offset=&search=
-export const getProjects = HttpApiEndpoint.get("getProjects")`/projects`
-    .setUrlParams(ProjectListQuery)
-    .addSuccess(Schema.Array(Schema.Number))
+export const getProjects = HttpApiEndpoint.get("getProjects", "/projects", {
+    params: ProjectListQuery,
+    success: Schema.Array(Schema.Number)
+})
 
 // POST /projects
-export const newProject = HttpApiEndpoint.post("createProject")`/projects`
-    .setPayload(Schema.Number)          // or a narrower CreateProject schema
-    .addSuccess(Schema.Number)
+export const newProject = HttpApiEndpoint.post("createProject", "/projects", {
+    payload: Schema.Number,          // or a narrower CreateProject schema
+    success: Schema.Number
+})
 
 // GET /projects/:projectId
-export const getProject = HttpApiEndpoint.get("getProject")`/projects/${projectIdParam}`
-    .addSuccess(Schema.Number)
+export const getProject = HttpApiEndpoint.get("getProject", `/projects/${projectIdParam}`, {
+    success: Schema.Number
+})
 
 // PUT /projects/:projectId  (full replace / upsert)
-export const updateProject = HttpApiEndpoint.put("updateProject")`/projects/${projectIdParam}`
-    .setPayload(Schema.Number)
-    .addSuccess(Schema.Number)
+export const updateProject = HttpApiEndpoint.put("updateProject", `/projects/${projectIdParam}`, {
+    payload: Schema.Number,
+    success: Schema.Number
+})
 
 // PATCH /projects/:projectId  (partial update of root)
-const PatchProject = Schema.partial(Schema.Number)
-export const patchProject = HttpApiEndpoint.patch("patchProject")`/projects/${projectIdParam}`
-    .setPayload(PatchProject)
-    .addSuccess(Schema.Number)
+const PatchProject = Schema.optional(Schema.Number)
+export const patchProject = HttpApiEndpoint.patch("patchProject", `/projects/${projectIdParam}`, {
+    payload: PatchProject,
+    success: Schema.Number
+})
 
 // DELETE /projects/:projectId
-export const deleteProject = HttpApiEndpoint.del("deleteProject")`/projects/${projectIdParam}`
+export const deleteProject = HttpApiEndpoint.delete("deleteProject", "/projects/${projectIdParam}")
 // if you want a body, keep `addSuccess(Project)`, otherwise just 204
 
 // // Budget API Endpoints
@@ -156,30 +163,48 @@ export const ProjectsApi = HttpApiGroup.make("ProjectsApi")
 //   .add(deleteDeliverable)
     .middleware(Authorization)
 
+    
+export class DummyError extends Schema.TaggedErrorClass<DummyError>()("DummyError", {
+    status: Schema.Number,
+    reason: Schema.String
+}) { }
+
+
+//HttpApi.make("graphQL").add(
+export const graphqlApi = HttpApiGroup.make("GraphQL").add(
+        HttpApiEndpoint.post("graphql", "/graphql", {
+            payload: Schema.Any,
+            error: DummyError,
+            success: Schema.Any
+        })
+    )
+
+
+
+// export const GraphQLApi = HttpApiGroup.make("GraphQL")
+//     .add(graphqlApi)
+// //    .middleware(Authorization)
+
 
 export const MyApi = HttpApi.make("Api")
     .add(SearchApi)
     .add(ProjectsApi)
     .add(AuthApi).prefix("/api")
+    .add(graphqlApi)
 
-export const AuthApiLive = Layer.unwrapEffect(Effect.gen(function* () {
+export const AuthApiLive = Layer.unwrap(Effect.gen(function* () {
     return HttpApiBuilder.group(MyApi, "AuthApi", (handlers) =>
         handlers
         .handle("auth", ({ payload }) => genToken(payload))
     )
 }))
       
-export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
-    //const cosmos = yield* Cosmos
-   // const repo = yield* ProjectRepository
-
-    return HttpApiBuilder.group(MyApi, "SearchApi", (handlers) =>
-        handlers
-        .handle("search", ({ urlParams }) =>
+ 
+const searchImpl = ({ params }: { params: ProjectListQuery }) =>
             Effect.gen(function* () {
-                const { search, fields, limit, offset, continuationToken } = urlParams
+                const { search, fields, limit, offset, continuationToken } = params
 
-                const currentUser = yield* CurrentUserTag;
+                const currentUser = (yield* User).currentUser();
                 yield* Effect.annotateCurrentSpan("currentUser.userId", currentUser.userId)
                 yield* Effect.annotateCurrentSpan("currentUser.roles", currentUser.roles)
                 if (continuationToken != null && (limit != null || offset != null)) {
@@ -202,20 +227,22 @@ export const SearchApiLive = Layer.unwrapEffect(Effect.gen(function* () {
                  //   Effect.mapError((err) => err.message)
                 //))
                 return results
-            }).pipe(
-                Effect.catchAll((error) => new HttpApiError.InternalServerError())
-            )
-        )
-    )
+            })
+            
+export const SearchApiLive = Layer.unwrap(Effect.gen(function* () {
+
+    return HttpApiBuilder.group(MyApi, "SearchApi", (handlers) =>
+        handlers
+        .handle("search", searchImpl))
 }))
 
-export const ProjectsApiLive = Layer.unwrapEffect(Effect.gen(function* () {
+export const ProjectsApiLive = Layer.unwrap(Effect.gen(function* () {
     //const repo = yield* ProjectRepository
     return HttpApiBuilder.group(MyApi, "ProjectsApi", (handlers) =>
         handlers
-        .handle("getProjects", ({ urlParams }) =>
+        .handle("getProjects", ({ params }) =>
             Effect.gen(function* () {
-                const { search, fields, limit, offset, continuationToken } = urlParams
+                const { search, fields, limit, offset, continuationToken } = params
 
                 if (continuationToken != null && (limit != null || offset != null)) {
                     //   return yield* Effect.fail(
@@ -237,7 +264,7 @@ export const ProjectsApiLive = Layer.unwrapEffect(Effect.gen(function* () {
         )
         .handle("createProject", ({ payload }) =>
             Effect.gen(function* () {
-                const currentUser = yield* CurrentUserTag;
+                const currentUser = (yield* User).currentUser();
 //                yield* repo.upsert({...payload, ProjectId: payload.id, owner: currentUser.userId}).pipe(
 //                    Effect.tapError((e) => Effect.logError(`Error creating project: ${e.message}`)),
 //                    Effect.orDie)

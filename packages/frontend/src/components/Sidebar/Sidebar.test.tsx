@@ -1,9 +1,9 @@
-import { Result } from '@effect-atom/atom-react';
 import { render, screen, userEvent } from '@test-utils';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { UserItemFragment } from '@/graphql/graphql';
 import { Sidebar } from './Sidebar';
 
-const defaultUsers = Result.success([
+const defaultUsers = AsyncResult.success([
   { id: 1, name: 'Alice' },
   { id: 2, name: 'Bob' },
 ]);
@@ -63,17 +63,17 @@ describe('UsersSidebar', () => {
   });
 
   it('shows loading state', () => {
-    render(<Sidebar {...baseProps} items={Result.initial(true)} />);
+    render(<Sidebar {...baseProps} items={AsyncResult.initial(true)} />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('shows error state', () => {
-    render(<Sidebar {...baseProps} items={Result.fail('Network error')} />);
+    render(<Sidebar {...baseProps} items={AsyncResult.fail('Network error')} />);
     expect(screen.getByText('Error: Network error')).toBeInTheDocument();
   });
 
   it('renders empty list when no users', () => {
-    render(<Sidebar {...baseProps} items={Result.success([])} />);
+    render(<Sidebar {...baseProps} items={AsyncResult.success([])} />);
     expect(screen.getByText('All Users')).toBeInTheDocument();
     expect(screen.queryByText('Alice')).not.toBeInTheDocument();
   });

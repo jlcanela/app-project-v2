@@ -1,4 +1,5 @@
-import { Atom, useAtom } from '@effect-atom/atom-react';
+import { useAtom } from '@effect/atom-react';
+import { Atom } from 'effect/unstable/reactivity';
 import { Button, Group, Modal, Stack, TextInput } from '@mantine/core';
 
 export interface AddUserModalProps {

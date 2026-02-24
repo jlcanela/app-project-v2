@@ -1,7 +1,7 @@
 // import { Atom } from "@effect-atom/atom-react";
 
-import { Atom, Result } from '@effect-atom/atom-react';
 import { Effect, Option } from 'effect';
+import { AsyncResult, Atom } from 'effect/unstable/reactivity';
 import { graphql } from '@/graphql';
 import { executeGraphQL } from '@/graphql/execute';
 import { CreateRuleMutationVariables } from '@/graphql/graphql';
@@ -28,8 +28,8 @@ export const selectedRuleIdAtom = Atom.make<number | null>(null);
 export const selectedRuleAtom = Atom.make((get) => {
   const rulesResult = get(rulesAtom);
   const selectedId = get(selectedRuleIdAtom);
-  return Result.map(rulesResult, (rules) =>
-    Option.fromNullable(rules.find((u) => u.ruleId === selectedId))
+  return AsyncResult.map(rulesResult, (rules) =>
+    Option.fromUndefinedOr(rules.find((u) => u.ruleId === selectedId))
   );
 });
 

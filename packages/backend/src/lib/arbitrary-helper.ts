@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { type FastCheck } from "effect";
-import { type LazyArbitrary } from "effect/Arbitrary";
+import { LazyArbitrary } from "effect/Schema";
+import { type FastCheck } from "effect/testing";
 
 type F<A> = (f: typeof faker) => A;
 

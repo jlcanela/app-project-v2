@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Atom, useAtom } from '@effect-atom/atom-react';
+import { useAtom } from '@effect/atom-react';
+import * as Atom from 'effect/unstable/reactivity/Atom';
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { graphql } from '@/graphql';
 import { AuthorUserItemFragment } from '@/graphql/graphql';

@@ -1,29 +1,14 @@
-import { Atom } from '@effect-atom/atom-react';
-import { layer as webSdkLayer, type Configuration } from '@effect/opentelemetry/WebSdk';
-import * as FetchHttpClient from '@effect/platform/FetchHttpClient';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
 import { Layer } from 'effect';
+import { FetchHttpClient } from 'effect/unstable/http';
+import { Otlp, OtlpSerialization } from 'effect/unstable/observability';
+import { Atom } from 'effect/unstable/reactivity';
 import { GraphQLClientService } from '@/graphql/execute';
 
-const baseUrl = 'http://localhost:5173/v1/traces';
+const Observability = Otlp.layer({
+  baseUrl: 'http://localhost:4318', // OTLP HTTP endpoint of your collector
+  resource: {
+    serviceName: 'rule-studio-frontend', // service.name attribute
+  },
+}).pipe(Layer.provide(FetchHttpClient.layer), Layer.provide(OtlpSerialization.layerJson));
 
-const SpansExporterLive = webSdkLayer((): Configuration => {
-  return {
-    resource: {
-      serviceName: 'rule-studio-frontend',
-    },
-    spanProcessor: new BatchSpanProcessor(
-      new OTLPTraceExporter({
-        url: baseUrl,
-      })
-    ),
-  };
-});
-
-export const runtime = Atom.runtime(
-  GraphQLClientService.Default.pipe(
-    Layer.provide(FetchHttpClient.layer),
-    Layer.provide(SpansExporterLive)
-  )
-);
+export const runtime = Atom.runtime(GraphQLClientService.layer.pipe(Layer.provide(Observability)));

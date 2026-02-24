@@ -1,10 +1,8 @@
 import { expect, it } from "@effect/vitest"
 import { Effect, Layer } from "effect"
 import { OpenPolicyAgentApi } from "./OpenPolicyAgentApi.js"
-import { FetchHttpClient } from "@effect/platform"
 
-const OpenPolicyAgentApiLive = OpenPolicyAgentApi.Default
-    .pipe(Layer.provide(FetchHttpClient.layer))
+const OpenPolicyAgentApiLive = OpenPolicyAgentApi.layer
 
 it.layer(OpenPolicyAgentApiLive, { timeout: "30 seconds" })("OpenPolicyAgentApi", (it) => {
 

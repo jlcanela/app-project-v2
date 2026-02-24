@@ -1,10 +1,10 @@
-import { Option, Schema } from "effect"
+import { Layer, Schema, ServiceMap } from "effect"
 import * as Effect from "effect/Effect"
 import { isProjectInvalidStatus, ProjectRequestForm, ProjectSummary } from "../Domain/Project.js";
-import { ProjectForm, ProjectRequest, ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
+import { ProjectForm, ProjectRequestRepository } from "../Repository/ProjectRequestRepository.js";
 import { BusinessRuleService } from "./BusinessRulesService.js";
 
-export class ProjectRequestNotFound extends Schema.TaggedError<ProjectRequestNotFound>()(
+export class ProjectRequestNotFound extends Schema.TaggedErrorClass<ProjectRequestNotFound>()(
     "ProjectRequestNotFound",
     {
         id: Schema.String,
@@ -12,7 +12,7 @@ export class ProjectRequestNotFound extends Schema.TaggedError<ProjectRequestNot
     },
 ) { }
 
-export class RepositoryError extends Schema.TaggedError<RepositoryError>()(
+export class RepositoryError extends Schema.TaggedErrorClass<RepositoryError>()(
     "RepositoryError",
     {
         error: Schema.Unknown,
@@ -20,8 +20,8 @@ export class RepositoryError extends Schema.TaggedError<RepositoryError>()(
 ) { }
 
 
-export class ProjectRequestService extends Effect.Service<ProjectRequestService>()("app/ProjectRequest", {
-    effect: Effect.gen(function* () {
+export class ProjectRequestService extends ServiceMap.Service<ProjectRequestService>()("app/ProjectRequest", {
+    make: Effect.gen(function* () {
 
         const { validateProjectRequest } = yield* BusinessRuleService
         
@@ -29,55 +29,26 @@ export class ProjectRequestService extends Effect.Service<ProjectRequestService>
 
         const create = Effect.fn("createProjectRequest")(function* (form: ProjectRequestForm) {
             return yield* repository.insertProjectRequest(form).pipe(
-                Effect.catchTags({
-                    ParseError: (parseError) => Effect.fail(new RepositoryError({ error: parseError })),
-                    SqlError: (sqlError) => Effect.fail(new RepositoryError({ error: sqlError })),
-                })
-            )
-        })
-
-        const optionalProjectToStatus = Effect.fn("optionalProjectToStatus")(function* (id: string, projectOpt: Option.Option<ProjectRequest>) {
-        
-            return yield* Option.match(projectOpt,
-                {
-                    onNone: () => Effect.fail(
-                        new ProjectRequestNotFound({
-                            id,
-                            message: `Project Request with id ${id} not found`,
-                        })),
-                    onSome: (projectRequest: ProjectRequest) => validateProjectRequest({project: projectRequest})
-                }
             )
         })
 
         const viewStatus = (id: string) => Effect.gen(function* () {
             const foundProject = yield* repository.findProjectRequestById({ id })
-            const status = yield* optionalProjectToStatus(id, foundProject)
-            return status
+            return yield* validateProjectRequest({project: foundProject})
         }).pipe(
-            Effect.catchTags({
-                ParseError: (parseError) => Effect.fail(new RepositoryError({ error: parseError })),
-                SqlError: (sqlError) => Effect.fail(new RepositoryError({ error: sqlError })),
-            })
         )
 
         const validate = Effect.fn("validateProjectRequest")(function* (id: string) {
-            const foundProject = yield* Option.match(yield* repository.findProjectRequestById({ id }), {
-                onNone: () => Effect.fail(new ProjectRequestNotFound({
-                    id,
-                    message: `Project Request with id ${id} not found`,
-                })),
-                onSome: (projectRequest: ProjectRequest) => Effect.succeed(projectRequest)
-            })
-            const status = yield* optionalProjectToStatus(id, Option.some(foundProject))
+            const foundProject = yield* repository.findProjectRequestById({ id })
+            const status = yield* validateProjectRequest({project: foundProject})
             if (isProjectInvalidStatus(status)) {
-                yield* Effect.fail(new Error(`Project Request with id ${id} is invalid`))
+                return yield* Effect.fail(new Error(`Project Request with id ${id} is invalid`))
             }
             const created = yield* repository.insertProject(new ProjectForm({
                 id: foundProject.id,
             }))
            
-            return ProjectSummary.make({
+            return ProjectSummary.makeUnsafe({
                 id: created.id,
                 name: foundProject.name,
                 budget: foundProject.budget,
@@ -91,6 +62,7 @@ export class ProjectRequestService extends Effect.Service<ProjectRequestService>
             validate
         };
     }),
-    dependencies: [ BusinessRuleService.Default]
-}) { }
+}) {
+    static layer = Layer.effect(this, this.make)
+ }
 

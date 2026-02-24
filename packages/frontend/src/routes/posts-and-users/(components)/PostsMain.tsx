@@ -1,5 +1,5 @@
-import { Result } from '@effect-atom/atom-react';
 import { Option } from 'effect';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { Avatar, Box, Button, Card, Group, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { graphql } from '@/graphql';
 import { PostItemFragment, SelectedUserItemFragment } from '@/graphql/graphql';
@@ -25,8 +25,8 @@ export const SelectedUserItem = graphql(/* GraphQL */ `
 export interface PostsMainProps {
   onCreatePost: () => void;
   onDeletePost: (id: number) => void;
-  selectedPosts: Result.Result<PostItemFragment[], string>;
-  selectedUser: Result.Result<Option.Option<SelectedUserItemFragment>, string>;
+  selectedPosts: AsyncResult.AsyncResult<PostItemFragment[], string>;
+  selectedUser: AsyncResult.AsyncResult<Option.Option<SelectedUserItemFragment>, string>;
 }
 
 export function PostsMain({
@@ -57,7 +57,7 @@ export function PostsMain({
       >
         <Group justify="space-between">
           <Title order={3}>
-            {Result.match(selectedUser, {
+            {AsyncResult.match(selectedUser, {
               onInitial: () => 'Posts',
               onFailure: () => 'Posts',
               onSuccess: ({ value }) =>
@@ -72,7 +72,7 @@ export function PostsMain({
       </Box>
       <ScrollArea p="md" style={{ flex: 1 }}>
         <Stack>
-          {Result.match(selectedPosts, {
+          {AsyncResult.match(selectedPosts, {
             onInitial: () => (
               <Text c="dimmed" ta="center" mt="xl">
                 Loading...

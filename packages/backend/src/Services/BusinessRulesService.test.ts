@@ -8,10 +8,10 @@ import { BusinessRuleService } from "./BusinessRulesService.js";
 
 describe('ProjectRequest', () => {
 
-    const TestLayer = BusinessRuleService.Default
+    const TestLayer = BusinessRuleService.layer
 
-    const projectRequest = ProjectRequest.make({
-        id: ProjectId.make("00000000-0000-0000-0000-000000000000"),
+    const projectRequest = ProjectRequest.makeUnsafe({
+        id: ProjectId.makeUnsafe("00000000-0000-0000-0000-000000000000"),
         name: "project",
         budget: 15000, // triggers BUDGET_LIMIT_EXCEEDED & MARGIN_TO_LOW
         cost: 20000,    // triggers COST_LIMIT_EXCEEDED

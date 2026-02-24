@@ -29,10 +29,10 @@ export const RuleDetail = ({ rule }: RuleDetailProps) => {
   const [graphTrace, setGraphTrace] = useState<Simulation>();
   return (
     <JdmConfigProvider>
-      <div style={{ width: '90%', height: '80%' }}>
+      <div style={{ width: '90%', height: '800px' }}>
         <Title>Rule Editor</Title>
         <Text>Caution: the Save feature is not implemented yet.</Text>
-        <Paper>
+        <Paper style={{ width: '100%', height: '600px', marginTop: 20 }}>
           <DecisionGraph
             ref={graphRef}
             value={graph}

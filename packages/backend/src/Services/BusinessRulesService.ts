@@ -1,21 +1,20 @@
-import { Schema } from "effect"
+import { Layer, Schema, ServiceMap } from "effect"
 import * as Effect from "effect/Effect"
 import { Issue, ProjectInvalidStatus, ProjectRequestStatus, ProjectValidStatus } from "../Domain/Project.js";
 import fs from 'fs';
 import path from "path"
 import { ZenEngine, ZenEvaluateOptions } from "@gorules/zen-engine";
 import { ProjectRequest } from "../Repository/ProjectRequestRepository.js";
-import { ParseError } from "effect/ParseResult";
+import { SchemaError } from "effect/Schema";
 
-
-export class InvalidBusinessRuleResult extends Schema.TaggedError<InvalidBusinessRuleResult>()(
+export class InvalidBusinessRuleResult extends Schema.TaggedErrorClass<InvalidBusinessRuleResult>()(
     "InvalidBusinessRuleResult",
     {
         error: Schema.Unknown,
     },
 ) { }
 
-export class RepositoryError extends Schema.TaggedError<RepositoryError>()(
+export class RepositoryError extends Schema.TaggedErrorClass<RepositoryError>()(
     "RepositoryError",
     {
         error: Schema.Unknown,
@@ -30,7 +29,7 @@ export class RuleDefinition<IE, ID, O, T> {
     readonly file: string,
     readonly version: number,
     readonly decision: boolean,
-    readonly inputSchema: Schema.Schema<IE, ID>,   // Effect schema for input
+    readonly inputSchema: Schema.Schema<IE>,   // Effect schema for input
     readonly outputSchema: Schema.Schema<O>,  // Effect schema for raw output
     readonly customizeData: (raw: O) => T,
   ) {}
@@ -46,7 +45,7 @@ const makeRule = <
   file: string
   version: number
   decision: boolean
-  inputSchema: Schema.Schema<IE, ID>
+  inputSchema: Schema.Schema<IE>
   outputSchema: Schema.Schema<O>
   customizeData?: (raw: O) => T
 }) =>
@@ -79,8 +78,8 @@ const validateProjectRule = makeRule({
 })
 
 
-export class BusinessRuleService extends Effect.Service<BusinessRuleService>()("app/BusinessRuleService", {
-    effect: Effect.gen(function* () {
+export class BusinessRuleService extends ServiceMap.Service<BusinessRuleService>()("app/BusinessRuleService", {
+    make: Effect.gen(function* () {
 
         //type RuleConfig = RuleDefinition<unknown, unknown, unknown, unknown>[]
         type AnyRule = RuleDefinition<any, any, any, any>
@@ -115,17 +114,22 @@ export class BusinessRuleService extends Effect.Service<BusinessRuleService>()("
                         return match ? Number(match[1]) : 1
                     })()
 
+                const inputSchema = cfg.inputSchema
+                const outputSchema = cfg.outputSchema
+                
+                const execute = Effect.fn(function* (context: any, opts?: ZenEvaluateOptions | null | undefined) {
+                    const encoded = yield* Schema.encodeUnknownEffect(cfg.inputSchema)(context) as Effect.Effect<unknown, Schema.SchemaError, never>
+                    const result = (yield* Effect.promise(() => decision.evaluate(encoded))).result
+                    const decoded = yield* Schema.decodeUnknownEffect(outputSchema)(result) as Effect.Effect<unknown, Schema.SchemaError, never>
+                    return cfg.customizeData ? cfg.customizeData(decoded) : decoded                       
+                })
+
                 // store wrapper that evaluates the decision
                 rules[cfg.name] = {
                     version,
-                    inputSchema: cfg.inputSchema,
-                    outputSchema: cfg.outputSchema,
-                    execute: (input: unknown) => Effect.gen(function* () {
-                        const encoded = yield* Schema.encodeUnknown(rules[cfg.name].inputSchema)(input)
-                        const result = (yield* Effect.promise(() => decision.evaluate(encoded))).result
-                        const decoded = yield* Schema.decodeUnknown(rules[cfg.name].outputSchema)(result)
-                        return cfg.customizeData ? cfg.customizeData(decoded) : decoded                       
-                    })
+                    inputSchema,
+                    outputSchema,
+                    execute
                 }
             }
 
@@ -139,9 +143,10 @@ export class BusinessRuleService extends Effect.Service<BusinessRuleService>()("
         })
 
         return {
-            validateProjectRequest: execRules("validateProject") as  (input: unknown) => Effect.Effect<ProjectRequestStatus, ParseError | InvalidBusinessRuleResult, never>,
+            validateProjectRequest: execRules("validateProject") as  (input: unknown) => Effect.Effect<ProjectRequestStatus, SchemaError | InvalidBusinessRuleResult, never>,
             execute: (ruleName: string, input: unknown) => execRules(ruleName)(input)
         };
     }),
-    dependencies: []
-}) { }
+}) { 
+    static layer = Layer.effect(this, this.make)
+}

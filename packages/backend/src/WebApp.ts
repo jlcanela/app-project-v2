@@ -1,5 +1,6 @@
-import { FileSystem, HttpServerResponse } from "@effect/platform";
-import { Router } from "@effect/platform/HttpApiBuilder";
+import { HttpRouter, HttpServerResponse } from "effect/unstable/http";
+import { FileSystem } from "effect";
+//import { Router } from "effect/unstable/httpapi";
 import { Effect } from "effect";
 
 const basePath = process.argv.slice(2)[0] ?? "dist";
@@ -12,13 +13,13 @@ const listFiles = (path: string) =>
     return files.filter((file) => file.includes("."));
   });
 
-export const WebAppRoutes = Router.use((router) =>
+export const WebAppRoutes = HttpRouter.use((router) =>
   Effect.gen(function* () {
-    yield* router.get(`/`, HttpServerResponse.file(`${basePath}/index.html`));
+    yield* router.add("GET", '/', HttpServerResponse.file(`${basePath}/index.html`));
     const files = yield* listFiles(basePath);
     yield* Effect.log(`Serving files: ${files}`);
     for (const file of files) {
-      yield* router.get(`/${file}`, HttpServerResponse.file(`${basePath}/${file}`));
+      yield* router.add("GET", `/${file}`, HttpServerResponse.file(`${basePath}/${file}`));
     }
     // const mailingFiles = yield* listFiles(mailingPath);
     // for (const file of mailingFiles) {

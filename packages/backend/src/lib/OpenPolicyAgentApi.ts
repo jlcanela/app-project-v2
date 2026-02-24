@@ -1,7 +1,6 @@
-import { Data, Effect } from "effect"
-import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from "@effect/platform"
-import { FieldCondition, guard, type Condition } from "@ucast/mongo2js"
-import { emptyCondition } from "./ucast.js"
+import { Data, Effect, Layer, ServiceMap } from "effect"
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from "effect/unstable/http"
+import { type Condition } from "@ucast/mongo2js"
 
 export type ApiRequest = {
   resource: "projects" // | ... other resources
@@ -33,10 +32,10 @@ export class OpaInvalidResponseError extends Data.TaggedError("OpaInvalidRespons
   query?: Condition<unknown>
 }> {}
 
-export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
+export class OpenPolicyAgentApi extends ServiceMap.Service<OpenPolicyAgentApi>()(
   "app/OpenPolicyAgentApi",
   {
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const baseClient = yield* HttpClient.HttpClient
 
       const client = baseClient.pipe(
@@ -67,13 +66,13 @@ export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
         })
 
         const response = yield* client.execute(request).pipe(
-          Effect.catchAll((error) => {
-            return new OpaConnexionError({ cause: error.cause})
+          Effect.catch((error) => {
+            return Effect.fail(new OpaConnexionError({ cause: error }))
           })
         )
 
         if (response.status !== 200) {
-          return yield* new OpaError({ message: "", status: response.status })
+          return yield* Effect.fail(new OpaError({ message: "", status: response.status }))
         }
 
         const json = (yield* response.json) as {
@@ -98,22 +97,30 @@ export class OpenPolicyAgentApi extends Effect.Service<OpenPolicyAgentApi>()(
         fetchPermission
       } as const
     }),
-    dependencies: [FetchHttpClient.layer]
   }
 ) {
-  static Test = new OpenPolicyAgentApi({
-    fetchPermission: <T>(apiRequest: ApiRequest, user: User) => Effect.succeed<Permission<T>>({
-      apiRequest: {
-        resource: "projects",
-        access: "read"
-      },
-      condition: {
-        "field": "projects.owner",
-        "operator": "eq",
-        "type": "field",
-        "value": "1234"
-      } as unknown as Condition<T>
-    })
-  })
+  static layer = Layer.effect(this, this.make).pipe(
+    Layer.provide(FetchHttpClient.layer)
+  )
+    // pure test layer: no FetchHttpClient
+  static readonly testLayer = Layer.succeed(OpenPolicyAgentApi)(
+    {
+      fetchPermission: <T>(
+        apiRequest: ApiRequest,
+        user: User
+      ) =>
+        Effect.succeed<Permission<T>>({
+          apiRequest: {
+            resource: "projects",
+            access: "read"
+          },
+          condition: {
+            field: "projects.owner",
+            operator: "eq",
+            type: "field",
+            value: "1234"
+          } as unknown as Condition<T>
+        })
+    }
+  )
 }
-

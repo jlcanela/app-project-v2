@@ -7,7 +7,7 @@ export const ProjectRequestForm = Schema.Struct({
 })
 export type ProjectRequestForm = typeof ProjectRequestForm.Type
 
-export const ProjectId = Schema.UUID.pipe(Schema.brand("ProjectId"))
+export const ProjectId = Schema.String.check(Schema.isUUID(undefined)).pipe(Schema.brand("ProjectId"))
 export type ProjectId = typeof ProjectId.Type
 
 export const ProjectRequest = Schema.Struct({
@@ -21,7 +21,7 @@ export class ProjectValidStatus extends Schema.TaggedClass<ProjectValidStatus>()
 }) {}
 
 export const Issue = Schema.Struct({
-  code: Schema.Literal("BUDGET_LIMIT_EXCEEDED", "MARGIN_TO_LOW", "COST_LIMIT_EXCEEDED"),
+  code: Schema.Literals(["BUDGET_LIMIT_EXCEEDED", "MARGIN_TO_LOW", "COST_LIMIT_EXCEEDED"]),
   parameter: Schema.Number,
   value: Schema.Number,
 })
@@ -34,10 +34,10 @@ export class ProjectInvalidStatus extends Schema.TaggedClass<ProjectInvalidStatu
     issues: Issues
 }) {}
 
-export const ProjectRequestStatus = Schema.Union(
+export const ProjectRequestStatus = Schema.Union([
     ProjectValidStatus,
     ProjectInvalidStatus
-)
+])
 export type ProjectRequestStatus = typeof ProjectRequestStatus.Type
 
 export function isProjectInvalidStatus(

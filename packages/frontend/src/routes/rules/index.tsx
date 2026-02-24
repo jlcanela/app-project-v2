@@ -1,6 +1,7 @@
-import { Result, useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
+import { useAtom, useAtomSet, useAtomValue } from '@effect/atom-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Option } from 'effect';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Sidebar } from '@/components/Sidebar';
@@ -42,7 +43,7 @@ function RouteComponent() {
   // const selectedUser = useAtomValue(selectedUserAtom) as unknown as Result.Result<Option.Option<SelectedUserItemFragment>>
   // const selectedPosts = useAtomValue(selectedPostsAtom) as unknown as Result.Result<PostItemFragment[], string>
   const [selectedRuleId, setSelectedRuleId] = useAtom(selectedRuleIdAtom);
-  const selectedRule = useAtomValue(selectedRuleAtom) as unknown as Result.Result<
+  const selectedRule = useAtomValue(selectedRuleAtom) as unknown as AsyncResult.AsyncResult<
     Option.Option<RuleItemFragment>
   >;
 
@@ -66,7 +67,10 @@ function RouteComponent() {
   const onCreateRule = useAtomSet(createRuleAtom);
 
   // const openRuleModal = () => {};
-  const rules = useAtomValue(rulesAtom) as unknown as Result.Result<RuleItemFragment[], string>;
+  const rules = useAtomValue(rulesAtom) as unknown as AsyncResult.AsyncResult<
+    RuleItemFragment[],
+    string
+  >;
 
   return (
     <Box style={{ display: 'flex', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
@@ -86,7 +90,7 @@ function RouteComponent() {
         onCreateRule={onCreateRule}
         ruleTypes={ruleTypes}
       />
-      {Result.match(selectedRule, {
+      {AsyncResult.match(selectedRule, {
         onInitial: () => '',
         onFailure: () => '',
         onSuccess: (success) =>

@@ -1,12 +1,12 @@
 import { PostgreSqlContainer } from "@testcontainers/postgresql"
-import { Data, Effect } from "effect"
+import { Data, Effect, ServiceMap } from "effect"
 
 export class ContainerError extends Data.TaggedError("ContainerError")<{
   cause: unknown
 }> {}
 
-export class PostgresDockerContainer extends Effect.Service<PostgresDockerContainer>()("test/PostgresDockerContainer", {
-  scoped: Effect.acquireRelease(
+export class PostgresDockerContainer extends ServiceMap.Service<PostgresDockerContainer>()("test/PostgresDockerContainer", {
+  make: Effect.acquireRelease(
     Effect.tryPromise({
       try: () => new PostgreSqlContainer("postgres:18-bookworm").start(),
       catch: (cause) => {
@@ -15,5 +15,5 @@ export class PostgresDockerContainer extends Effect.Service<PostgresDockerContai
       } 
     }),
     (container) => Effect.promise(() => container.stop())
-  )
+  ).pipe(Effect.scoped)
 }) {}

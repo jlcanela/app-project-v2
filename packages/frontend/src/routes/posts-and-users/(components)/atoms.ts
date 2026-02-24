@@ -1,5 +1,5 @@
-import { Atom, Result } from '@effect-atom/atom-react';
 import { Effect, Option } from 'effect';
+import { AsyncResult, Atom } from 'effect/unstable/reactivity';
 import { executeGraphQL } from '@/graphql/execute';
 import { graphql } from '@/graphql/gql';
 import { type CreatePostMutationVariables } from '@/graphql/graphql';
@@ -72,8 +72,8 @@ export const selectedUserIdAtom = Atom.make<number | null>(null);
 export const selectedUserAtom = Atom.make((get) => {
   const usersResult = get(usersAtom);
   const selectedId = get(selectedUserIdAtom);
-  return Result.map(usersResult, (users) =>
-    Option.fromNullable(users.find((u) => u.id === selectedId))
+  return AsyncResult.map(usersResult, (users) =>
+    Option.fromNullOr(users.find((u) => u.id === selectedId))
   );
 });
 
@@ -85,7 +85,7 @@ export const selectedPostsAtom = Atom.make((get) => {
     return postsResult;
   }
 
-  return Result.map(postsResult, (posts) => posts.filter((p) => p.authorId === selectedId));
+  return AsyncResult.map(postsResult, (posts) => posts.filter((p) => p.authorId === selectedId));
 });
 
 export const createUser = Effect.fn(function* (name: string) {

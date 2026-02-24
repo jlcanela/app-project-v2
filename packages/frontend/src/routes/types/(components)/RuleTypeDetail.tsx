@@ -12,9 +12,8 @@ import {
   Text,
   // LoadingOverlay,
 } from '@mantine/core';
-import { RuleTypeGeneralItemFragment, RuleTypeItemFragment } from '@/graphql/graphql';
+import { RuleTypeItemFragment } from '@/graphql/graphql';
 import { SchemaFieldsEditor } from './JsonSchemaEditor';
-import { GeneralSection } from './SimplifiedGeneralSection';
 
 interface RuleTypeDetailProps {
   ruleType: RuleTypeItemFragment;
@@ -23,7 +22,8 @@ interface RuleTypeDetailProps {
 export const RuleTypeDetail: React.FC<RuleTypeDetailProps> = ({ ruleType }) => {
   const navigate = useNavigate();
   const isNew = true;
-
+  const inputSchema = JSON.parse(ruleType?.schemaIn ?? '[]');
+  const outputSchema = JSON.parse(ruleType?.schemaOut ?? '[]');
   return (
     <AppShell /*header={null}*/>
       <Container size="lg" py="md" style={{ position: 'relative' }}>
@@ -42,15 +42,15 @@ export const RuleTypeDetail: React.FC<RuleTypeDetailProps> = ({ ruleType }) => {
           {
             <form /*onSubmit={handleSubmit}*/>
               <Stack gap="md">
-                <GeneralSection
+                {/*                 <GeneralSection
                   ruleType={ruleType as unknown as RuleTypeGeneralItemFragment}
                   isEdit={!isNew}
-                />
+                /> */}
 
                 <SchemaFieldsEditor
                   kind="in"
                   title="Input schema (schemaIn)"
-                  fields={JSON.parse(ruleType?.schemaIn ?? '[]')}
+                  fields={inputSchema}
                   onChange={() => {}}
                   //onChange={(fields) => form.setFieldValue('schemaIn', fields)}
                 />
@@ -59,7 +59,7 @@ export const RuleTypeDetail: React.FC<RuleTypeDetailProps> = ({ ruleType }) => {
                   kind="out"
                   title="Output schema (schemaOut)"
                   onChange={() => {}}
-                  fields={JSON.parse(ruleType?.schemaOut ?? '[]')}
+                  fields={outputSchema}
                   //onChange={(fields) => form.setFieldValue('schemaOut', fields)}
                 />
 

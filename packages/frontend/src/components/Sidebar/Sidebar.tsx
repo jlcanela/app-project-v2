@@ -1,5 +1,5 @@
 import { Key } from 'react';
-import { Result } from '@effect-atom/atom-react';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { Box, Button, Group, NavLink, ScrollArea, Stack, Title } from '@mantine/core';
 
 export interface SidebarProps<T, K> {
@@ -13,8 +13,8 @@ export interface SidebarProps<T, K> {
   onSelect: (value: K | ((value: K | null) => K | null) | null) => void;
   /** Called when the "+ Add" button is clicked */
   onAdd: () => void;
-  /** Items wrapped in Result */
-  items: Result.Result<T[], string>;
+  /** Items wrapped in AsyncResult */
+  items: AsyncResult.AsyncResult<T[], string>;
   /** Extract a unique key from an item */
   getKey: (item: T) => K | null;
   /** Extract a display label from an item */
@@ -40,7 +40,7 @@ export function Sidebar<T, K>({
         flexDirection: 'column',
       }}
     >
-      {Result.builder(items)
+      {AsyncResult.builder(items)
         .onSuccess((items) => (
           <>
             <Box p="md" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>

@@ -1,11 +1,11 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { migrateDatabase } from './migrator.js';
-import { NodeContext, NodeRuntime } from '@effect/platform-node';
+import { NodeRuntime } from '@effect/platform-node';
 
 import { PgLive } from './pg-live.js';
 
 export const program = migrateDatabase.pipe(
-    Effect.provide([PgLive, NodeContext.layer]),
+    Effect.provide(Layer.mergeAll(PgLive)),
     Effect.orDie
 )
 

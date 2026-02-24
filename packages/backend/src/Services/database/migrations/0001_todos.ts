@@ -1,4 +1,4 @@
-import { SqlClient  } from "@effect/sql";
+import { SqlClient  } from "effect/unstable/sql";
 import { Effect } from "effect";
 
 // eslint-disable-next-line no-restricted-syntax

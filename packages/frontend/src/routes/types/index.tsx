@@ -1,5 +1,6 @@
-import { Result, useAtom, useAtomValue } from '@effect-atom/atom-react';
+import { useAtom, useAtomValue } from '@effect/atom-react';
 import { createFileRoute } from '@tanstack/react-router';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Sidebar } from '@/components/Sidebar';
@@ -23,7 +24,7 @@ export const RuleTypeItem = graphql(/* GraphQL */ `
 
 function RouteComponent() {
   const [selectedRuleTypeId, setSelectedRuleTypeId] = useAtom(selectedRuleTypeIdAtom);
-  const ruleTypes = useAtomValue(ruleTypesAtom) as Result.Result<RuleTypeItemFragment[]>;
+  const ruleTypes = useAtomValue(ruleTypesAtom) as AsyncResult.AsyncResult<RuleTypeItemFragment[]>;
   const selectedRuleType = useAtomValue(selectedRuleTypeAtom);
 
   // Modals
@@ -41,7 +42,7 @@ function RouteComponent() {
         getKey={(u: RuleTypeItemFragment) => u.ruleTypeId}
         getLabel={(u: RuleTypeItemFragment) => u.name as string}
       />
-      {Result.match(selectedRuleType, {
+      {AsyncResult.match(selectedRuleType, {
         onInitial: () => '',
         onFailure: () => '',
         onSuccess: (success) =>

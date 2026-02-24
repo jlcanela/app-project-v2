@@ -1,4 +1,5 @@
-import { Atom, useAtom } from '@effect-atom/atom-react';
+import { useAtom } from '@effect/atom-react';
+import { Atom } from 'effect/unstable/reactivity';
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { graphql } from '@/graphql';
 import { SelectRuleTypeItemFragment } from '@/graphql/graphql';

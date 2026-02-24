@@ -1,5 +1,5 @@
 import { loadPolicy } from "@open-policy-agent/opa-wasm";
-import { Data, Effect, Option, Sink, Stream } from "effect";
+import { Data, Effect, Option, Queue, Sink, Stream, ServiceMap, Layer } from "effect";
 import * as fs from "fs";
 import { type Readable } from "stream";
 // @ts-ignore
@@ -43,38 +43,39 @@ export class OpaLoadError extends Data.TaggedError("OpaLoadError")<{
  * Each emitted item is a { header, content } object.
  */
 export const extractBundle = (bundlePath: string): Stream.Stream<TarEntry, Error> =>
-  Stream.async<TarEntry, Error>((emit) => {
-    const extract = tar.extract();
+  Stream.callback<TarEntry, Error>((queue) =>
+    Effect.acquireRelease(
+      Effect.sync(() => {
+        const extract = tar.extract();
 
-    extract.on("entry", (header: any, stream: Readable, next: (err?: unknown) => void) => {
-      const chunks: Buffer[] = [];
-      stream.on("data", (chunk: Buffer) => chunks.push(chunk));
-      stream.on("end", () => {
-        void emit.single({ header, content: Buffer.concat(chunks) });
-        next();
-      });
-      stream.resume();
-    });
+        extract.on("entry", (header: any, stream: Readable, next: (err?: unknown) => void) => {
+          const chunks: Buffer[] = [];
+          stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+          stream.on("end", () => {
+            Queue.offerUnsafe(queue, { header, content: Buffer.concat(chunks) });
+            next();
+          });
+          stream.resume();
+        });
 
-    extract.on("finish", () => void emit.end());
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    extract.on("error", (err: unknown) => void emit.fail(err as Error));
+        extract.on("finish", () => Queue.endUnsafe(queue));
+        extract.on("error", (err: unknown) => Queue.fail(queue, err as Error)); 
+        
+        let stream: Readable = fs.createReadStream(bundlePath);
+        if (bundlePath.endsWith(".gz") || bundlePath.endsWith(".tgz")) {
+          stream = stream.pipe(zlib.createGunzip());
+        }
 
-    let stream: Readable = fs.createReadStream(bundlePath);
-    // If the path ends with .gz or .tgz, decompress
-    if (bundlePath.endsWith(".gz") || bundlePath.endsWith(".tgz")) {
-      stream = stream.pipe(zlib.createGunzip());
-    }
-
-    stream.pipe(extract);
-
-    // Optional cleanup
-    return Effect.sync(() => extract.destroy());
-  });
+        stream.pipe(extract);
+        return extract;
+      }),
+      (extract) => Effect.sync(() => extract.destroy()),
+    ),
+  );
 
 // eslint-disable-next-line no-use-before-define
-export class Security extends Effect.Service<Security>()("app/Security", {
-  effect: Effect.gen(function* () {
+export class Security extends ServiceMap.Service<Security>()("app/Security", {
+  make: Effect.gen(function* () {
     yield* Effect.log("Loading OPA policy from WASM file");
 
     const DataFile = "/data.json";
@@ -95,11 +96,11 @@ export class Security extends Effect.Service<Security>()("app/Security", {
       const fileMap = yield* Stream.run(
         stream,
         Sink.fold<Partial<Record<Filename, Buffer>>, TarEntry>(
-          {}, // initial accumulator
+          () => ({}), // initial accumulator (lazy)
           () => true, // always continue folding
           (acc, { content, header }) => {
             acc[header.name as unknown as Filename] = content;
-            return acc;
+            return Effect.succeed(acc);
           },
         ),
       );
@@ -112,14 +113,17 @@ export class Security extends Effect.Service<Security>()("app/Security", {
     const allFiles = yield* extractFiles(p2, files);
 
     const { [DataFile]: dataBytesOrEmpty, [PolicyFile]: wasmBytesOrEmpty } = allFiles;
+    
+    const dataBytes = yield* Option.match(Option.fromUndefinedOr(dataBytesOrEmpty), {
+      onSome: (bytes) => Effect.succeed(bytes),
+      onNone: () => Effect.fail(new Error(`missing ${DataFile} as data.json`)),
+    })
+    
 
-    const dataBytes = yield* Option.fromNullable(dataBytesOrEmpty).pipe(
-      Effect.orElseFail(() => new Error(`missing ${DataFile} as data.json`)),
-    );
-
-    const wasmBytes = yield* Option.fromNullable(wasmBytesOrEmpty).pipe(
-      Effect.orElseFail(() => new Error(`missing ${PolicyFile} as policy.wasm`)),
-    );
+    const wasmBytes = yield* Option.match(Option.fromUndefinedOr(wasmBytesOrEmpty), {
+      onSome: (bytes) => Effect.succeed(bytes),
+      onNone: () => Effect.fail(new Error(`missing ${PolicyFile} as policy.wasm`)),
+    })
 
     const policy = yield* Effect.tryPromise({
       try: async () => {
@@ -150,4 +154,6 @@ export class Security extends Effect.Service<Security>()("app/Security", {
       evaluate,
     } as const;
   }),
-}) {}
+}) {
+  static layer = Layer.effect(this, Security.make);
+}

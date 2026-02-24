@@ -1,22 +1,21 @@
-import { HttpServerRequest, HttpServerResponse } from "@effect/platform"
-import { Effect, Request, Schema } from "effect"
+import { HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
+import { Effect, Layer, Request, Schema, ServiceMap } from "effect"
 import { BusinessRuleService } from "./BusinessRulesService.js"
 import { DumpLog, DumpLogResolver, PipelineDefinition } from "./BusinessRuleType.js"
-import { PathInput } from "@effect/platform/HttpRouter"
-import { Router } from "@effect/platform/HttpApiBuilder"
-import { HttpBodyError } from "@effect/platform/HttpBody"
-import { RequestError } from "@effect/platform/HttpClientError"
+import { HttpRouter, PathInput } from "effect/unstable/http/HttpRouter"
+import { RequestError } from "effect/unstable/http/HttpClientError"
+import { HttpBodyError } from "effect/unstable/http/HttpBody"
 
 // =============================================================================
 // Service Definitions
 // =============================================================================
-export class PipelineError extends Schema.TaggedError<PipelineError>()("PipelineError", {
+export class PipelineError extends Schema.TaggedErrorClass<PipelineError>()("PipelineError", {
     message: Schema.String,
     step: Schema.optional(Schema.String),
     cause: Schema.optional(Schema.Unknown)
 }) { }
 
-export class DispatchError extends Schema.TaggedError<DispatchError>()("DispatchError", {
+export class DispatchError extends Schema.TaggedErrorClass<DispatchError>()("DispatchError", {
     message: Schema.String,
 }) { }
 
@@ -24,12 +23,11 @@ export class DispatchError extends Schema.TaggedError<DispatchError>()("Dispatch
  * A service to dispatch generic Requests defined in the pipeline.
  * You would implement this by matching request tags to actual resolvers or services.
  */
-export class RequestDispatcher extends Effect.Service<RequestDispatcher>()("app/RequestDispatcher", {
-    effect: Effect.gen(function* () {
+export class RequestDispatcher extends ServiceMap.Service<RequestDispatcher>()("app/RequestDispatcher", {
+    make: Effect.gen(function* () {
         return {
             dispatch: <A, E>(req: Request.Request<A, E>) => Effect.gen(function* () {
                 const tag = (req as unknown as { _tag: string })._tag
-                console.log(`Dispatching request: ${tag}`)
                 switch (tag) {
                     case "DumpLog": 
                         return yield* Effect.request(req as unknown as DumpLog, DumpLogResolver) as unknown as Effect.Effect<A, E, never>
@@ -38,9 +36,10 @@ export class RequestDispatcher extends Effect.Service<RequestDispatcher>()("app/
                 }
             })
         }
-    }),
-    dependencies: []
-}) { }
+    })
+}) { 
+    static layer = Layer.effect(this, this.make)
+}
 
 
 
@@ -114,10 +113,11 @@ export const isPathInput = (s: string): s is PathInput =>
  */
 export const pipelinesToRouter = (
     pipelines: Iterable<PipelineDefinition>
-) =>  Router.use((router) => Effect.gen(function* () {
+) =>  HttpRouter.use((router) => Effect.gen(function* () {
     const businessRules = yield* BusinessRuleService
      const requestDispatcher = yield* RequestDispatcher
-    yield* router.get("/info", HttpServerResponse.json({ message: "Hello, World!"}))
+     
+    yield* router.add("GET", "/info", HttpServerResponse.json({ message: "Hello, World!"}))
         for (const pipeline of pipelines) {
             if (pipeline.trigger.type === "http") {
                 const { method, path, payloadSchema } = pipeline.trigger
@@ -129,8 +129,8 @@ export const pipelinesToRouter = (
                     // 1. Parse Body
                     const req = yield* HttpServerRequest.HttpServerRequest
                     const body = yield* req.json
-                    const input = yield* Schema.decodeUnknown(payloadSchema)(body).pipe(
-                        Effect.catchAll(e => HttpServerResponse.json({ message: "Validation Error", details: e }, { status: 400 }).pipe(
+                    const input = yield* Schema.decodeUnknownEffect(payloadSchema)(body).pipe(
+                        Effect.catch(e => HttpServerResponse.json({ message: "Validation Error", details: e }, { status: 400 }).pipe(
                             Effect.flatMap(Effect.fail)
                         ))
                     )
@@ -139,7 +139,7 @@ export const pipelinesToRouter = (
                     const result = yield* executePipeline(pipeline, input).pipe(
                         Effect.provideService(BusinessRuleService, businessRules),
                         Effect.provideService(RequestDispatcher, requestDispatcher),
-                        Effect.catchAll(e => HttpServerResponse.json({ message: e.message }, { status: 500 }).pipe(
+                        Effect.catch(e => HttpServerResponse.json({ message: e.message }, { status: 500 }).pipe(
                             Effect.flatMap(Effect.fail)
                         )) 
                     )   
@@ -152,10 +152,10 @@ export const pipelinesToRouter = (
 
                 // Map method string to Router function
                 switch (method) {
-                     case "GET": yield* router.get(path, handler);break;
-                     case "POST": yield* router.post(path, handler); break;
-                     case "PUT": yield* router.put(path, handler); break;
-                     case "DELETE": yield* router.del(path, handler); break;
+                     case "GET": yield* router.add("GET", path, handler);break;
+                     case "POST": yield* router.add("POST", path, handler); break;
+                     case "PUT": yield* router.add("PUT", path, handler); break;
+                     case "DELETE": yield* router.add("DELETE", path, handler); break;
                  }
             }
         }

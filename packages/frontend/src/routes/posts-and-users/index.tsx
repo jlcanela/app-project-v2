@@ -1,6 +1,7 @@
-import { Result, useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
+import { useAtom, useAtomSet, useAtomValue } from '@effect/atom-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Option } from 'effect';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Sidebar } from '@/components/Sidebar';
@@ -33,10 +34,10 @@ export const UserItem = graphql(/* GraphQL */ `
 
 const RouteComponent = () => {
   const [selectedUserId, setSelectedUserId] = useAtom(selectedUserIdAtom);
-  const selectedUser = useAtomValue(selectedUserAtom) as unknown as Result.Result<
+  const selectedUser = useAtomValue(selectedUserAtom) as unknown as AsyncResult.AsyncResult<
     Option.Option<SelectedUserItemFragment>
   >;
-  const selectedPosts = useAtomValue(selectedPostsAtom) as unknown as Result.Result<
+  const selectedPosts = useAtomValue(selectedPostsAtom) as unknown as AsyncResult.AsyncResult<
     PostItemFragment[],
     string
   >;
@@ -49,7 +50,10 @@ const RouteComponent = () => {
   const onCreatePost = useAtomSet(createPostAtom);
   const onDeletePost = useAtomSet(deletePostAtom);
 
-  const users = useAtomValue(usersAtom) as unknown as Result.Result<UserItemFragment[], string>;
+  const users = useAtomValue(usersAtom) as unknown as AsyncResult.AsyncResult<
+    UserItemFragment[],
+    string
+  >;
 
   return (
     <Box style={{ display: 'flex', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
@@ -71,7 +75,7 @@ const RouteComponent = () => {
         onDeletePost={onDeletePost}
       />
       <AddPostModal
-        users={Result.getOrElse(users, () => []) as unknown as AuthorUserItemFragment[]}
+        users={AsyncResult.getOrElse(users, () => []) as unknown as AuthorUserItemFragment[]}
         opened={openedPostModal}
         onClose={closePostModal}
         onCreatePost={onCreatePost}

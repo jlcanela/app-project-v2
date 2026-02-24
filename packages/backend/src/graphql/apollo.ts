@@ -6,35 +6,64 @@ import type { HTTPGraphQLResponse } from '@apollo/server'
 import { printSchema } from "graphql";
 import { readFileSync, writeFileSync } from "node:fs";
 import * as dbSchema from '../db/schema.js';
-import { HttpApi, HttpApiBuilder, HttpApiEndpoint, HttpApiGroup, HttpRouter, HttpServer, HttpServerRequest, HttpServerResponse } from '@effect/platform';
-import { Context, Effect, Layer, Schema } from 'effect';
+import { HttpApiBuilder, HttpApiEndpoint, HttpApiGroup } from 'effect/unstable/httpapi';
+import { Effect, Layer, Schema, ServiceMap } from 'effect';
+import { HttpServerResponse } from "effect/unstable/http";
+import { DummyError, MyApi } from "../API.js";
+import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 
-class DummyError extends Schema.TaggedError<DummyError>()("DummyError", {
-    status: Schema.Number,
-    reason: Schema.String
-}) { }
-
-const graphqlApi = HttpApi.make("graphQL").add(
-    HttpApiGroup.make("group").add(
-        HttpApiEndpoint.post("graphql", "/graphql")
-            .setPayload(Schema.Any)
-            .addError(DummyError)
-            .addSuccess(Schema.Any)
-    )
-)
-
-export class ApolloService extends Context.Tag("ApolloService")<
-    ApolloService,
+const sampleProject = {
+    name: 'Project Validation',
+    description: 'Validate the project and issue the error if it fails',
+    schemaIn: JSON.stringify([{
+        "path": "name",
+        "label": "name",
+        "type": "string",
+        "required": true,
+        "description": "name"
+    },
     {
-        execute: (request: HTTPGraphQLRequest) => Effect.Effect<unknown, DummyError>
+        "path": "budget",
+        "label": "budget",
+        "type": "integer",
+        "required": true,
+        "description": "budget"
+    },
+    {
+        "path": "cost",
+        "label": "cost",
+        "type": "integer",
+        "required": true,
+        "description": "cost"
     }
->() { }
+    ]),
+    schemaOut: JSON.stringify([{
+        "path": "issue.code",
+        "label": "code",
+        "type": "string",
+        "required": true,
+        "description": "Issue identifier such as BUDGET_LIMIT_EXCEEDED or MARGIN_TO_LOW"
+    },
+    {
+        "path": "issue.value",
+        "label": "value",
+        "type": ["number", "string"],
+        "required": true,
+        "description": "Actual value that triggered the issue (e.g. project.budget or computed margin)"
+    },
+    {
+        "path": "issue.parameter",
+        "label": "parameter",
+        "type": ["number", "string"],
+        "required": true,
+        "description": "Threshold or parameter used in the rule (e.g. 10000 or 0.10)"
+    }
+    ]),
+};
 
-const DEFAULT_DB_FILENAME = "file:local.db";
-
-export const ApolloServiceLive = Layer.scoped(
-    ApolloService,
-    Effect.gen(function* () {
+export class ApolloService extends ServiceMap.Service<ApolloService>()("ApolloService", {
+    make: Effect.gen(function* () {
+        const content = readFileSync('rules/project_validation_19.json').toString()
         const client = createClient({
             url: DEFAULT_DB_FILENAME, // file will be created if it doesn't exist
         });
@@ -43,58 +72,9 @@ export const ApolloServiceLive = Layer.scoped(
 
         if (process.env.INSERT_DB_DATA === "true") {
 
-            const rt: typeof dbSchema.ruleTypes.$inferInsert = {
-                name: 'Project Validation',
-                description: 'Validate the project and issue the error if it fails',
-                schemaIn: JSON.stringify([{
-                    "path": "name",
-                    "label": "name",
-                    "type": "string",
-                    "required": true,
-                    "description": "name"
-                },
-                {
-                    "path": "budget",
-                    "label": "budget",
-                    "type": "integer",
-                    "required": true,
-                    "description": "budget"
-                },
-                {
-                    "path": "cost",
-                    "label": "cost",
-                    "type": "integer",
-                    "required": true,
-                    "description": "cost"
-                }
-                ]),
-                schemaOut: JSON.stringify([{
-                    "path": "issue.code",
-                    "label": "code",
-                    "type": "string",
-                    "required": true,
-                    "description": "Issue identifier such as BUDGET_LIMIT_EXCEEDED or MARGIN_TO_LOW"
-                },
-                {
-                    "path": "issue.value",
-                    "label": "value",
-                    "type": ["number", "string"],
-                    "required": true,
-                    "description": "Actual value that triggered the issue (e.g. project.budget or computed margin)"
-                },
-                {
-                    "path": "issue.parameter",
-                    "label": "parameter",
-                    "type": ["number", "string"],
-                    "required": true,
-                    "description": "Threshold or parameter used in the rule (e.g. 10000 or 0.10)"
-                }
-                ]),
-            };
+            const rt: typeof dbSchema.ruleTypes.$inferInsert = sampleProject
 
             yield* Effect.tryPromise(() => db.insert(dbSchema.ruleTypes).values(rt))
-
-            const content = readFileSync('rules/project_validation_19.json').toString()
 
             const rule: typeof dbSchema.ruleInstances.$inferInsert = {
                 name: 'Project Validation Rule',
@@ -105,14 +85,15 @@ export const ApolloServiceLive = Layer.scoped(
             yield* Effect.tryPromise(() => db.insert(dbSchema.ruleInstances).values(rule))
 
         }
-        
+
         writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
 
-        const apolloServer = new ApolloServer({ schema });
-
-        yield* Effect.acquireRelease(
-            Effect.tryPromise(() => apolloServer.start()),
-            () => Effect.tryPromise(() => apolloServer.stop()).pipe(Effect.catchAll(() => Effect.void))
+        const apolloServer = yield* Effect.acquireRelease(
+            Effect.tryPromise(() => {
+                const apolloServer = new ApolloServer({ schema });
+                return apolloServer.start().then(() => apolloServer)
+            }),
+            (apolloServer) => Effect.tryPromise(() => apolloServer.stop()).pipe(Effect.catch(() => Effect.void))
         );
 
         const executeApollo = (httpGraphQLRequest: HTTPGraphQLRequest) => Effect.tryPromise({
@@ -135,40 +116,56 @@ export const ApolloServiceLive = Layer.scoped(
             if (response.body.kind !== "complete") {
                 return yield* Effect.fail(new DummyError({ status: 500, reason: "invalid apollo response type" }))
             }
-
-            console.log(new Date().toISOString())
             return JSON.parse(response.body.string)
         })
+
+
         return {
-            execute: (httpGraphQLRequest: HTTPGraphQLRequest) => execute(httpGraphQLRequest).pipe(
-                Effect.tapError((e) => Effect.log(e))
-            )
+            execute
         }
-    }).pipe(
-        Effect.tapError((e) => Effect.log(e))
-    )
+    })
+}) {
+    static layer = Layer.effect(this, this.make)
+
+}
+
+const DEFAULT_DB_FILENAME = "file:local.db";
+
+export const graphqlApi1 = HttpApiGroup.make("GraphQL").add(
+    HttpApiEndpoint.post("graphql", "/graphql", {
+        payload: Schema.Any,
+        error: DummyError,
+        success: Schema.Any
+    })
 )
 
-export const GraphqlLive = HttpApiBuilder.group(graphqlApi, "group", (handlers) =>
-    handlers.handle("graphql", (req) => Effect.gen(function* () {
-        const body = yield* req.request.json.pipe(Effect.catchAll(() => Effect.fail(new DummyError({ status: 500, reason: "invalid input" }))))
+const graphQLHandler = ({ payload, request }: {
+  payload: unknown
+  request: HttpServerRequest
+}) => Effect.gen(function* () {
+    const body = yield* request.json //.toJSON //.json.pipe(Effect.catch(() => Effect.fail(new DummyError({ status: 500, reason: "invalid input" }))))
 
-        const headers = new HeaderMap();
-        for (const [key, value] of Object.entries(req.request.headers)) {
-            if (value !== undefined) headers.set(key, value as string);
-        }
+    const headers = new HeaderMap();
+    for (const [key, value] of Object.entries(request.headers)) {
+        if (value !== undefined) headers.set(key, value as string);
+    }
 
-        const httpGraphQLRequest = {
-            body,
-            headers,
-            method: req.request.method,
-            search: new URL(req.request.url, "http://localhost:3000").search,
-        }
+    const httpGraphQLRequest = {
+        body,
+        headers,
+        method: request.method,
+        search: new URL(request.url, "http://localhost:3000").search,
+    }
 
-        const service = yield* ApolloService
-        const result = yield* service.execute(httpGraphQLRequest)
-        return yield* HttpServerResponse.json(result).pipe(Effect.catchAll(() => Effect.fail(new DummyError({ status: 500, reason: "invalid internal response" }))))////.empty({ status: 500 });
-    })
-    )
-).pipe(Layer.provide(ApolloServiceLive))
+    const service = yield* ApolloService
+    const result = yield* service.execute(httpGraphQLRequest)
+    yield* Effect.log(result)
+    return yield* HttpServerResponse.json(result).pipe(Effect.catch(() => Effect.fail(new DummyError({ status: 500, reason: "invalid internal response" }))))////.empty({ status: 500 });
+}).pipe(
+    Effect.catch((e) => Effect.die(e.toString()))
+)
+
+export const GraphqlLive = HttpApiBuilder.group(MyApi, "GraphQL", (handlers) =>
+    handlers.handle("graphql", graphQLHandler)
+).pipe(Layer.provide(ApolloService.layer))
 

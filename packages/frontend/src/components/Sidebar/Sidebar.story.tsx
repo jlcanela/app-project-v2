@@ -1,4 +1,4 @@
-import { Result } from '@effect-atom/atom-react';
+import { AsyncResult } from 'effect/unstable/reactivity';
 import { UserItemFragment } from '@/graphql/graphql';
 import { Sidebar } from './Sidebar';
 
@@ -7,7 +7,7 @@ export default {
   tags: ['autodocs'],
 };
 
-const defaultUsers = Result.success([
+const defaultUsers = AsyncResult.success([
   { id: 1, name: 'Alice' },
   { id: 2, name: 'Bob' },
   { id: 3, name: 'Charlie' },
@@ -32,10 +32,10 @@ export const Default = () => <Sidebar {...baseProps} />;
 
 export const WithSelectedUser = () => <Sidebar {...baseProps} selectedId={2} />;
 
-export const Loading = () => <Sidebar {...baseProps} items={Result.initial(true)} />;
+export const Loading = () => <Sidebar {...baseProps} items={AsyncResult.initial(true)} />;
 
 export const WithError = () => (
-  <Sidebar {...baseProps} items={Result.fail('Failed to load users')} />
+  <Sidebar {...baseProps} items={AsyncResult.fail('Failed to load users')} />
 );
 
-export const Empty = () => <Sidebar {...baseProps} items={Result.success([])} />;
+export const Empty = () => <Sidebar {...baseProps} items={AsyncResult.success([])} />;

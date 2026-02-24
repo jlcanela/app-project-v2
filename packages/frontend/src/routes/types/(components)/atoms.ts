@@ -1,10 +1,10 @@
-import { Atom, Result } from '@effect-atom/atom-react';
 // import * as Otlp from "@effect/opentelemetry/Otlp"
 import { layer as webSdkLayer, type Configuration } from '@effect/opentelemetry/WebSdk';
-import * as FetchHttpClient from '@effect/platform/FetchHttpClient';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
 import { Effect, Layer } from 'effect';
+import { FetchHttpClient } from 'effect/unstable/http';
+import { AsyncResult, Atom } from 'effect/unstable/reactivity';
 import { executeGraphQL, GraphQLClientService } from '@/graphql/execute';
 import { graphql } from '@/graphql/gql';
 
@@ -41,7 +41,7 @@ const SpansExporterLive = webSdkLayer((): Configuration => {
 });
 
 const runtime = Atom.runtime(
-  GraphQLClientService.Default.pipe(
+  GraphQLClientService.layer.pipe(
     Layer.provide(FetchHttpClient.layer),
     Layer.provide(SpansExporterLive)
   )
@@ -61,7 +61,7 @@ export const ruleTypesAtom = runtime
 export const selectedRuleTypeAtom = Atom.make((get) => {
   const ruleTypesResult = get(ruleTypesAtom);
   const selectedId = get(selectedRuleTypeIdAtom);
-  const result = Result.map(ruleTypesResult, (ruleTypes) =>
+  const result = AsyncResult.map(ruleTypesResult, (ruleTypes) =>
     ruleTypes.find((rt) => rt.ruleTypeId === selectedId)
   );
   return result;

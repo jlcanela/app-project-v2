@@ -30,7 +30,7 @@ export class User extends ServiceMap.Service<User>()("User", {
   make: Effect.fn(function* (currentUser: typeof CurrentUser.Type) {
     yield* Effect.yieldNow
     return { 
-      currentUser: () => new CurrentUser({ userId: 1, roles: [], context: {}})
+      currentUser: () => currentUser
     } as const
   })
 
@@ -71,6 +71,7 @@ export const AuthorizationLive = Layer.effect(
     return {
       myBearer: (httpEffect, { credential }) =>
         Effect.gen(function* () {
+          yield* Effect.log("Authorizing request with Authorization middleware")
           const payload = yield* Effect.tryPromise({
             try: async () => {
               const secret = new TextEncoder().encode(process.env.JWT_SECRET)
@@ -96,7 +97,7 @@ export const AuthorizationLive = Layer.effect(
           )
 
           const userService = User.make(new CurrentUser({
-                  userId: PartyId.make(payload.sub),
+                  userId: PartyId.makeUnsafe(payload.sub),
                   roles: payload.roles as Array<RoleType>,
                   context: {},
                 }))
