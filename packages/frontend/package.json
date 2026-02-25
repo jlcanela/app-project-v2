@@ -23,6 +23,7 @@
     "storybook:build": "storybook build"
   },
   "dependencies": {
+    "@app/domain": "workspace:*",
     "@ant-design/icons": "^6.1.0",
     "@gorules/jdm-editor": "^1.51.2",
     "@graphql-typed-document-node/core": "^3.2.0",

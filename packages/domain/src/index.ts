@@ -1,5 +1,5 @@
 import { Console, Effect } from "effect"
-
+export * from "./PipelineConfig.js"
 
 export const Value = 1
 

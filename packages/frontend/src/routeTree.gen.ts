@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TypesIndexRouteImport } from './routes/types/index'
 import { Route as RulesIndexRouteImport } from './routes/rules/index'
 import { Route as PostsAndUsersIndexRouteImport } from './routes/posts-and-users/index'
+import { Route as PipelinesIndexRouteImport } from './routes/pipelines/index'
 import { Route as RulesIdRouteImport } from './routes/rules/$id'
 import { Route as GovernanceHistoryRouteImport } from './routes/governance/history'
 import { Route as GovernanceAccessRouteImport } from './routes/governance/access'
@@ -44,6 +45,11 @@ const RulesIndexRoute = RulesIndexRouteImport.update({
 const PostsAndUsersIndexRoute = PostsAndUsersIndexRouteImport.update({
   id: '/posts-and-users/',
   path: '/posts-and-users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelinesIndexRoute = PipelinesIndexRouteImport.update({
+  id: '/pipelines/',
+  path: '/pipelines/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RulesIdRoute = RulesIdRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/governance/access': typeof GovernanceAccessRoute
   '/governance/history': typeof GovernanceHistoryRoute
   '/rules/$id': typeof RulesIdRouteWithChildren
+  '/pipelines/': typeof PipelinesIndexRoute
   '/posts-and-users/': typeof PostsAndUsersIndexRoute
   '/rules/': typeof RulesIndexRoute
   '/types/': typeof TypesIndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/catalog/$type': typeof CatalogTypeRoute
   '/governance/access': typeof GovernanceAccessRoute
   '/governance/history': typeof GovernanceHistoryRoute
+  '/pipelines': typeof PipelinesIndexRoute
   '/posts-and-users': typeof PostsAndUsersIndexRoute
   '/rules': typeof RulesIndexRoute
   '/types': typeof TypesIndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/governance/access': typeof GovernanceAccessRoute
   '/governance/history': typeof GovernanceHistoryRoute
   '/rules/$id': typeof RulesIdRouteWithChildren
+  '/pipelines/': typeof PipelinesIndexRoute
   '/posts-and-users/': typeof PostsAndUsersIndexRoute
   '/rules/': typeof RulesIndexRoute
   '/types/': typeof TypesIndexRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/governance/access'
     | '/governance/history'
     | '/rules/$id'
+    | '/pipelines/'
     | '/posts-and-users/'
     | '/rules/'
     | '/types/'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/catalog/$type'
     | '/governance/access'
     | '/governance/history'
+    | '/pipelines'
     | '/posts-and-users'
     | '/rules'
     | '/types'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/governance/access'
     | '/governance/history'
     | '/rules/$id'
+    | '/pipelines/'
     | '/posts-and-users/'
     | '/rules/'
     | '/types/'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   GovernanceAccessRoute: typeof GovernanceAccessRoute
   GovernanceHistoryRoute: typeof GovernanceHistoryRoute
   RulesIdRoute: typeof RulesIdRouteWithChildren
+  PipelinesIndexRoute: typeof PipelinesIndexRoute
   PostsAndUsersIndexRoute: typeof PostsAndUsersIndexRoute
   RulesIndexRoute: typeof RulesIndexRoute
   TypesIndexRoute: typeof TypesIndexRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       path: '/posts-and-users'
       fullPath: '/posts-and-users/'
       preLoaderRoute: typeof PostsAndUsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipelines/': {
+      id: '/pipelines/'
+      path: '/pipelines'
+      fullPath: '/pipelines/'
+      preLoaderRoute: typeof PipelinesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rules/$id': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   GovernanceAccessRoute: GovernanceAccessRoute,
   GovernanceHistoryRoute: GovernanceHistoryRoute,
   RulesIdRoute: RulesIdRouteWithChildren,
+  PipelinesIndexRoute: PipelinesIndexRoute,
   PostsAndUsersIndexRoute: PostsAndUsersIndexRoute,
   RulesIndexRoute: RulesIndexRoute,
   TypesIndexRoute: TypesIndexRoute,

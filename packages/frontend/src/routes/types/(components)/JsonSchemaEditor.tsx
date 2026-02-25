@@ -1,20 +1,7 @@
 // src/pages/rule-types/RuleTypePage.tsx
 import React, { useMemo, useState } from 'react';
-import {
-  IconChevronDown,
-  IconChevronUp,
-  IconDownload,
-} from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Collapse,
-  Group,
-  JsonInput,
-  Paper,
-  Table,
-  Text,
-} from '@mantine/core';
+import { IconChevronDown, IconChevronUp, IconDownload } from '@tabler/icons-react';
+import { Badge, Button, Collapse, Group, JsonInput, Paper, Table, Text } from '@mantine/core';
 
 // Adapt this to your router
 
@@ -206,7 +193,9 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Badge variant="light" size="sm">{field.type}</Badge>
+                  <Badge variant="light" size="sm">
+                    {field.type}
+                  </Badge>
                 </Table.Td>
                 {kind === 'in' && (
                   <Table.Td>
@@ -215,11 +204,17 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
                 )}
                 <Table.Td>
                   <Group gap={4}>
-                    {field.allowedValues?.length
-                      ? field.allowedValues.map((v) => (
-                          <Badge key={v} variant="outline" size="xs">{v}</Badge>
-                        ))
-                      : <Text size="sm" c="dimmed">—</Text>}
+                    {field.allowedValues?.length ? (
+                      field.allowedValues.map((v) => (
+                        <Badge key={v} variant="outline" size="xs">
+                          {v}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        —
+                      </Text>
+                    )}
                   </Group>
                 </Table.Td>
                 <Table.Td>
@@ -249,7 +244,6 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
           validationError="Invalid JSON"
         />
       </Collapse>
-
     </Paper>
   );
 };

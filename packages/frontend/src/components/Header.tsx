@@ -42,6 +42,7 @@ export function Header({ opened, toggle }: HeaderProps) {
         <HeaderLink to="/types">Rule Types</HeaderLink>
         {/*         <HeaderLink to="/rules/types">Rule Types (orig)</HeaderLink> */}
         <HeaderLink to="/rules">Rules</HeaderLink>
+        <HeaderLink to="/pipelines">Pipeline</HeaderLink>
         {/*         <HeaderLink to="/posts-and-users">Posts & Users</HeaderLink> */}
         <HeaderLink to="/about">About</HeaderLink>
       </Group>

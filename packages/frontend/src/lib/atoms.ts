@@ -5,7 +5,7 @@ import { Atom } from 'effect/unstable/reactivity';
 import { GraphQLClientService } from '@/graphql/execute';
 
 const Observability = Otlp.layer({
-  baseUrl: 'http://localhost:4318', // OTLP HTTP endpoint of your collector
+  baseUrl: '/v1', // using proxy in dev and api in prod
   resource: {
     serviceName: 'rule-studio-frontend', // service.name attribute
   },
