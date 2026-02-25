@@ -3,7 +3,6 @@ import React from 'react';
 // Adapt this to your router
 import { useNavigate } from '@tanstack/react-router';
 import {
-  AppShell,
   Button,
   Container,
   Divider,
@@ -25,7 +24,7 @@ export const RuleTypeDetail: React.FC<RuleTypeDetailProps> = ({ ruleType }) => {
   const inputSchema = JSON.parse(ruleType?.schemaIn ?? '[]');
   const outputSchema = JSON.parse(ruleType?.schemaOut ?? '[]');
   return (
-    <AppShell /*header={null}*/>
+    <>
       <Container size="lg" py="md" style={{ position: 'relative' }}>
         {/*         <LoadingOverlay visible={loading || saving || deleting} /> */}
         <Stack>
@@ -94,6 +93,6 @@ export const RuleTypeDetail: React.FC<RuleTypeDetailProps> = ({ ruleType }) => {
           }
         </Stack>
       </Container>
-    </AppShell>
+    </>
   );
 };

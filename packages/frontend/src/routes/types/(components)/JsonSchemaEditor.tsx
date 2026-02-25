@@ -3,26 +3,17 @@ import React, { useMemo, useState } from 'react';
 import {
   IconChevronDown,
   IconChevronUp,
-  IconCode,
   IconDownload,
-  IconPlus,
-  IconTrash,
 } from '@tabler/icons-react';
 import {
-  ActionIcon,
+  Badge,
   Button,
-  Checkbox,
   Collapse,
   Group,
   JsonInput,
-  Modal,
   Paper,
-  Select,
   Table,
-  TagsInput,
   Text,
-  Textarea,
-  TextInput,
 } from '@mantine/core';
 
 // Adapt this to your router
@@ -47,16 +38,16 @@ type SchemaFieldsEditorProps = {
   title: string;
 };
 
-const createEmptyField = (kind: 'in' | 'out'): RuleField => ({
-  id: `${kind}-${Math.random().toString(36).slice(2)}`,
-  path: '',
-  label: '',
-  type: 'string',
-  required: kind === 'in',
-  allowedValues: [],
-  description: '',
-  primaryOutcome: false,
-});
+// const createEmptyField = (kind: 'in' | 'out'): RuleField => ({
+//   id: `${kind}-${Math.random().toString(36).slice(2)}`,
+//   path: '',
+//   label: '',
+//   type: 'string',
+//   required: kind === 'in',
+//   allowedValues: [],
+//   description: '',
+//   primaryOutcome: false,
+// });
 
 type InputSchemaField = {
   path: string;
@@ -76,7 +67,8 @@ type OutputSchemaField = {
   primary?: boolean;
 };
 
-// parse backend JSON into table-friendly fields
+// parse backend JSON into table-friendly fields (kept for future edit mode)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function parseSchemaIn(json: unknown): RuleField[] {
   if (!json || typeof json !== 'object') {
     return [];
@@ -85,7 +77,7 @@ function parseSchemaIn(json: unknown): RuleField[] {
   return arr.map((item, index) => {
     const f = item as InputSchemaField;
     return {
-      id: `in-${index}-${Math.random().toString(36).slice(2)}`,
+      id: `in-${index}`,
       path: f.path ?? '',
       label: f.label ?? '',
       type: (f.type as RuleFieldType) ?? 'string',
@@ -96,6 +88,7 @@ function parseSchemaIn(json: unknown): RuleField[] {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function parseSchemaOut(json: unknown): RuleField[] {
   if (!json || typeof json !== 'object') {
     return [];
@@ -104,7 +97,7 @@ function parseSchemaOut(json: unknown): RuleField[] {
   return arr.map((item, index) => {
     const f = item as OutputSchemaField;
     return {
-      id: `out-${index}-${Math.random().toString(36).slice(2)}`,
+      id: `out-${index}`,
       path: f.id ?? '',
       label: f.label ?? '',
       type: (f.type as RuleFieldType) ?? 'string',
@@ -148,38 +141,10 @@ function buildSchemaOut(fields: RuleField[]): OutputSchemaField[] {
 export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
   kind,
   fields,
-  onChange,
+  onChange: _onChange,
   title,
 }) => {
-  const [pasteOpen, setPasteOpen] = useState(false);
-  const [pasteValue, setPasteValue] = useState('');
   const [rawOpen, setRawOpen] = useState(false);
-
-  const handleFieldChange = (id: string, key: keyof RuleField, value: any) => {
-    onChange(fields.map((f) => (f.id === id ? { ...f, [key]: value } : f)));
-  };
-
-  const handleAdd = () => {
-    onChange([...fields, createEmptyField(kind)]);
-  };
-
-  const handleDelete = (id: string) => {
-    onChange(fields.filter((f) => f.id !== id));
-  };
-
-  const handlePasteApply = () => {
-    try {
-      const parsed = JSON.parse(pasteValue);
-      const next = kind === 'in' ? parseSchemaIn(parsed) : parseSchemaOut(parsed);
-      onChange(next);
-      setPasteOpen(false);
-    } catch (e) {
-      // replace with your notification system
-      // showNotification({ color: 'red', message: 'Invalid JSON' });
-      // eslint-disable-next-line no-alert
-      alert('Invalid JSON');
-    }
-  };
 
   const rawJson = useMemo(
     () => JSON.stringify(kind === 'in' ? buildSchemaIn(fields) : buildSchemaOut(fields), null, 2),
@@ -201,13 +166,6 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
       <Group justify="space-between" mb="sm">
         <Text fw={500}>{title}</Text>
         <Group gap="xs">
-          <Button
-            variant="light"
-            leftSection={<IconCode size={16} />}
-            onClick={() => setPasteOpen(true)}
-          >
-            Paste JSON
-          </Button>
           <Button variant="subtle" leftSection={<IconDownload size={16} />} onClick={downloadJson}>
             Download JSON
           </Button>
@@ -231,87 +189,51 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
             <Table.Th>Allowed values / range</Table.Th>
             <Table.Th>Description</Table.Th>
             {kind === 'out' && <Table.Th>Primary</Table.Th>}
-            <Table.Th />
           </Table.Tr>
         </Table.Thead>
         {fields && (
           <Table.Tbody>
             {fields.map((field) => (
               <Table.Tr key={field.id}>
-                <Table.Td style={{ minWidth: 180 }}>
-                  <TextInput
-                    placeholder={kind === 'in' ? 'customer.tier' : 'discount'}
-                    value={field.path}
-                    onChange={(e) => handleFieldChange(field.id, 'path', e.currentTarget.value)}
-                  />
+                <Table.Td>
+                  <Text size="sm" c={field.path ? undefined : 'dimmed'}>
+                    {field.path || (kind === 'in' ? 'customer.tier' : 'discount')}
+                  </Text>
                 </Table.Td>
-                <Table.Td style={{ minWidth: 160 }}>
-                  <TextInput
-                    placeholder="Label"
-                    value={field.label}
-                    onChange={(e) => handleFieldChange(field.id, 'label', e.currentTarget.value)}
-                  />
+                <Table.Td>
+                  <Text size="sm" c={field.label ? undefined : 'dimmed'}>
+                    {field.label || '—'}
+                  </Text>
                 </Table.Td>
-                <Table.Td style={{ minWidth: 140 }}>
-                  <Select
-                    data={['string', 'number', 'boolean', 'date', 'object', 'array']}
-                    value={field.type}
-                    onChange={(value) => handleFieldChange(field.id, 'type', value ?? 'string')}
-                  />
+                <Table.Td>
+                  <Badge variant="light" size="sm">{field.type}</Badge>
                 </Table.Td>
                 {kind === 'in' && (
                   <Table.Td>
-                    <Checkbox
-                      checked={field.required}
-                      onChange={(e) =>
-                        handleFieldChange(field.id, 'required', e.currentTarget.checked)
-                      }
-                    />
+                    <Text size="sm">{field.required ? 'Yes' : 'No'}</Text>
                   </Table.Td>
                 )}
-                <Table.Td style={{ minWidth: 200 }}>
-                  <TagsInput
-                    placeholder="Optional enum values"
-                    value={field.allowedValues}
-                    onChange={(values) => handleFieldChange(field.id, 'allowedValues', values)}
-                  />
+                <Table.Td>
+                  <Group gap={4}>
+                    {field.allowedValues?.length
+                      ? field.allowedValues.map((v) => (
+                          <Badge key={v} variant="outline" size="xs">{v}</Badge>
+                        ))
+                      : <Text size="sm" c="dimmed">—</Text>}
+                  </Group>
                 </Table.Td>
-                <Table.Td style={{ minWidth: 220 }}>
-                  <Textarea
-                    autosize
-                    minRows={1}
-                    maxRows={3}
-                    placeholder="Business meaning"
-                    value={field.description}
-                    onChange={(e) =>
-                      handleFieldChange(field.id, 'description', e.currentTarget.value)
-                    }
-                  />
+                <Table.Td>
+                  <Text size="sm" c={field.description ? undefined : 'dimmed'}>
+                    {field.description || '—'}
+                  </Text>
                 </Table.Td>
                 {kind === 'out' && (
                   <Table.Td>
-                    <Checkbox
-                      checked={field.primaryOutcome}
-                      onChange={(e) =>
-                        handleFieldChange(field.id, 'primaryOutcome', e.currentTarget.checked)
-                      }
-                    />
+                    <Text size="sm">{field.primaryOutcome ? 'Yes' : 'No'}</Text>
                   </Table.Td>
                 )}
-                <Table.Td width={40}>
-                  <ActionIcon color="red" variant="light" onClick={() => handleDelete(field.id)}>
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Table.Td>
               </Table.Tr>
             ))}
-            <Table.Tr>
-              <Table.Td colSpan={kind === 'in' ? 7 : 7}>
-                <Button variant="light" leftSection={<IconPlus size={16} />} onClick={handleAdd}>
-                  Add field
-                </Button>
-              </Table.Td>
-            </Table.Tr>
           </Table.Tbody>
         )}
       </Table>
@@ -328,27 +250,6 @@ export const SchemaFieldsEditor: React.FC<SchemaFieldsEditorProps> = ({
         />
       </Collapse>
 
-      <Modal
-        opened={pasteOpen}
-        onClose={() => setPasteOpen(false)}
-        title="Paste schema JSON"
-        size="lg"
-      >
-        <JsonInput
-          autosize
-          minRows={8}
-          placeholder="Paste schema JSON here"
-          value={pasteValue}
-          onChange={setPasteValue}
-          validationError="Invalid JSON"
-        />
-        <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={() => setPasteOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handlePasteApply}>Apply</Button>
-        </Group>
-      </Modal>
     </Paper>
   );
 };
