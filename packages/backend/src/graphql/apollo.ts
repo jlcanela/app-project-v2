@@ -86,8 +86,10 @@ export class ApolloService extends ServiceMap.Service<ApolloService>()("ApolloSe
 
         }
 
-        writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
-
+        if (process.env.UPDATE_SCHEMA === "true") {
+            writeFileSync("../frontend/src/graphql/schema.graphql", printSchema(schema))
+        }
+        
         const apolloServer = yield* Effect.acquireRelease(
             Effect.tryPromise(() => {
                 const apolloServer = new ApolloServer({ schema });
@@ -104,7 +106,9 @@ export class ApolloService extends ServiceMap.Service<ApolloService>()("ApolloSe
             catch: () => new DummyError({ status: 500, reason: "apolloServer execute failed" })
         })
 
-        const execute = Effect.fn("Graphql.execute")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
+        const execute = Effect.fn("Graphql.backend")(function* (httpGraphQLRequest: HTTPGraphQLRequest) {
+            yield* Effect.annotateCurrentSpan("datetime", new Date().toISOString())
+            yield* Effect.log(new Date().toISOString())
             const response = yield* executeApollo(httpGraphQLRequest)
             if (response.status !== undefined && response.status !== 200) {
                 yield* Effect.log(response)
