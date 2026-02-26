@@ -43,14 +43,25 @@ export type RoleType = typeof Role.Type;
  * The seed comes from Fast-Check so data is reproducible and shrinks correctly.
  */
 function fake<A>(
-  gen: (f: typeof faker, ctx: SchemaAnnotations.Arbitrary.Context) => A
-): SchemaAnnotations.Arbitrary.ToArbitrary<A, readonly []> {
+  gen: (f: typeof faker, ctx: Schema.Annotations.ToArbitrary.Context) => A
+): Schema.Annotations.ToArbitrary.Declaration<A, readonly []> {
   return () => (fc, ctx) =>
     fc.nat().map((seed) => {
       faker.seed(seed)
       return gen(faker, ctx)
     })
 }
+
+// const Age = Schema.Int.check(Schema.isBetween({ minimum: 18, maximum: 80 })).annotate({
+//   toArbitrary: fake((f, ctx) => {
+//     // Use the constraints from the schema to generate a random age
+//     const min = ctx.constraints?.number?.min ?? 0
+//     const max = ctx.constraints?.number?.max ?? Number.MAX_SAFE_INTEGER
+//     return f.number.int({ min, max })
+//   })
+// })
+
+
 
 // Example regex (choose stricter if you need)
 const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
@@ -67,28 +78,28 @@ export const personFields = Schema.Struct({
   version: Schema.Literal(1),
   id: PartyId.annotate({
     title: "Party ID",
-    arbitrary: makeArbitrary((_faker) => PartyId.makeUnsafe(faker.string.uuid())),
+    toArbitrary: fake((f) => PartyId.makeUnsafe(f.string.uuid())),
   }),
   firstName: Schema.String.annotate({
     title: "First Name",
     description: "First name of the user",
-    arbitrary: makeArbitrary((fkr) => fkr.person.firstName()),
+    arbitrary: makeArbitrary((f) => f.person.firstName()),
   }),
   lastName: Schema.String.annotate({
     title: "Last Name",
     description: "Last name of the user",
-    arbitrary: makeArbitrary((fkr) => fkr.person.lastName()),
+    arbitrary: makeArbitrary((f) => f.person.lastName()),
   }),
   email: emailSchema.annotate({
     title: "Email Address",
     description: "Email address of the user",
-    arbitrary: makeArbitrary((fkr) => fkr.internet.email()),
+    arbitrary: makeArbitrary((f) => f.internet.email()),
   }),
   roles: Schema.Array(Role).annotate({
     title: "User Role",
     description: "Role of the user in the system",
-    arbitrary: makeArbitrary((fkr) => [
-      fkr.helpers.arrayElement(["admin", "project-manager", "developer", "external"] as const),
+    arbitrary: makeArbitrary((f) => [
+      f.helpers.arrayElement(["admin", "project-manager", "developer", "external"] as const),
     ]),
   }),
 });

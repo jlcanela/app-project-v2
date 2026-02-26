@@ -18,7 +18,6 @@ import { AuthorizationLive } from "./lib/authorization.js"
 import { WebAppRoutes } from "./WebApp.js"
 import { GraphqlLive } from "./graphql/apollo.js"
 import { Otlp, OtlpSerialization } from 'effect/unstable/observability';
-import * as cfg from "./Services/PipelineConfig.js"
 // const baseUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
 const Observability = Otlp.layer({
