@@ -3,7 +3,7 @@ import { NODE_TYPES } from './nodeTypes';
 import { PaletteItem } from './PaletteItem';
 
 const meta: Meta<typeof PaletteItem> = {
-  title: 'Palette/PaletteItem',
+  title: 'GraphEditor/Palette/PaletteItem',
   component: PaletteItem,
   parameters: {
     layout: 'padded',

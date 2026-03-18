@@ -12,7 +12,7 @@ function StatusBarStory(props: React.ComponentProps<typeof StatusBar>) {
 }
 
 const meta: Meta<typeof StatusBarStory> = {
-  title: 'Layout/StatusBar',
+  title: 'GraphEditor/Palette/StatusBar',
   component: StatusBarStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

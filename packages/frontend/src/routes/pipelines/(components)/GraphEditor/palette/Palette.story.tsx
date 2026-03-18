@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Palette } from './Palette';
 
 const meta: Meta<typeof Palette> = {
-  title: 'Palette/Palette',
+  title: 'GraphEditor/Palette',
   component: Palette,
   parameters: {
     layout: 'padded',

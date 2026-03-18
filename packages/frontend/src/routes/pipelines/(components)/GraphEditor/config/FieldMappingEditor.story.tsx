@@ -12,7 +12,7 @@ function FieldMappingEditorStory(props: React.ComponentProps<typeof FieldMapping
 }
 
 const meta: Meta<typeof FieldMappingEditorStory> = {
-  title: 'Config/FieldMappingEditor',
+  title: 'GraphEditor/Config/FieldMappingEditor',
   component: FieldMappingEditorStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

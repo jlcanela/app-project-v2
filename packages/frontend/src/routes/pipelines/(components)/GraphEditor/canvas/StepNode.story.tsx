@@ -55,7 +55,7 @@ function StepNodeStory({
 }
 
 const meta: Meta<typeof StepNodeStory> = {
-  title: 'Canvas/StepNode',
+  title: 'GraphEditor/Canvas/StepNode',
   component: StepNodeStory,
   parameters: {
     layout: 'padded',

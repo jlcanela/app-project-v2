@@ -47,7 +47,7 @@ function TriggerNodeStory({
 }
 
 const meta: Meta<typeof TriggerNodeStory> = {
-  title: 'Canvas/TriggerNode',
+  title: 'GraphEditor/Canvas/TriggerNode',
   component: TriggerNodeStory,
   parameters: {
     layout: 'padded',

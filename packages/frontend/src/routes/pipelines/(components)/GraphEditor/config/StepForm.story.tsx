@@ -17,7 +17,7 @@ function StepFormStory(props: React.ComponentProps<typeof StepForm>) {
 }
 
 const meta: Meta<typeof StepFormStory> = {
-  title: 'Config/StepForm',
+  title: 'GraphEditor/Config/StepForm',
   component: StepFormStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

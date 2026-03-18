@@ -20,7 +20,7 @@ function TriggerFormStory({
 }
 
 const meta: Meta<typeof TriggerFormStory> = {
-  title: 'Config/TriggerForm',
+  title: 'GraphEditor/Config/TriggerForm',
   component: TriggerFormStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

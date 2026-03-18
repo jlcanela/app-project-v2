@@ -21,7 +21,7 @@ function ConfigPanelStory({ selection }: { selection?: SelectedNode }) {
 }
 
 const meta: Meta<typeof ConfigPanelStory> = {
-  title: 'Config/ConfigPanel',
+  title: 'GraphEditor/Config/ConfigPanel',
   component: ConfigPanelStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

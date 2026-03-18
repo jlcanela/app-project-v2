@@ -12,7 +12,7 @@ function PipelineIdentityFormStory(props: React.ComponentProps<typeof PipelineId
 }
 
 const meta: Meta<typeof PipelineIdentityFormStory> = {
-  title: 'Config/PipelineIdentityForm',
+  title: 'GraphEditor/Config/PipelineIdentityForm',
   component: PipelineIdentityFormStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

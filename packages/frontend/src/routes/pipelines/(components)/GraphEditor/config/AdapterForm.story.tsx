@@ -12,7 +12,7 @@ function AdapterFormStory(props: React.ComponentProps<typeof AdapterForm>) {
 }
 
 const meta: Meta<typeof AdapterFormStory> = {
-  title: 'Config/AdapterForm',
+  title: 'GraphEditor/Config/AdapterForm',
   component: AdapterFormStory,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
