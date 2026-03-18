@@ -3,9 +3,10 @@ import { useAtom, useAtomValue } from '@effect/atom-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { AsyncResult } from 'effect/unstable/reactivity';
 import { Box } from '@mantine/core';
+//import { PipelineDetail } from './(components)/PipelineDetail';
+import GraphEditor from '@/components/GraphEditor';
 import { Sidebar } from '@/components/Sidebar';
 import { pipelinesAtom, selectedPipelineAtom, selectedPipelineIdAtom } from './(components)/atoms';
-import { PipelineDetail } from './(components)/PipelineDetail';
 
 export const Route = createFileRoute('/pipelines/')({
   component: RouteComponent,
@@ -32,7 +33,11 @@ function RouteComponent() {
         onInitial: () => null,
         onFailure: () => null,
         onSuccess: (success) =>
-          success.value && <PipelineDetail pipeline={success.value as PipelineConfig} />,
+          success.value && (
+            <Box style={{ flex: 1, overflow: 'hidden' }}>
+              <GraphEditor value={success.value as PipelineConfig} />
+            </Box>
+          ),
       })}
     </Box>
   );

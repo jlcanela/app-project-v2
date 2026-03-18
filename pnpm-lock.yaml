@@ -345,6 +345,9 @@ importers:
       '@mantine/hooks':
         specifier: 8.3.14
         version: 8.3.14(react@19.2.4)
+      '@mantine/notifications':
+        specifier: ^8.3.18
+        version: 8.3.18(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@opentelemetry/exporter-trace-otlp-http':
         specifier: ^0.208.0
         version: 0.208.0(@opentelemetry/api@1.9.0)
@@ -360,6 +363,9 @@ importers:
       '@tanstack/react-router-devtools':
         specifier: ^1.158.4
         version: 1.162.2(@tanstack/react-router@1.162.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@tanstack/router-core@1.162.2)(csstype@3.2.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@xyflow/react':
+        specifier: ^12.10.1
+        version: 12.10.1(@types/react@19.2.14)(immer@10.1.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       effect:
         specifier: 4.0.0-beta.8
         version: 4.0.0-beta.8
@@ -2199,6 +2205,19 @@ packages:
 
   '@mantine/hooks@8.3.14':
     resolution: {integrity: sha512-0SbHnGEuHcF2QyjzBBcqidpjNmIb6n7TC3obnhkBToYhUTbMcJSK/8ei/yHtAelridJH4CPeohRlQdc0HajHyQ==}
+    peerDependencies:
+      react: ^18.x || ^19.x
+
+  '@mantine/notifications@8.3.18':
+    resolution: {integrity: sha512-IpQ0lmwbigTBbZCR6iSYWqIOKEx1tlcd7PcEJ5M5X1qeVSY/N3mmDQt1eJmObvcyDeL5cTJMbSA9UPqhRqo9jw==}
+    peerDependencies:
+      '@mantine/core': 8.3.18
+      '@mantine/hooks': 8.3.18
+      react: ^18.x || ^19.x
+      react-dom: ^18.x || ^19.x
+
+  '@mantine/store@8.3.18':
+    resolution: {integrity: sha512-i+QRTLmZzLldea0egtUVnGALd6UMIu8jd44nrNWBSNIXJU/8B6rMlC6gyX+l4szopZSuOaaNJIXkqRdC1gQsVg==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -4125,6 +4144,15 @@ packages:
     resolution: {integrity: sha512-Nst5JdK47VIl9UcGwtv2Rcgyn5lWtZ0/mhRQ4G8NN2isxpq2TO30iqHzmwoJycjWuyUfg3GFXqP/gFHXeV57IA==}
     engines: {node: '>=16.0.0'}
 
+  '@xyflow/react@12.10.1':
+    resolution: {integrity: sha512-5eSWtIK/+rkldOuFbOOz44CRgQRjtS9v5nufk77DV+XBnfCGL9HAQ8PG00o2ZYKqkEU/Ak6wrKC95Tu+2zuK3Q==}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
+
+  '@xyflow/system@0.0.75':
+    resolution: {integrity: sha512-iXs+AGFLi8w/VlAoc/iSxk+CxfT6o64Uw/k0CKASOPqjqz6E0rb5jFZgJtXGZCpfQI6OQpu5EnumP5fGxQheaQ==}
+
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
@@ -4977,6 +5005,9 @@ packages:
 
   dom-accessibility-api@0.6.3:
     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
+
+  dom-helpers@5.2.1:
+    resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
 
   dot-case@3.0.4:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
@@ -7369,6 +7400,12 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  react-transition-group@4.4.5:
+    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
+    peerDependencies:
+      react: '>=16.6.0'
+      react-dom: '>=16.6.0'
+
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
@@ -7522,6 +7559,7 @@ packages:
   rolldown-vite@7.3.1:
     resolution: {integrity: sha512-LYzdNAjRHhF2yA4JUQm/QyARyi216N2rpJ0lJZb8E9FU2y5v6Vk+xq/U4XBOxMefpWixT5H3TslmAHm1rqIq2w==}
     engines: {node: ^20.19.0 || >=22.12.0}
+    deprecated: Use this package to migrate from Vite 7 to Vite 8. For the most recent updates, migrate to Vite 8 once you're ready.
     hasBin: true
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
@@ -9297,14 +9335,6 @@ snapshots:
       effect: 3.19.19
       kubernetes-types: 1.30.0
 
-  '@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3)':
-    dependencies:
-      '@effect/platform': 0.80.21(effect@3.19.19)
-      effect: 3.19.19
-      uuid: 11.1.0
-    optionalDependencies:
-      ioredis: 5.9.3
-
   '@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@3.19.19)(ioredis@5.9.3)':
     dependencies:
       '@effect/platform': 0.80.21(effect@3.19.19)
@@ -9372,7 +9402,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node-shared@0.30.22(fd19aa9ab5130029fe9354d56190f4e1)':
+  '@effect/platform-node-shared@0.30.22(c69b84961a8c27ce51223dd1f1118c6d)':
     dependencies:
       '@effect/cluster': 0.56.4(@effect/platform@0.80.21(effect@4.0.0-beta.8))(@effect/rpc@0.73.2(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)(ioredis@5.9.3))(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(@effect/workflow@0.16.0(@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)(ioredis@5.9.3))(@effect/platform@0.80.21(effect@4.0.0-beta.8))(@effect/rpc@0.73.2(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)
       '@effect/platform': 0.80.21(effect@3.19.19)
@@ -9439,11 +9469,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@0.76.22(fd19aa9ab5130029fe9354d56190f4e1)':
+  '@effect/platform-node@0.76.22(c69b84961a8c27ce51223dd1f1118c6d)':
     dependencies:
       '@effect/cluster': 0.56.4(@effect/platform@0.80.21(effect@4.0.0-beta.8))(@effect/rpc@0.73.2(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)(ioredis@5.9.3))(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(@effect/workflow@0.16.0(@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)(ioredis@5.9.3))(@effect/platform@0.80.21(effect@4.0.0-beta.8))(@effect/rpc@0.73.2(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)
       '@effect/platform': 0.80.21(effect@3.19.19)
-      '@effect/platform-node-shared': 0.30.22(fd19aa9ab5130029fe9354d56190f4e1)
+      '@effect/platform-node-shared': 0.30.22(c69b84961a8c27ce51223dd1f1118c6d)
       '@effect/rpc': 0.73.2(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)
       '@effect/sql': 0.49.0(@effect/experimental@0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)(ioredis@5.9.3))(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@4.0.0-beta.8)
       effect: 3.19.19
@@ -10706,6 +10736,19 @@ snapshots:
     dependencies:
       react: 19.2.4
 
+  '@mantine/notifications@8.3.18(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      '@mantine/core': 8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@mantine/hooks': 8.3.14(react@19.2.4)
+      '@mantine/store': 8.3.18(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      react-transition-group: 4.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+
+  '@mantine/store@8.3.18(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
+
   '@marijn/find-cluster-break@1.0.2': {}
 
   '@modelcontextprotocol/inspector-cli@0.19.0(zod@3.25.76)':
@@ -10856,7 +10899,7 @@ snapshots:
     dependencies:
       '@effect/experimental': 0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@3.19.19)(ioredis@5.9.3)
       '@effect/platform': 0.80.21(effect@3.19.19)
-      '@effect/platform-node': 0.76.22(fd19aa9ab5130029fe9354d56190f4e1)
+      '@effect/platform-node': 0.76.22(c69b84961a8c27ce51223dd1f1118c6d)
       '@effect/typeclass': 0.33.22(effect@3.19.19)
       '@modelcontextprotocol/sdk': 1.26.0(zod@3.25.76)
       effect: 3.19.19
@@ -10874,7 +10917,7 @@ snapshots:
 
   '@niklaserik/effect-mcp@1.0.7(@effect/cluster@0.56.4(@effect/platform@0.93.8(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/workflow@0.16.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(ioredis@5.9.3)':
     dependencies:
-      '@effect/experimental': 0.44.21(@effect/platform@0.80.21(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3)
+      '@effect/experimental': 0.44.21(@effect/platform@0.80.21(effect@4.0.0-beta.8))(effect@3.19.19)(ioredis@5.9.3)
       '@effect/platform': 0.80.21(effect@3.19.19)
       '@effect/platform-node': 0.76.22(@effect/cluster@0.56.4(@effect/platform@0.93.8(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/workflow@0.16.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.80.21(effect@3.19.19))(@effect/rpc@0.73.2(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.49.0(@effect/experimental@0.44.21(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19)(ioredis@5.9.3))(@effect/platform@0.93.8(effect@3.19.19))(effect@3.19.19))(effect@3.19.19)
       '@effect/typeclass': 0.33.22(effect@3.19.19)
@@ -12807,6 +12850,29 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@xyflow/react@12.10.1(@types/react@19.2.14)(immer@10.1.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      '@xyflow/system': 0.0.75
+      classcat: 5.0.5
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      zustand: 4.5.7(@types/react@19.2.14)(immer@10.1.1)(react@19.2.4)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+
+  '@xyflow/system@0.0.75':
+    dependencies:
+      '@types/d3-drag': 3.0.7
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-selection': 3.0.11
+      '@types/d3-transition': 3.0.9
+      '@types/d3-zoom': 3.0.8
+      d3-drag: 3.0.0
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-zoom: 3.0.0
+
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
@@ -13775,6 +13841,11 @@ snapshots:
   dom-accessibility-api@0.5.16: {}
 
   dom-accessibility-api@0.6.3: {}
+
+  dom-helpers@5.2.1:
+    dependencies:
+      '@babel/runtime': 7.28.6
+      csstype: 3.2.3
 
   dot-case@3.0.4:
     dependencies:
@@ -16381,6 +16452,15 @@ snapshots:
       use-latest: 1.3.0(@types/react@19.2.14)(react@19.2.4)
     transitivePeerDependencies:
       - '@types/react'
+
+  react-transition-group@4.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.28.6
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
 
   react@18.3.1:
     dependencies:

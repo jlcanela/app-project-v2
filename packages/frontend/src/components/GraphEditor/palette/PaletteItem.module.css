@@ -1,0 +1,15 @@
+.root {
+  cursor: grab;
+  transition: box-shadow 100ms ease, transform 100ms ease;
+  user-select: none;
+}
+
+.root:hover {
+  box-shadow: var(--mantine-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.root:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
